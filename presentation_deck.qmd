@@ -14,12 +14,18 @@ format:
 
 ```{=html}
 <style>
+.reveal {
+  font-size: 2em;
+}
 .reveal .math {
   font-style: italic;
   font-size: 1.1em;
 }
 .reveal .katex {
   font-size: 1.1em;
+}
+.small-font {
+  font-size: 0.85em !important;
 }
 </style>
 ```
@@ -315,23 +321,46 @@ $$R(N) = \begin{bmatrix} 3 & 4 & 0 \\ 0 & 0 & 5 \end{bmatrix} \begin{bmatrix} 3 
 
 ------------------------------------------------------------------------
 
-## Concrete Example: QR Approach
+## Concrete Example: QR Approach - Setup {.small-font}
 
 Same matrix: $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$
 
 . . .
 
-**QR factorization:** $\mathbf{\Phi} = QR_1$ gives:
-
-$$Q = \begin{bmatrix} 0.6 & 0 & -0.8 \\ 0.8 & 0 & 0.6 \\ 0 & 1 & 0 \end{bmatrix}, \quad R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix}$$
+We want to factor this as: $\mathbf{\Phi} = QR_1$
 
 . . .
 
-**Check:** $R_1^T R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix} = R(N)$ ✓
+**What will we get?**
+
+-   $Q$: An orthogonal matrix (preserves geometry)
+-   $R_1$: An upper triangular matrix (easy to solve)
+
+------------------------------------------------------------------------
+
+## Concrete Example: QR Approach - Results {.small-font}
+
+**QR factorization of** $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$ **gives:**
+
+$$Q = \begin{bmatrix} 0.6 & 0 & -0.8 \\ 0.8 & 0 & 0.6 \\ 0 & 1 & 0 \end{bmatrix}$$
 
 . . .
 
-**But:** We work with $R_1$ (entries \~5) not $R(N)$ (entries \~25)!
+$$R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+------------------------------------------------------------------------
+
+## QR Approach: Verification
+
+**Check:** $R_1^T R_1$ equals $R(N)$:
+
+$$R_1^T R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix} = R(N) \checkmark$$
+
+. . .
+
+**Key difference:**
+
+We work with $R_1$ (entries ~5) not $R(N)$ (entries ~25)!
 
 ------------------------------------------------------------------------
 
@@ -641,7 +670,9 @@ Starting from the transformed criterion: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R
 2. **Solved**: $R_1\hat{\theta}_N = R_2$ using back-substitution
 3. **Residual**: $|R_3|^2$ tells us the minimum achievable loss
 
-. . .
+------------------------------------------------------------------------
+
+## Summary: Why QR Works
 
 **Why this is better than normal equations:**
 
