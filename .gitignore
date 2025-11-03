@@ -1,0 +1,23 @@
+# Generated files (can always be regenerated from .qmd)
+*.html
+*.pdf
+presentation_deck_files/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sensitive files
+.env
+*.pem
+credentials.json
+
+# Project-specific
+.Rhistory
+.Rdata

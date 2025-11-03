@@ -1,0 +1,769 @@
+---
+title: "Chapter 10: Computing the Estimate"
+subtitle: "System Identification: Theory for the User"
+author: "Sections 10.1-10.2"
+format:
+  revealjs:
+    theme: serif
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    transition: slide
+    html-math-method: mathjax
+---
+
+```{=html}
+<style>
+.reveal .math {
+  font-style: italic;
+  font-size: 1.1em;
+}
+.reveal .katex {
+  font-size: 1.1em;
+}
+</style>
+```
+
+## Chapter Overview
+
+In Chapter 7, we introduced three basic procedures for parameter estimation:
+
+1.  **Prediction-error approach**: Minimize $V_N(\theta, Z^N)$ with respect to $\theta$
+
+2.  **Correlation approach**: Solve equation $f_N(\theta, Z^N) = 0$ for $\theta$
+
+3.  **Subspace approach**: For estimating state space models
+
+. . .
+
+**This chapter**: How to solve these problems numerically
+
+------------------------------------------------------------------------
+
+## The Numerical Problem
+
+At time $N$, when the data set $Z^N$ is known:
+
+-   $V_N$ and $f_N$ are ordinary functions of a finite-dimensional parameter vector $\theta$
+-   This amounts to standard **nonlinear programming** and **numerical analysis**
+
+. . .
+
+**However**: The specific structure of parameter estimation problems makes specialized methods worthwhile
+
+------------------------------------------------------------------------
+
+# Section 10.1 {background-color="#2d5986"}
+
+## Linear Regressions and Least Squares
+
+------------------------------------------------------------------------
+
+## The Normal Equations
+
+For linear regressions, the prediction is:
+
+$$\hat{y}(t|\theta) = \varphi^T(t)\theta$$
+
+where:
+
+-   $\varphi(t)$ is the **regression vector**
+-   $\theta$ is the **parameter vector**
+
+::: notes
+**Greek letter pronunciations:**
+
+- $\theta$ = "theta" (THAY-tah)
+- $\varphi$ = "phi" (fie, rhymes with "pie") or "varphi" for this variant
+- $\hat{y}$ = "y hat" (the hat denotes an estimate/prediction)
+:::
+
+------------------------------------------------------------------------
+
+## Least Squares Solution
+
+The prediction-error approach with quadratic norm gives the LS estimate:
+
+$$\hat{\theta}_N^{LS} = R^{-1}(N)f(N)$$
+
+where:
+
+$$R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t)$$
+
+$$f(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)y(t)$$
+
+::: notes
+**What is the "quadratic norm"?**
+
+A **norm** is a way to measure the "size" of something (like length of a vector).
+
+A **quadratic norm** means we measure size by **squaring and summing**: - For a prediction error $e(t) = y(t) - \hat{y}(t|\theta)$ - The quadratic norm is: $\|e\|^2 = \sum_{t=1}^{N} e(t)^2 = \sum_{t=1}^{N} |y(t) - \hat{y}(t|\theta)|^2$
+
+**Why "quadratic"?** - Because we square the errors (power of 2) - This is also called the **squared error** or **2-norm squared**
+
+**Why use it?** 1. **Penalizes large errors more**: A large error gets squared, so it's heavily penalized 2. **Mathematically convenient**: Derivatives are easy to compute 3. **Unique minimum**: The squared error criterion has a single, well-defined minimum
+
+**Notation note:** - $|x|^2$ for scalars means $x^2$ - $\|x\|^2$ for vectors means $x^T x = \sum_i x_i^2$
+
+**In our case:** We minimize $V_N(\theta) = \sum_{t=1}^{N} |y(t) - \varphi^T(t)\theta|^2$ with respect to $\theta$
+:::
+
+------------------------------------------------------------------------
+
+## Understanding the LS Estimate
+
+$$\hat{y}(t|\theta) = \varphi^T(t)\theta$$
+
+**What is** $\hat{\theta}_N^{LS}$?
+
+The parameter vector that **minimizes the sum of squared errors**
+
+. . .
+
+**Components:**
+
+-   $R(N)$: Sample **covariance matrix** of regressors $\varphi(t)$
+-   $f(N)$: Sample **cross-covariance** of regressors $\varphi(t)$ and outputs $y(t)$
+
+. . .
+
+This solution is obtained by solving the system of linear equations
+
+------------------------------------------------------------------------
+
+## The Normal Equations (Alternative View)
+
+The LS estimate $\hat{\theta}_N^{LS}$ solves:
+
+$$R(N)\hat{\theta}_N^{LS} = f(N)$$
+
+. . .
+
+**These are called the *normal equations***
+
+------------------------------------------------------------------------
+
+## Numerical Challenge
+
+**Problem**: The coefficient matrix $R(N)$ may be **ill-conditioned**
+
+-   Particularly when dimension is high
+-   Direct solution can be numerically unstable
+-   Computing $R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t)$ involves products of original data
+
+. . .
+
+**Solution**: Use matrix factorization techniques
+
+-   Don't form $R(N)$ directly
+-   Instead, construct a matrix $R$ such that $RR^T = R(N)$
+-   This approach offers superior numerical stability
+
+------------------------------------------------------------------------
+
+## QR Factorization Definition
+
+For an $n \times d$ matrix $A$:
+
+$$A = QR$$
+
+where:
+
+-   $Q$ is $n \times n$ orthogonal: $QQ^T = I$
+-   $R$ is $n \times d$ upper triangular
+
+. . .
+
+Various approaches exist: Householder transformations, Gram-Schmidt procedure, Cholesky decomposition
+
+------------------------------------------------------------------------
+
+## Understanding QR Factorization
+
+**What does this decomposition do?**
+
+Any matrix $A$ can be written as the product of:
+
+1.  $Q$: An **orthogonal matrix** (preserves lengths and angles)
+    -   Think of it as a rotation/reflection
+    -   Property: $QQ^T = I$ (its transpose is its inverse)
+2.  $R$: An **upper triangular matrix** (zeros below diagonal)
+    -   Easy to solve systems with (back-substitution)
+
+::: notes
+**Understanding** $I$ (Identity Matrix): - $I$ is the identity matrix: a square matrix with 1's on the diagonal and 0's everywhere else - Example: $I = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$ for 3×3 case - It's like the number 1 for matrices: $I \cdot A = A$ and $A \cdot I = A$
+
+**Understanding** $QQ^T = I$: - This means $Q^T$ is the inverse of $Q$ - so we get the inverse "for free" by just transposing! - Geometrically: $Q$ preserves lengths and angles (it's a pure rotation/reflection) - The columns of $Q$ are orthonormal: length 1 and perpendicular to each other - This is why $Q$ is "nice" - when you multiply by Q, you're essentially rotating/reflecting the space without stretching or distorting
+
+**The R matrix:** - Being upper triangular is key - this means we can solve $Rx = b$ very efficiently using back-substitution (start from bottom row and work up) - **Example to mention**: For a 3×3 upper triangular matrix, the last equation has only one unknown, second-to-last has two unknowns (but we already know one), etc.
+
+**Common question**: "Why is this better than just inverting?" Answer: Forming $R(N)$ involves multiplying matrices which squares the condition number. QR avoids this multiplication step entirely.
+
+**The beauty**: QR gives us the "square root" of what we need, and working with the square root is numerically much more stable
+:::
+
+------------------------------------------------------------------------
+
+## Why QR Factorization? The Core Problem
+
+**Recall our goal:** Solve $R(N)\hat{\theta}_N^{LS} = f(N)$
+
+. . .
+
+**The issue with** $R(N)$:
+
+$$R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t) = \frac{1}{N}\mathbf{\Phi}^T\mathbf{\Phi}$$
+
+. . .
+
+Notice: $R(N)$ is formed by **multiplying** $\mathbf{\Phi}^T$ by $\mathbf{\Phi}$
+
+This multiplication **squares the condition number**, amplifying numerical errors!
+
+::: notes
+**Key terminology to explain:**
+
+**Condition number (**$\kappa$): - Measures how "sensitive" a matrix is to numerical errors - Think of it as: "How much do small errors in input get magnified in output?" - Low condition number (close to 1): Well-conditioned, stable - High condition number (e.g., 1000+): Ill-conditioned, unstable - Example: If $\kappa = 100$, a 1% error in data can become a 100% error in solution!
+
+**Big** $\mathbf{\Phi}$ vs. small $\varphi(t)$: - $\varphi(t)$ (small phi): The regression vector at a **single time** $t$ (a column vector) - $\mathbf{\Phi}$ (big bold Phi): The **entire data matrix** stacking all regression vectors - $\mathbf{\Phi}$ has $N$ rows (one for each time point) - Each row of $\mathbf{\Phi}$ is $\varphi(t)^T$ (transposed regression vector) - So: $\mathbf{\Phi} = [\varphi(1)^T; \varphi(2)^T; ...; \varphi(N)^T]$ (stacked vertically)
+
+**Why "squares" the condition number:** 
+
+- When you compute $\mathbf{\Phi}^T\mathbf{\Phi}$, you're multiplying two matrices
+
+-   This operation squares the condition number: $\kappa(R(N)) = \kappa(\mathbf{\Phi})^2$
+
+-   Example: If $\mathbf{\Phi}$ has $\kappa = 100$, then $R(N)$ has $\kappa = 10,000$!
+
+**Greek letter pronunciations:** - $\kappa$ = "kappa" (CAP-uh) - $\varphi$ = "phi" (fie, rhymes with "pie") - $\mathbf{\Phi}$ = "capital Phi" (same pronunciation, but refers to the matrix) - $\theta$ = "theta" (THAY-tah) - $\epsilon$ = "epsilon" (EP-sih-lon) - appears in error terms
+:::
+
+------------------------------------------------------------------------
+
+## Numerical Example: Why Multiplication is Bad
+
+Consider a simple case where data has condition number $\kappa = 100$
+
+. . .
+
+**Direct approach:**
+
+-   Form $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$
+
+-   Condition number of $R(N)$: $\kappa^2 = 10,000$
+
+-   Relative error magnified by factor of 10,000!
+
+------------------------------------------------------------------------
+
+## Numerical Example: Why Multiplication is Bad
+
+Consider a simple case where data has condition number $\kappa = 100$
+
+**QR approach:**
+
+-   Work with $R_1$ from QR factorization
+
+-   Condition number of $R_1$: $\kappa = 100$
+
+-   Relative error magnified only by factor of 100
+
+. . .
+
+**Result:** 100× improvement in numerical stability!
+
+------------------------------------------------------------------------
+
+## QR Factorization: The Key Insight
+
+**Instead of computing** $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$ directly...
+
+. . .
+
+**Factor** $\mathbf{\Phi}$ itself:
+
+$$\mathbf{\Phi} = QR_1$$
+
+. . .
+
+**Then:**
+
+$$R(N) = \mathbf{\Phi}^T\mathbf{\Phi} = (QR_1)^T(QR_1) = R_1^T Q^T Q R_1 = R_1^T R_1$$
+
+(using $Q^TQ = I$)
+
+. . .
+
+**Key point:** 
+- We never form $\mathbf{\Phi}^T\mathbf{\Phi}$ 
+
+- we work with $R_1$ directly!
+
+------------------------------------------------------------------------
+
+## Concrete Example: 2×2 Case
+
+Let's work through a small example:
+
+$$\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+. . .
+
+**Direct approach:** Form $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$
+
+$$R(N) = \begin{bmatrix} 3 & 4 & 0 \\ 0 & 0 & 5 \end{bmatrix} \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix}$$
+
+------------------------------------------------------------------------
+
+## Concrete Example: QR Approach
+
+Same matrix: $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$
+
+. . .
+
+**QR factorization:** $\mathbf{\Phi} = QR_1$ gives:
+
+$$Q = \begin{bmatrix} 0.6 & 0 & -0.8 \\ 0.8 & 0 & 0.6 \\ 0 & 1 & 0 \end{bmatrix}, \quad R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+. . .
+
+**Check:** $R_1^T R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix} = R(N)$ ✓
+
+. . .
+
+**But:** We work with $R_1$ (entries \~5) not $R(N)$ (entries \~25)!
+
+------------------------------------------------------------------------
+
+## Why This Helps: Visual Intuition
+
+Think of the condition number as "how stretched" the data is:
+
+. . .
+
+**Original data** $\mathbf{\Phi}$: Stretched by factor $\kappa$
+
+```         
+Original problem: [---stretch κ---]
+```
+
+. . .
+
+**After forming** $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$: Stretched by $\kappa^2$
+
+```         
+Normal equations: [---stretch κ²---]  (much worse!)
+```
+
+. . .
+
+**QR gives us** $R_1$: Still stretched by only $\kappa$
+
+```         
+QR approach:      [---stretch κ---]  (same as original!)
+```
+
+------------------------------------------------------------------------
+
+## Analogy: Square Root
+
+**Computing** $R(N)$ directly is like:
+
+-   Squaring a number with errors: $(x + \epsilon)^2 = x^2 + 2x\epsilon + \epsilon^2$
+
+-   The error term gets amplified!
+
+. . .
+
+**QR factorization** is like:
+
+-   Finding the square root first: If $R(N) = 100$, work with $R_1 = 10$
+
+-   Solving with smaller, better-conditioned numbers
+
+-   Less amplification of errors
+
+------------------------------------------------------------------------
+
+## Analogy: Square Root
+
+**Mathematical analogy:**
+
+-   Instead of solving: $x^2 = 100$ (error grows), we solve: $x = 10$ (error controlled)
+
+------------------------------------------------------------------------
+
+## Applying QR to LS Estimation
+
+Define matrices for the multivariable case:
+
+$$\mathbf{Y}^T = [y^T(1) \; \cdots \; y^T(N)], \quad \mathbf{Y} \text{ is } Np \times 1$$
+
+$$\mathbf{\Phi}^T = [\varphi(1) \; \cdots \; \varphi(N)], \quad \mathbf{\Phi} \text{ is } Np \times d$$
+
+. . .
+
+The LS criterion:
+
+$$V_N(\theta, Z^N) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2 = \sum_{t=1}^{N}|y(t) - \varphi^T(t)\theta|^2$$
+
+------------------------------------------------------------------------
+
+## Orthonormal Transformation Property
+
+**Key insight**: The norm is invariant under orthonormal transformations
+
+For any vector $v$ and orthonormal matrix $Q$ ($QQ^T = I$):
+
+$$|Qv|^2 = |v|^2$$
+
+. . .
+
+**Why?** Because $|Qv|^2 = (Qv)^T(Qv) = v^TQ^TQv = v^Tv = |v|^2$
+
+. . .
+
+**Application to our problem:**
+
+$$V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2 = |Q(\mathbf{Y} - \mathbf{\Phi}\theta)|^2$$
+
+We can multiply by $Q$ without changing the criterion!
+
+------------------------------------------------------------------------
+
+## QR Factorization of Augmented Matrix
+
+**Key idea**: Stack data matrix $\mathbf{\Phi}$ and output vector $\mathbf{Y}$ side-by-side
+
+$$[\mathbf{\Phi} \; \mathbf{Y}] = QR$$
+
+::: notes
+**Why augment** $\mathbf{\Phi}$ with $\mathbf{Y}$?
+
+-   We need to solve: minimize $|\mathbf{Y} - \mathbf{\Phi}\theta|^2$
+-   **Clever trick**: Put both $\mathbf{\Phi}$ and $\mathbf{Y}$ into one big matrix
+-   Augmented matrix: $[\mathbf{\Phi} \; \mathbf{Y}]$ has dimensions $(Np) \times (d+1)$
+    -   First $d$ columns: the data matrix $\mathbf{\Phi}$
+
+    -   Last column: the output vector $\mathbf{Y}$
+
+**What happens when we do QR?**
+
+-   We get $[\mathbf{\Phi} \; \mathbf{Y}] = QR$ \* $Q$ is $(Np) \times (Np)$ orthogonal
+
+-   $R$ is $(Np) \times (d+1)$ upper triangular
+
+-   Only the top $(d+1) \times (d+1)$ block of $R$ is non-zero - we call this $R_0$
+:::
+
+------------------------------------------------------------------------
+
+## Structure of the QR Result
+
+After factorization:
+
+$$[\mathbf{\Phi} \; \mathbf{Y}] = QR, \quad R = \begin{bmatrix} R_0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}$$
+
+Only $R_0$ (the top block) matters - it's $(d+1) \times (d+1)$ and upper triangular
+
+::: notes
+**Understanding the structure:**
+
+-   Original augmented matrix: $(Np) \times (d+1)$ - typically $Np \gg d+1$ (many more data points than parameters)
+-   After QR: $R$ has the same dimensions $(Np) \times (d+1)$
+-   Because $R$ is upper triangular and skinny (tall and narrow), most of it is zeros!
+-   All the information is in the top $(d+1) \times (d+1)$ block, which we call $R_0$
+-   The rest is just zeros (shown as 0, $\vdots$, 0)
+
+**Why does this help?** 
+
+- We don't need to store the huge $(Np) \times (d+1)$ matrix
+
+-   Just store the small $(d+1) \times (d+1)$ block $R_0$
+
+-   Massive computational savings!
+:::
+
+------------------------------------------------------------------------
+
+## Decomposing $R_0$: Separating Data and Outputs
+
+Partition $R_0$ to separate the $\mathbf{\Phi}$ part from the $\mathbf{Y}$ part:
+
+$$R_0 = \begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix}$$
+
+where:
+
+-   $R_1$ is $d \times d$ (corresponds to $\mathbf{\Phi}$)
+-   $R_2$ is $d \times 1$ (interaction between $\mathbf{\Phi}$ and $\mathbf{Y}$)
+-   $R_3$ is scalar (corresponds to $\mathbf{Y}$)
+
+::: notes
+**Why partition** $R_0$ this way?
+
+Remember: $[\mathbf{\Phi} \; \mathbf{Y}]$ had $d$ columns from $\mathbf{\Phi}$ and 1 column from $\mathbf{Y}$
+
+So $R_0$ inherits this structure: 
+
+- **First** $d$ columns come from $\mathbf{\Phi}$ → forms $R_1$ and the zero below it 
+- **Last column** comes from $\mathbf{Y}$ → forms $R_2$ and $R_3$
+
+**Block structure:**
+
+```         
+      ← d cols → ← 1 →
+    ┌──────────┬─────┐ ↑
+    │          │     │ d rows
+    │    R₁    │ R₂  │ ↓
+    ├──────────┼─────┤ ↑
+    │    0     │ R₃  │ 1 row
+    └──────────┴─────┘ ↓
+```
+
+-   $R_1$: $d \times d$ upper triangular
+-   $R_2$: $d \times 1$ vector
+-   Bottom-left: zero (because $R_0$ is upper triangular!)
+-   $R_3$: $1 \times 1$ scalar
+:::
+
+------------------------------------------------------------------------
+
+## How This Transforms the LS Criterion
+
+Original criterion: $V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2$
+
+After applying $Q^T$ (using $QQ^T = I$):
+
+$V_N(\theta) = |Q^T(\mathbf{Y} - \mathbf{\Phi}\theta)|^2 = |Q^T[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+. . .
+
+$V_N(\theta) = |Q^T[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+. . .
+
+$V_N(\theta) = |R \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+::: notes
+**Step-by-step transformation:**
+
+1.  **Start with**: $V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2$
+
+2.  **Rewrite as**: $V_N(\theta) = |[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+    -   Check: $[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix} = \mathbf{\Phi}(-\theta) + \mathbf{Y}(1) = \mathbf{Y} - \mathbf{\Phi}\theta$ ✓
+
+3.  **Apply orthogonal transformation** $Q^T$ (doesn't change the norm!): $V_N(\theta) = |Q^T[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+4.  **Use QR factorization** $[\mathbf{\Phi} \; \mathbf{Y}] = QR$: $V_N(\theta) = |R \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+5.  **Recall structure of $R$**: Since $R$ has the form $\begin{bmatrix} R_0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}$, only the top block $R_0$ contributes!
+
+This is why we factored the augmented matrix!
+:::
+
+------------------------------------------------------------------------
+
+## Transformed Criterion (Final Form)
+
+Since only $R_0$ is non-zero, and using the block structure:
+
+$$V_N(\theta) = \left|\begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix} \begin{bmatrix} -\theta \\ 1 \end{bmatrix}\right|^2$$
+
+$$= \left|\begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}\right|^2 = |R_2 - R_1\theta|^2 + |R_3|^2$$
+
+::: notes
+**Breaking down the matrix multiplication:**
+
+$$\begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix} \begin{bmatrix} -\theta \\ 1 \end{bmatrix} = \begin{bmatrix} R_1(-\theta) + R_2(1) \\ 0(-\theta) + R_3(1) \end{bmatrix} = \begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}$$
+
+**Taking the squared norm:**
+
+$$\left|\begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}\right|^2 = |{-R_1\theta + R_2}|^2 + |R_3|^2 = |R_2 - R_1\theta|^2 + |R_3|^2$$
+
+**Key insight:** 
+
+- First term: $|R_2 - R_1\theta|^2$ **depends on** $\theta$ → we can minimize this! 
+
+- Second term: $|R_3|^2$ **doesn't depend on** $\theta$ → just a constant
+
+So minimizing the whole thing means minimizing $|R_2 - R_1\theta|^2$
+:::
+
+------------------------------------------------------------------------
+
+## Finding the Minimum
+
+To minimize: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R_3|^2$
+
+The minimum occurs when $|R_2 - R_1\theta|^2 = 0$, i.e.:
+
+$$R_1\hat{\theta}_N = R_2$$
+
+Minimum value: $V_N(\hat{\theta}_N) = |R_3|^2$
+
+::: notes
+**Why this is the minimum:**
+
+-   $|R_3|^2$ is a constant (doesn't depend on $\theta$)
+-   $|R_2 - R_1\theta|^2$ is always ≥ 0 (it's a squared norm!)
+-   Best we can do: make $|R_2 - R_1\theta|^2 = 0$
+-   This happens when $R_1\theta = R_2$
+
+**Solving for** $\hat{\theta}_N$: 
+
+- We need: $R_1\hat{\theta}_N = R_2$ 
+
+- Since $R_1$ is upper triangular, solve by **back-substitution** (easy!) 
+
+- No need to invert $R_1$ explicitly
+
+**The minimum value:** 
+
+- When $\theta = \hat{\theta}_N$: first term becomes zero 
+
+- So $V_N(\hat{\theta}_N) = 0 + |R_3|^2 = |R_3|^2$ 
+
+- This is the smallest possible least squares error for this problem 
+
+- Bonus: $|R_3|$ tells us the quality of the fit!
+:::
+
+------------------------------------------------------------------------
+
+## Summary: Why QR Works
+
+**Step-by-step what we solved:**
+
+Starting from the transformed criterion: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R_3|^2$
+
+1. **Used all blocks** ($R_1$, $R_2$, $R_3$) to find the optimal $\theta$
+2. **Solved**: $R_1\hat{\theta}_N = R_2$ using back-substitution
+3. **Residual**: $|R_3|^2$ tells us the minimum achievable loss
+
+. . .
+
+**Why this is better than normal equations:**
+
+- **Conditioning**: $\kappa(R_1) = \sqrt{\kappa(R(N))}$ — square root improvement!
+- **Stability**: Never compute $\mathbf{\Phi}^T\mathbf{\Phi}$ which squares the condition number
+- **Speed**: Back-substitution on triangular $R_1$ is fast and numerically stable
+
+------------------------------------------------------------------------
+
+## Practical Implementation Note
+
+**Important**: The big matrix $Q$ is never required to find $\hat{\theta}_N$ and the loss function
+
+. . .
+
+All information is contained in the "small" matrix $R_0$
+
+. . .
+
+**MATLAB tip**: Use `R=triu(qr(A))` to compute (10.6) efficiently when:
+
+-   $Q$ is not of interest
+-   $A$ has many more rows than columns
+
+------------------------------------------------------------------------
+
+## Initial Conditions Problem
+
+**Key challenge in real applications**: The regression vector $\varphi(t)$ typically contains **shifted data**:
+
+$$\varphi(t) = \begin{bmatrix} z(t-1) \\ z(t-2) \\ \vdots \\ z(t-n) \end{bmatrix}$$
+
+. . .
+
+**The issue**: When $t = 1$, we need $z(0), z(-1), \ldots, z(1-n)$ but we only have data for $t \geq 1$
+
+**What do we do with these missing initial conditions?**
+
+------------------------------------------------------------------------
+
+## Initial Conditions: "Windowed" Data
+
+**Typical structure** of regression vector $\varphi(t)$:
+
+$$\varphi(t) = \begin{bmatrix} z(t-1) \\ \vdots \\ z(t-n) \end{bmatrix}$$
+
+. . .
+
+It consists of **shifted data** (possibly after trivial reordering)
+
+------------------------------------------------------------------------
+
+## Example: ARX Model
+
+For ARX model with $n_a = n_b = n$:
+
+$$z(t) = \begin{bmatrix} -y(t) \\ u(t) \end{bmatrix}$$
+
+. . .
+
+For AR model ($p$-dimensional process):
+
+$$z(t) = -y(t)$$
+
+------------------------------------------------------------------------
+
+## The Initial Conditions Problem
+
+With structure $\varphi(t) = [z(t-1)^T \; \cdots \; z(t-n)^T]^T$:
+
+$$R_{ij}(N) = \frac{1}{N}\sum_{t=1}^{N} z(t-i)z^T(t-ji)$$
+
+. . .
+
+**Problem**: If we only have data for $1 \leq t \leq N$, what about initial conditions for $t \leq 0$?
+
+------------------------------------------------------------------------
+
+## Two Approaches
+
+**Approach 1: Start summation later**
+
+-   Start at $t = n+1$ instead of $t=1$
+-   All sums involve only known data
+-   After suitable redefinition of $N$ and time origin, can maintain usual expressions assuming $z(t)$ known for $t \geq -n$
+
+------------------------------------------------------------------------
+
+## Two Approaches (cont'd)
+
+**Approach 2: Prewindowing (zero padding)**
+
+-   Replace unknown initial values by zeros
+-   For symmetry: also replace trailing values $z(t), t = N+1, \ldots, N+n$ by zeros ("postwindowing")
+-   Extend summation in (10.3) to $N+n$
+
+. . .
+
+In this case, equations (10.5) are known as the **Yule-Walker equations**
+
+------------------------------------------------------------------------
+
+## Data Tapering
+
+Often additional data windows ("**tapering**") are applied:
+
+-   Applied to **both ends** of the data record
+-   Purpose: Soften the effects of the appended zeros
+-   See Problem 6G.5 for details
+
+------------------------------------------------------------------------
+
+## Summary of Section 10.1
+
+**Key takeaways:**
+
+-   **Normal equations** provide the foundation for LS estimation
+
+-   **QR factorization** offers superior numerical stability
+
+-   **Why it works**: Better conditioning, triangular structure, avoids ill-conditioned matrix products
+
+-   **Initial conditions** are handled by prewindowing or starting summation later
+
+-   **Practical insight**: Implement via $R_0$ only, avoiding large matrix storage
