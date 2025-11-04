@@ -79,9 +79,9 @@ where:
 ::: notes
 **Greek letter pronunciations:**
 
-- $\theta$ = "theta" (THAY-tah)
-- $\varphi$ = "phi" (fie, rhymes with "pie") or "varphi" for this variant
-- $\hat{y}$ = "y hat" (the hat denotes an estimate/prediction)
+-   $\theta$ = "theta" (THAY-tah)
+-   $\varphi$ = "phi" (fie, rhymes with "pie") or "varphi" for this variant
+-   $\hat{y}$ = "y hat" (the hat denotes an estimate/prediction)
 :::
 
 ------------------------------------------------------------------------
@@ -233,9 +233,9 @@ This multiplication **squares the condition number**, amplifying numerical error
 
 **Big** $\mathbf{\Phi}$ vs. small $\varphi(t)$: - $\varphi(t)$ (small phi): The regression vector at a **single time** $t$ (a column vector) - $\mathbf{\Phi}$ (big bold Phi): The **entire data matrix** stacking all regression vectors - $\mathbf{\Phi}$ has $N$ rows (one for each time point) - Each row of $\mathbf{\Phi}$ is $\varphi(t)^T$ (transposed regression vector) - So: $\mathbf{\Phi} = [\varphi(1)^T; \varphi(2)^T; ...; \varphi(N)^T]$ (stacked vertically)
 
-**Why "squares" the condition number:** 
+**Why "squares" the condition number:**
 
-- When you compute $\mathbf{\Phi}^T\mathbf{\Phi}$, you're multiplying two matrices
+-   When you compute $\mathbf{\Phi}^T\mathbf{\Phi}$, you're multiplying two matrices
 
 -   This operation squares the condition number: $\kappa(R(N)) = \kappa(\mathbf{\Phi})^2$
 
@@ -300,10 +300,9 @@ $$R(N) = \mathbf{\Phi}^T\mathbf{\Phi} = (QR_1)^T(QR_1) = R_1^T Q^T Q R_1 = R_1^T
 
 . . .
 
-**Key point:** 
-- We never form $\mathbf{\Phi}^T\mathbf{\Phi}$ 
+**Key point:** - We never form $\mathbf{\Phi}^T\mathbf{\Phi}$
 
-- we work with $R_1$ directly!
+-   we work with $R_1$ directly!
 
 ------------------------------------------------------------------------
 
@@ -360,37 +359,7 @@ $$R_1^T R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 5 & 0
 
 **Key difference:**
 
-We work with $R_1$ (entries ~5) not $R(N)$ (entries ~25)!
-
-------------------------------------------------------------------------
-
-## Why This Helps: Visual Intuition
-
-Think of the condition number as "how stretched" the data is:
-
-. . .
-
-**Original data** $\mathbf{\Phi}$: Stretched by factor $\kappa$
-
-```         
-Original problem: [---stretch κ---]
-```
-
-. . .
-
-**After forming** $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$: Stretched by $\kappa^2$
-
-```         
-Normal equations: [---stretch κ²---]  (much worse!)
-```
-
-. . .
-
-**QR gives us** $R_1$: Still stretched by only $\kappa$
-
-```         
-QR approach:      [---stretch κ---]  (same as original!)
-```
+We work with $R_1$ (entries \~5) not $R(N)$ (entries \~25)!
 
 ------------------------------------------------------------------------
 
@@ -504,9 +473,9 @@ Only $R_0$ (the top block) matters - it's $(d+1) \times (d+1)$ and upper triangu
 -   All the information is in the top $(d+1) \times (d+1)$ block, which we call $R_0$
 -   The rest is just zeros (shown as 0, $\vdots$, 0)
 
-**Why does this help?** 
+**Why does this help?**
 
-- We don't need to store the huge $(Np) \times (d+1)$ matrix
+-   We don't need to store the huge $(Np) \times (d+1)$ matrix
 
 -   Just store the small $(d+1) \times (d+1)$ block $R_0$
 
@@ -532,10 +501,10 @@ where:
 
 Remember: $[\mathbf{\Phi} \; \mathbf{Y}]$ had $d$ columns from $\mathbf{\Phi}$ and 1 column from $\mathbf{Y}$
 
-So $R_0$ inherits this structure: 
+So $R_0$ inherits this structure:
 
-- **First** $d$ columns come from $\mathbf{\Phi}$ → forms $R_1$ and the zero below it 
-- **Last column** comes from $\mathbf{Y}$ → forms $R_2$ and $R_3$
+-   **First** $d$ columns come from $\mathbf{\Phi}$ → forms $R_1$ and the zero below it
+-   **Last column** comes from $\mathbf{Y}$ → forms $R_2$ and $R_3$
 
 **Block structure:**
 
@@ -586,7 +555,7 @@ $V_N(\theta) = |R \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
 
 4.  **Use QR factorization** $[\mathbf{\Phi} \; \mathbf{Y}] = QR$: $V_N(\theta) = |R \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
 
-5.  **Recall structure of $R$**: Since $R$ has the form $\begin{bmatrix} R_0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}$, only the top block $R_0$ contributes!
+5.  **Recall structure of** $R$: Since $R$ has the form $\begin{bmatrix} R_0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}$, only the top block $R_0$ contributes!
 
 This is why we factored the augmented matrix!
 :::
@@ -610,11 +579,11 @@ $$\begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix} \begin{bmatrix} -\theta \\ 
 
 $$\left|\begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}\right|^2 = |{-R_1\theta + R_2}|^2 + |R_3|^2 = |R_2 - R_1\theta|^2 + |R_3|^2$$
 
-**Key insight:** 
+**Key insight:**
 
-- First term: $|R_2 - R_1\theta|^2$ **depends on** $\theta$ → we can minimize this! 
+-   First term: $|R_2 - R_1\theta|^2$ **depends on** $\theta$ → we can minimize this!
 
-- Second term: $|R_3|^2$ **doesn't depend on** $\theta$ → just a constant
+-   Second term: $|R_3|^2$ **doesn't depend on** $\theta$ → just a constant
 
 So minimizing the whole thing means minimizing $|R_2 - R_1\theta|^2$
 :::
@@ -639,23 +608,23 @@ Minimum value: $V_N(\hat{\theta}_N) = |R_3|^2$
 -   Best we can do: make $|R_2 - R_1\theta|^2 = 0$
 -   This happens when $R_1\theta = R_2$
 
-**Solving for** $\hat{\theta}_N$: 
+**Solving for** $\hat{\theta}_N$:
 
-- We need: $R_1\hat{\theta}_N = R_2$ 
+-   We need: $R_1\hat{\theta}_N = R_2$
 
-- Since $R_1$ is upper triangular, solve by **back-substitution** (easy!) 
+-   Since $R_1$ is upper triangular, solve by **back-substitution** (easy!)
 
-- No need to invert $R_1$ explicitly
+-   No need to invert $R_1$ explicitly
 
-**The minimum value:** 
+**The minimum value:**
 
-- When $\theta = \hat{\theta}_N$: first term becomes zero 
+-   When $\theta = \hat{\theta}_N$: first term becomes zero
 
-- So $V_N(\hat{\theta}_N) = 0 + |R_3|^2 = |R_3|^2$ 
+-   So $V_N(\hat{\theta}_N) = 0 + |R_3|^2 = |R_3|^2$
 
-- This is the smallest possible least squares error for this problem 
+-   This is the smallest possible least squares error for this problem
 
-- Bonus: $|R_3|$ tells us the quality of the fit!
+-   Bonus: $|R_3|$ tells us the quality of the fit!
 :::
 
 ------------------------------------------------------------------------
@@ -666,9 +635,9 @@ Minimum value: $V_N(\hat{\theta}_N) = |R_3|^2$
 
 Starting from the transformed criterion: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R_3|^2$
 
-1. **Used all blocks** ($R_1$, $R_2$, $R_3$) to find the optimal $\theta$
-2. **Solved**: $R_1\hat{\theta}_N = R_2$ using back-substitution
-3. **Residual**: $|R_3|^2$ tells us the minimum achievable loss
+1.  **Used all blocks** ($R_1$, $R_2$, $R_3$) to find the optimal $\theta$
+2.  **Solved**: $R_1\hat{\theta}_N = R_2$ using back-substitution
+3.  **Residual**: $|R_3|^2$ tells us the minimum achievable loss
 
 ------------------------------------------------------------------------
 
@@ -676,26 +645,9 @@ Starting from the transformed criterion: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R
 
 **Why this is better than normal equations:**
 
-- **Conditioning**: $\kappa(R_1) = \sqrt{\kappa(R(N))}$ — square root improvement!
-- **Stability**: Never compute $\mathbf{\Phi}^T\mathbf{\Phi}$ which squares the condition number
-- **Speed**: Back-substitution on triangular $R_1$ is fast and numerically stable
-
-------------------------------------------------------------------------
-
-## Practical Implementation Note
-
-**Important**: The big matrix $Q$ is never required to find $\hat{\theta}_N$ and the loss function
-
-. . .
-
-All information is contained in the "small" matrix $R_0$
-
-. . .
-
-**MATLAB tip**: Use `R=triu(qr(A))` to compute (10.6) efficiently when:
-
--   $Q$ is not of interest
--   $A$ has many more rows than columns
+-   **Conditioning**: $\kappa(R_1) = \sqrt{\kappa(R(N))}$ — square root improvement!
+-   **Stability**: Never compute $\mathbf{\Phi}^T\mathbf{\Phi}$ which squares the condition number
+-   **Speed**: Back-substitution on triangular $R_1$ is fast and numerically stable
 
 ------------------------------------------------------------------------
 
@@ -711,6 +663,54 @@ $$\varphi(t) = \begin{bmatrix} z(t-1) \\ z(t-2) \\ \vdots \\ z(t-n) \end{bmatrix
 
 **What do we do with these missing initial conditions?**
 
+::: notes
+**Shifted data** means you're using **past values** of a signal to predict or analyze **current values**.
+:::
+
+------------------------------------------------------------------------
+
+## Example: ARX Model
+
+**Concrete example**: What does shifted data look like in practice?
+
+For ARX model with $n_a = n_b = n$:
+
+$$z(t) = \begin{bmatrix} -y(t) \\ u(t) \end{bmatrix}$$
+
+. . .
+
+For AR model ($p$-dimensional process):
+
+$$z(t) = -y(t)$$
+
+::: notes
+**ARX = Autoregressive with eXogenous input**
+
+The regression vector for an ARX model contains past outputs and past inputs. This is a common real-world scenario where you're trying to predict the output based on recent history.
+
+For an AR (autoregressive) model, you only look at past outputs—no external inputs.
+
+Both are examples where the regression vector uses shifted (lagged) data.
+
+**What does the notation mean?**
+
+- $n_a$ = order of the autoregressive part (how many past outputs you use)
+- $n_b$ = order of the exogenous input part (how many past inputs you use)
+- $n_a = n_b = n$ = both orders are equal to the same value $n$
+
+**Concrete example** with $n_a = n_b = 2$:
+
+Your regression vector would look like:
+$$\varphi(t) = \begin{bmatrix} -y(t-1) \\ -y(t-2) \\ u(t-1) \\ u(t-2) \end{bmatrix}$$
+
+Where:
+- $y(t-1), y(t-2)$ are the **past 2 outputs** (the autoregressive part)
+- $u(t-1), u(t-2)$ are the **past 2 inputs** (the exogenous part)
+
+The "$n_a = n_b = n$" notation is just a simplifying assumption—saying "we use the same number of past outputs as past inputs." In practice, you could have $n_a \neq n_b$.
+
+:::
+
 ------------------------------------------------------------------------
 
 ## Initial Conditions: "Windowed" Data
@@ -723,23 +723,36 @@ $$\varphi(t) = \begin{bmatrix} z(t-1) \\ \vdots \\ z(t-n) \end{bmatrix}$$
 
 It consists of **shifted data** (possibly after trivial reordering)
 
+::: notes
+**What is "windowed" data?**
+
+"Windowed" refers to taking a **sliding window** of past data points. At each time $t$, you look back at a fixed-size window of historical values:
+
+- At time $t=5$: your window contains $z(4), z(3), z(2), \ldots, z(5-n)$ (the last $n$ values)
+- At time $t=6$: your window shifts forward to contain $z(5), z(4), z(3), \ldots, z(6-n)$
+- And so on...
+
+This is called "windowing" because you're looking through a **fixed-size window** that slides along the time axis.
+
+**What is "trivial reordering"?**
+
+Sometimes the regression vector doesn't contain the past values in a simple backward order. For example:
+
+Instead of: $\varphi(t) = \begin{bmatrix} z(t-1) \\ z(t-2) \\ z(t-3) \end{bmatrix}$
+
+You might have: $\varphi(t) = \begin{bmatrix} z(t-2) \\ z(t-1) \\ z(t-3) \end{bmatrix}$ (mixed order)
+
+Or with multiple variables: $\varphi(t) = \begin{bmatrix} u(t-1) \\ y(t-1) \\ u(t-2) \\ y(t-2) \end{bmatrix}$ (inputs and outputs interleaved)
+
+"Trivial reordering" means you can rearrange the entries to put them back in standard order—it doesn't change the mathematical meaning, just the order of the rows. The core idea is still: **past values arranged as a regression vector**.
+
+**Bottom line:** Windowed data is just a structured way of organizing past values into a regression vector for LS estimation.
+
+:::
+
 ------------------------------------------------------------------------
 
-## Example: ARX Model
-
-For ARX model with $n_a = n_b = n$:
-
-$$z(t) = \begin{bmatrix} -y(t) \\ u(t) \end{bmatrix}$$
-
-. . .
-
-For AR model ($p$-dimensional process):
-
-$$z(t) = -y(t)$$
-
-------------------------------------------------------------------------
-
-## The Initial Conditions Problem
+## The Initial Conditions Problem (Formal)
 
 With structure $\varphi(t) = [z(t-1)^T \; \cdots \; z(t-n)^T]^T$:
 
@@ -749,39 +762,131 @@ $$R_{ij}(N) = \frac{1}{N}\sum_{t=1}^{N} z(t-i)z^T(t-ji)$$
 
 **Problem**: If we only have data for $1 \leq t \leq N$, what about initial conditions for $t \leq 0$?
 
+We can't compute $z(0), z(-1), \ldots, z(1-n)$ because they don't exist!
+
 ------------------------------------------------------------------------
 
 ## Two Approaches
 
-**Approach 1: Start summation later**
+**Approach 1: Start summation later** (Covariance method)
 
 -   Start at $t = n+1$ instead of $t=1$
 -   All sums involve only known data
--   After suitable redefinition of $N$ and time origin, can maintain usual expressions assuming $z(t)$ known for $t \geq -n$
-
-------------------------------------------------------------------------
-
-## Two Approaches (cont'd)
-
-**Approach 2: Prewindowing (zero padding)**
-
--   Replace unknown initial values by zeros
--   For symmetry: also replace trailing values $z(t), t = N+1, \ldots, N+n$ by zeros ("postwindowing")
--   Extend summation in (10.3) to $N+n$
+-   Loses $n$ data points, but straightforward
 
 . . .
 
-In this case, equations (10.5) are known as the **Yule-Walker equations**
+**Approach 2: Prewindowing (zero padding)** (Autocorrelation method)
+
+-   Replace unknown initial values by zeros
+-   For symmetry: also replace trailing values by zeros ("postwindowing")
+-   **Advantage**: Keeps all $N$ data points
+
+. . .
+
+**Key insight**: Approach 2 gives $R(N)$ a special **block Toeplitz structure**, leading to the **Yule-Walker equations**
+
+::: notes
+**Covariance method vs. Autocorrelation method:**
+
+- **Approach 1 (Covariance)**: Logically more natural—only use data you have. But you lose the first $n$ time steps.
+
+- **Approach 2 (Autocorrelation)**: Pads with zeros, which seems artificial. But it creates a special **Toeplitz matrix structure** that has computational advantages (faster algorithms like Levinson's algorithm).
+
+**Block Toeplitz matrix:**
+
+When you use prewindowing, $R(N)$ becomes a **block Toeplitz matrix**, meaning:
+$$R_{ij}(N) = R_{\tau}(N), \quad \tau = i - j$$
+
+In other words, entries depend only on the difference between indices, not the indices themselves. This structure enables fast algorithms.
+
+**When does it matter?**
+
+When $N \gg n$ (lots of data compared to model order), the difference between the two approaches becomes **insignificant**. The padding effect washes out.
+
+:::
 
 ------------------------------------------------------------------------
 
-## Data Tapering
+## Levinson Algorithm (*)
 
-Often additional data windows ("**tapering**") are applied:
+The **Toeplitz structure** from Approach 2 enables a fast recursive algorithm:
 
--   Applied to **both ends** of the data record
--   Purpose: Soften the effects of the appended zeros
--   See Problem 6G.5 for details
+**Recursive update relationships:**
+
+$$\hat{\theta}_k^{n+1} = \hat{\theta}_k^n + \rho_n \hat{\theta}_{n+1-k}^n, \quad k = 1, \ldots, n$$
+
+$$\hat{\theta}_{n+1}^{n+1} = \rho_n, \quad V_{n+1} = V_n + \rho_n \alpha_n$$
+
+where $\rho_n = -\alpha_n / V_n$ is a **reflection coefficient**
+
+. . .
+
+**Computational advantage:**
+
+-   Going from order $n$ to $n+1$: Only $O(n)$ operations
+-   Computing all orders 1 to $n$: Total $O(n^2)$ operations
+-   Compare to QR: $O(n^3)$ for solving once
+-   **Developed by Levinson (1947)** — widely used in signal processing
+
+------------------------------------------------------------------------
+
+## Lattice Filters (*)
+
+An alternative recursive structure that implements the same estimation as Levinson, but with a different form:
+
+**Architecture:**
+
+-   **Forward error**: $\hat{e}_n(t)$ — prediction error of order $n$
+-   **Backward error**: $\hat{f}_n(t-1)$ — backward prediction error
+-   **Orthogonality**: Errors at different orders are mutually orthogonal!
+
+$$\frac{1}{N}\sum_{t=1}^{N} \hat{e}_n(t)\hat{e}_{n-k}(t-k) = \begin{cases} V_n, & k = 0 \\ 0, & k \neq 0 \end{cases}$$
+
+. . .
+
+**Key parameters: Reflection coefficients** $\rho_n$ (or PACF)
+
+-   **Bounded**: Always $|\rho_n| < 1$ for stable systems
+-   **Interpretation**: Represent structural information (e.g., acoustic reflections in speech)
+-   **Stability indicator**: If $|\rho_n| \approx 1$ → system nearly unstable
+
+. . .
+
+**Why lattice filters are superior:**
+
+-   **Numerical stability**: Bounded reflection coefficients preserve orthogonality
+-   **Recursive QR**: Processes data one time step at a time (adaptive/real-time)
+-   **Applications**: Speech processing, Kalman filtering, adaptive systems
+
+------------------------------------------------------------------------
+
+## Data Tapering (Optional refinement)
+
+To soften artifacts from zero padding:
+
+-   Apply **tapering weights** to both ends of the data record
+-   Reduces edge effects from the appended zeros
+-   Used in conjunction with prewindowing for refinement
+
+::: notes
+**What is tapering?**
+
+Instead of abrupt zero padding, you gradually taper the data to zero at the boundaries. This is like multiplying your data by a **window function** (like a Hann or Hamming window) that smoothly goes from 1 to 0 at the edges.
+
+**Why use it?**
+
+Zero padding is artificial—it introduces a discontinuity. When you abruptly multiply by zero at the boundary, you introduce spectral leakage and edge artifacts. Tapering softens this by gradually reducing the data rather than cutting it off abruptly.
+
+**When to apply tapering:**
+
+- Use with prewindowing to reduce edge effects
+- Common in spectral estimation and signal processing
+- Typically applied as a **weighting function** applied to the data before processing
+
+This is refinement-level detail and not critical for understanding the main concepts.
+
+:::
 
 ------------------------------------------------------------------------
 
