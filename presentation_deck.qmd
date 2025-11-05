@@ -10,25 +10,8 @@ format:
     preview-links: auto
     transition: slide
     html-math-method: mathjax
+    css: styles.css
 ---
-
-```{=html}
-<style>
-.reveal {
-  font-size: 2em;
-}
-.reveal .math {
-  font-style: italic;
-  font-size: 1.1em;
-}
-.reveal .katex {
-  font-size: 1.1em;
-}
-.small-font {
-  font-size: 0.85em !important;
-}
-</style>
-```
 
 ## Chapter Overview
 
@@ -56,8 +39,6 @@ At time $N$, when the data set $Z^N$ is known:
 . . .
 
 **However**: The specific structure of parameter estimation problems makes specialized methods worthwhile
-
-------------------------------------------------------------------------
 
 # Section 10.1 {background-color="#2d5986"}
 
@@ -694,21 +675,17 @@ Both are examples where the regression vector uses shifted (lagged) data.
 
 **What does the notation mean?**
 
-- $n_a$ = order of the autoregressive part (how many past outputs you use)
-- $n_b$ = order of the exogenous input part (how many past inputs you use)
-- $n_a = n_b = n$ = both orders are equal to the same value $n$
+-   $n_a$ = order of the autoregressive part (how many past outputs you use)
+-   $n_b$ = order of the exogenous input part (how many past inputs you use)
+-   $n_a = n_b = n$ = both orders are equal to the same value $n$
 
 **Concrete example** with $n_a = n_b = 2$:
 
-Your regression vector would look like:
-$$\varphi(t) = \begin{bmatrix} -y(t-1) \\ -y(t-2) \\ u(t-1) \\ u(t-2) \end{bmatrix}$$
+Your regression vector would look like: $$\varphi(t) = \begin{bmatrix} -y(t-1) \\ -y(t-2) \\ u(t-1) \\ u(t-2) \end{bmatrix}$$
 
-Where:
-- $y(t-1), y(t-2)$ are the **past 2 outputs** (the autoregressive part)
-- $u(t-1), u(t-2)$ are the **past 2 inputs** (the exogenous part)
+Where: - $y(t-1), y(t-2)$ are the **past 2 outputs** (the autoregressive part) - $u(t-1), u(t-2)$ are the **past 2 inputs** (the exogenous part)
 
 The "$n_a = n_b = n$" notation is just a simplifying assumption—saying "we use the same number of past outputs as past inputs." In practice, you could have $n_a \neq n_b$.
-
 :::
 
 ------------------------------------------------------------------------
@@ -728,9 +705,9 @@ It consists of **shifted data** (possibly after trivial reordering)
 
 "Windowed" refers to taking a **sliding window** of past data points. At each time $t$, you look back at a fixed-size window of historical values:
 
-- At time $t=5$: your window contains $z(4), z(3), z(2), \ldots, z(5-n)$ (the last $n$ values)
-- At time $t=6$: your window shifts forward to contain $z(5), z(4), z(3), \ldots, z(6-n)$
-- And so on...
+-   At time $t=5$: your window contains $z(4), z(3), z(2), \ldots, z(5-n)$ (the last $n$ values)
+-   At time $t=6$: your window shifts forward to contain $z(5), z(4), z(3), \ldots, z(6-n)$
+-   And so on...
 
 This is called "windowing" because you're looking through a **fixed-size window** that slides along the time axis.
 
@@ -747,7 +724,6 @@ Or with multiple variables: $\varphi(t) = \begin{bmatrix} u(t-1) \\ y(t-1) \\ u(
 "Trivial reordering" means you can rearrange the entries to put them back in standard order—it doesn't change the mathematical meaning, just the order of the rows. The core idea is still: **past values arranged as a regression vector**.
 
 **Bottom line:** Windowed data is just a structured way of organizing past values into a regression vector for LS estimation.
-
 :::
 
 ------------------------------------------------------------------------
@@ -789,28 +765,30 @@ We can't compute $z(0), z(-1), \ldots, z(1-n)$ because they don't exist!
 ::: notes
 **Covariance method vs. Autocorrelation method:**
 
-- **Approach 1 (Covariance)**: Logically more natural—only use data you have. But you lose the first $n$ time steps.
+-   **Approach 1 (Covariance)**: Logically more natural—only use data you have. But you lose the first $n$ time steps.
 
-- **Approach 2 (Autocorrelation)**: Pads with zeros, which seems artificial. But it creates a special **Toeplitz matrix structure** that has computational advantages (faster algorithms like Levinson's algorithm).
+-   **Approach 2 (Autocorrelation)**: Pads with zeros, which seems artificial. But it creates a special **Toeplitz matrix structure** that has computational advantages (faster algorithms like Levinson's algorithm).
 
 **Block Toeplitz matrix:**
 
-When you use prewindowing, $R(N)$ becomes a **block Toeplitz matrix**, meaning:
-$$R_{ij}(N) = R_{\tau}(N), \quad \tau = i - j$$
+When you use prewindowing, $R(N)$ becomes a **block Toeplitz matrix**, meaning: $$R_{ij}(N) = R_{\tau}(N), \quad \tau = i - j$$
 
 In other words, entries depend only on the difference between indices, not the indices themselves. This structure enables fast algorithms.
 
 **When does it matter?**
 
 When $N \gg n$ (lots of data compared to model order), the difference between the two approaches becomes **insignificant**. The padding effect washes out.
-
 :::
 
 ------------------------------------------------------------------------
 
-## Levinson Algorithm (*)
+## Levinson Algorithm - Problem & Solution
 
-The **Toeplitz structure** from Approach 2 enables a fast recursive algorithm:
+**Problem:** When fitting AR models of different orders, solving the normal equations separately for each order is expensive
+
+**Solution:** Exploit the **Toeplitz structure** to update solutions recursively
+
+. . .
 
 **Recursive update relationships:**
 
@@ -818,46 +796,199 @@ $$\hat{\theta}_k^{n+1} = \hat{\theta}_k^n + \rho_n \hat{\theta}_{n+1-k}^n, \quad
 
 $$\hat{\theta}_{n+1}^{n+1} = \rho_n, \quad V_{n+1} = V_n + \rho_n \alpha_n$$
 
-where $\rho_n = -\alpha_n / V_n$ is a **reflection coefficient**
+where $\rho_n = -\alpha_n / V_n$ is a **reflection coefficient** capturing new information at order $n+1$
 
-. . .
+::: notes
+**What are "orders" in AR models?**
 
-**Computational advantage:**
+An AR model of order $n$ means you're using the past $n$ data points to predict the current value:
 
--   Going from order $n$ to $n+1$: Only $O(n)$ operations
--   Computing all orders 1 to $n$: Total $O(n^2)$ operations
--   Compare to QR: $O(n^3)$ for solving once
--   **Developed by Levinson (1947)** — widely used in signal processing
+- **Order 1 AR**: $y(t) = \theta_1 y(t-1) + \text{error}$ (use only 1 past value)
+
+- **Order 2 AR**: $y(t) = \theta_1 y(t-1) + \theta_2 y(t-2) + \text{error}$ (use 2 past values)
+
+- **Order 3 AR**: $y(t) = \theta_1 y(t-1) + \theta_2 y(t-2) + \theta_3 y(t-3) + \text{error}$ (use 3 past values)
+
+Higher order = more parameters = potentially better predictions, but also more complexity.
+
+**What does "Recursive update relationships" mean?**
+
+Instead of solving completely new equations for each order, we use a formula that **updates** the old solution:
+
+- "Recursive" means each new solution builds from the previous one
+
+- "Update relationship" is the formula that connects them
+
+- Think: Old solution + Correction term = New solution
+
+The benefit: We don't throw away all our work when adding one more parameter!
+
+**Simple explanation of the equations:**
+
+The first equation: $\hat{\theta}_k^{n+1} = \hat{\theta}_k^n + \rho_n \hat{\theta}_{n+1-k}^n$
+
+- $\hat{\theta}_k^{n+1}$: The **updated parameter** $k$ when we add order $n+1$
+
+- $\hat{\theta}_k^n$: The **old parameter** $k$ from order $n$ (keep this!)
+
+- $\rho_n \hat{\theta}_{n+1-k}^n$: The **correction term** (new information we learned)
+
+- $\rho_n$: A **scaling factor** (reflection coefficient)
+
+In words: **New parameter = Old parameter + (scaling factor) × (correction)**
+
+The second equation has two parts:
+- $\hat{\theta}_{n+1}^{n+1} = \rho_n$ ← The **newest parameter** added at order $n+1$
+- $V_{n+1} = V_n + \rho_n \alpha_n$ ← The **error** decreases as we add more orders (usually)
+
+**What is a "reflection coefficient"?**
+
+The reflection coefficient $\rho_n = -\alpha_n / V_n$ measures **how much new information we gain** by adding order $n$:
+
+- **Magnitude** $|\rho_n|$:
+  - Small value (close to 0): Adding order $n$ barely helps; the new parameter is weak
+  - Large value (close to 1): Adding order $n$ is critical; the new parameter is strong
+  - Always bounded: $|\rho_n| < 1$ for stable systems
+
+- **Interpretation**:
+  - It's a **correlation measure**: How much does the new parameter correlate with existing ones?
+  - Comes from the Toeplitz structure: In a structured problem, this single number captures all the information needed for the update
+  - Also called **PACF** (Partial Autocorrelation Function) in time series analysis
+
+- **Why "reflection"?**:
+  - In signal processing, these coefficients represent **reflections in a transmission line**
+  - The Lattice filter architecture (coming next) is literally shaped like a physical transmission line with reflections!
+  - Historically coined this term because the problem came from studying electrical transmission
+
+**Intuition summary:**
+The Levinson algorithm says: "If you know the parameters for order $n$, you can compute order $n+1$ by adding a tiny adjustment that's proportional to the reflection coefficient. The coefficient tells you how important this new order is."
+:::
+
 
 ------------------------------------------------------------------------
 
-## Lattice Filters (*)
+## Levinson Algorithm - Computational Advantage
 
-An alternative recursive structure that implements the same estimation as Levinson, but with a different form:
+**Key efficiency gains:**
 
-**Architecture:**
-
--   **Forward error**: $\hat{e}_n(t)$ — prediction error of order $n$
--   **Backward error**: $\hat{f}_n(t-1)$ — backward prediction error
--   **Orthogonality**: Errors at different orders are mutually orthogonal!
-
-$$\frac{1}{N}\sum_{t=1}^{N} \hat{e}_n(t)\hat{e}_{n-k}(t-k) = \begin{cases} V_n, & k = 0 \\ 0, & k \neq 0 \end{cases}$$
+-   **Going from order** $n$ to $n+1$: Only $O(n)$ operations (not $O(n^3)$!)
+-   **Computing all orders 1 to** $n$: Total $O(n^2)$ operations
 
 . . .
 
-**Key parameters: Reflection coefficients** $\rho_n$ (or PACF)
+**Impact:**
 
--   **Bounded**: Always $|\rho_n| < 1$ for stable systems
--   **Interpretation**: Represent structural information (e.g., acoustic reflections in speech)
--   **Stability indicator**: If $|\rho_n| \approx 1$ → system nearly unstable
+-   Enables **model order selection** without solving from scratch each time
+-   **Developed by Levinson (1947)** — classical workhorse in signal processing
+
+------------------------------------------------------------------------
+
+## Why Levinson Algorithm Matters
+
+**Real-world scenario**: You're building an AR model but don't know the right order $n$
+
+**Naive approach**: Try $n=1, n=2, n=3, ..., n=10$ separately
+- Each requires solving the normal equations from scratch
+- For each order: $O(n^3)$ operations
+- Total: $10 \times O(n^3)$ = expensive!
+
+**Levinson approach**: Build solutions incrementally
+- Start with $n=1$ solution
+- Use it to build $n=2$ solution (just $O(2)$ extra work)
+- Use $n=2$ to build $n=3$ solution (just $O(3)$ extra work)
+- Total: $O(1+2+3+...+10) = O(n^2)$ — **much faster!**
+
+------------------------------------------------------------------------
+
+## How Levinson Algorithm Works
+
+**Core idea**: Build the solution for order $n+1$ from the solution for order $n$
+
+**Key observation**: The Toeplitz structure means previous solutions contain useful information
+
+**Update mechanism**:
+1. Start with order $n$ solution: $\hat{\theta}_n$
+2. Add a "correction term" proportional to the old solution
+3. Scale by **reflection coefficient** $\rho_n$ which measures the new information at order $n+1$
+
+**The recursion**:
+$$\hat{\theta}_{n+1} = \begin{bmatrix} \hat{\theta}_n + \rho_n \text{(correction)} \\ \rho_n \text{(new parameter)} \end{bmatrix}$$
+
+**Why it's fast**:
+- Old solutions reused (don't need full QR each time)
+- Only $O(n)$ new calculations per order increase
+- Cumulative: $O(n^2)$ total instead of $O(n^3)$
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - A Concrete Intuition
+
+**Think of it as building a "ladder" of models**:
+
+- **Order 1**: Simple model with 1 parameter
+- **Order 2**: Add parameter 2 using info from order 1
+- **Order 3**: Add parameter 3 using info from orders 1 & 2
+- ... and so on
+
+Each step **reuses previous work** rather than starting from scratch. This is why adding one more order only costs $O(n)$ extra work, not $O(n^3)$.
+
+**The reflection coefficient** $\rho_n$ acts like a **scaling factor**:
+- If $\rho_n \approx 0$: Adding order $n$ gives little new information
+- If $\rho_n \approx 1$: Adding order $n$ is critical for the fit
+
+------------------------------------------------------------------------
+
+## Lattice Filters
+
+**What is a lattice filter?**
+
+An alternative **network architecture** for computing the same Levinson recursion, but structured differently:
+
+**How it works**: Instead of updating parameter vectors directly, it processes two parallel **error streams**:
+
+-   **Forward error** $e_n(t)$: Predicting $y(t)$ from its past (standard prediction)
+-   **Backward error** $f_n(t)$: "Predicting" past data from future (novel idea!)
 
 . . .
 
-**Why lattice filters are superior:**
+**Key insight**: These two errors are **orthogonal** (independent) at different orders
+$$\frac{1}{N}\sum_{t=1}^{N} e_n(t)e_{n-k}(t-k) = \begin{cases} V_n, & k = 0 \\ 0, & k \neq 0 \end{cases}$$
 
--   **Numerical stability**: Bounded reflection coefficients preserve orthogonality
--   **Recursive QR**: Processes data one time step at a time (adaptive/real-time)
--   **Applications**: Speech processing, Kalman filtering, adaptive systems
+This orthogonality is **numerically stabilizing**.
+
+------------------------------------------------------------------------
+
+## Lattice Filters - Why They're Superior
+
+**Reflection coefficients** $\rho_n$ (also called PACF):
+
+-   **Bounded**: Always $|\rho_n| < 1$ (naturally prevents numerical overflow!)
+-   **Interpretation**: Measure of how much order $n$ adds beyond previous orders
+-   **Stability detector**: If $|\rho_n| \approx 1$ → system becoming unstable
+
+. . .
+
+**Advantages over standard Levinson**:
+
+1.  **Better numerical stability**: Bounded coefficients prevent round-off errors from growing
+2.  **Adaptive/real-time capable**: Can process data one sample at a time (streaming)
+3.  **Applications**: Speech processing, Kalman filtering, adaptive signal processing
+
+------------------------------------------------------------------------
+
+## Comparing Levinson vs. Lattice Filters
+
+| Aspect | Levinson | Lattice Filters |
+|--------|----------|-----------------|
+| **What it updates** | Parameter vector $\hat{\theta}_n$ | Error streams $e_n(t)$ and $f_n(t)$ |
+| **Complexity** | $O(n^2)$ | $O(n^2)$ |
+| **Numerical stability** | Good | Excellent (bounded coefficients) |
+| **Real-time capable** | Not naturally | Yes (process sample-by-sample) |
+| **Industry use** | Academic/theoretical | Speech, adaptive filtering, control |
+
+. . .
+
+**Bottom line**: Both solve the same problem recursively. Lattice filters trade computation for better stability and adaptability.
 
 ------------------------------------------------------------------------
 
@@ -880,12 +1011,11 @@ Zero padding is artificial—it introduces a discontinuity. When you abruptly mu
 
 **When to apply tapering:**
 
-- Use with prewindowing to reduce edge effects
-- Common in spectral estimation and signal processing
-- Typically applied as a **weighting function** applied to the data before processing
+-   Use with prewindowing to reduce edge effects
+-   Common in spectral estimation and signal processing
+-   Typically applied as a **weighting function** applied to the data before processing
 
 This is refinement-level detail and not critical for understanding the main concepts.
-
 :::
 
 ------------------------------------------------------------------------

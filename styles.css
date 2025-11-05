@@ -1,0 +1,16 @@
+.reveal {
+  font-size: 1.8em;
+}
+
+.reveal .math {
+  font-style: italic;
+  font-size: 1.1em;
+}
+
+.reveal .katex {
+  font-size: 1.1em;
+}
+
+.small-font {
+  font-size: 0.85em !important;
+}
