@@ -4,58 +4,107 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains a presentation deck for **Chapter 10: "Computing the Estimate"** from "System Identification: Theory for the User" (2nd Edition) by Lennart Ljung.
+This repository contains presentation decks for **Chapters 8 and 10** from "System Identification: Theory for the User" (2nd Edition) by Lennart Ljung.
 
-**Scope:** This group project covers Chapters 8 and 10. This repository is assigned to the subgroup working on **Chapter 10 only**.
+**Scope:** This group project covers Chapters 8 and 10, with presentations separated into individual files for better manageability.
 
 The project uses Quarto to generate reveal.js presentation slides from the textbook content, enabling collaborative editing without requiring R or specialized IDEs.
 
 ## Current Status
 
+### Chapter 8: Convergence and Consistency
+**File:** `presentation_deck_chapter8.qmd` (6.8 KB)
+
+**Completed:**
+- Section 8.5: Frequency-Domain Description of the Limit Model
+  - Motivation for understanding model misfit
+  - Data from arbitrary systems (Wiener filter)
+  - Expression for V̄(θ) in frequency domain
+
+### Chapter 10: Computing the Estimate
+**File:** `presentation_deck_chapter10.qmd` (97 KB)
+
 **Completed Sections:**
 - Chapter 10 Overview
-- Section 10.1: Linear Regressions and Least Squares
+- **Section 10.1: Linear Regressions and Least Squares**
   - Normal equations
   - QR factorization approach
   - Numerical stability discussion
   - Augmented matrix method
   - Initial conditions handling
+  - Levinson algorithm with detailed computational complexity analysis
 
-**In Progress:**
-- Section 10.2 (future work)
+- **Section 10.2: Numerical Solution by Iterative Search Methods** ✅ Recently Enhanced
+  - When analytical solutions fail
+  - Newton's method and Hessian computation
+  - Gradient formula and computational burden
+  - Steepest descent method
+  - Gauss-Newton method and Hessian approximation
+  - Levenberg-Marquardt method with adaptive λ strategy
+  - Solving correlation equations
 
-**Completed in Section 10.1:**
-- All slides created for Section 10.1
-- Comprehensive speaker notes including:
-  - Greek letter pronunciations (θ, φ, κ, etc.)
-  - Technical term explanations (condition number, quadratic norm, etc.)
-  - Step-by-step mathematical derivations
-  - Intuitive analogies and visual explanations
-  - Concrete numerical examples with ASCII diagrams
+- **Section 10.5: Local Solutions and Initial Values**
+  - Local minima in iterative optimization
+  - Multi-start strategies
+  - Initialization procedures for different model types
+
+**Content Quality Standards:**
+- Comprehensive speaker notes with Greek letter pronunciations (θ, φ, κ, λ, etc.)
+- Technical term explanations (condition number, quadratic norm, Hessian, etc.)
+- Step-by-step mathematical derivations
+- Intuitive analogies and visual explanations
+- Concrete numerical examples with ASCII diagrams
+- **Balance between slide content and speaker notes** - key information visible on slides, detailed explanations in notes
 
 ## Key Commands
 
-### Rendering the Presentation
+### Rendering the Presentations
+
+**Chapter 8:**
 ```bash
-quarto render presentation_deck.qmd
+quarto render presentation_deck_chapter8.qmd
 ```
 
-### Preview the Presentation (with auto-reload)
+**Chapter 10:**
 ```bash
-quarto preview presentation_deck.qmd
+quarto render presentation_deck_chapter10.qmd
+```
+
+**Both chapters:**
+```bash
+quarto render presentation_deck_chapter8.qmd && quarto render presentation_deck_chapter10.qmd
+```
+
+### Preview with Auto-reload
+```bash
+quarto preview presentation_deck_chapter8.qmd
+quarto preview presentation_deck_chapter10.qmd
 ```
 
 ### Export to PDF
 ```bash
-quarto render presentation_deck.qmd --to pdf
+quarto render presentation_deck_chapter8.qmd --to pdf
+quarto render presentation_deck_chapter10.qmd --to pdf
 ```
 
 ## Project Structure
 
-- `presentation_deck.qmd` - Main Quarto document containing the reveal.js presentation slides
-- `presentation_deck.html` - Generated HTML presentation output
-- `presentation_deck_files/` - Supporting files for the reveal.js presentation (plugins, libraries)
+**Main Presentation Files:**
+- `presentation_deck_chapter8.qmd` - Chapter 8 presentation (Section 8.5)
+- `presentation_deck_chapter10.qmd` - Chapter 10 presentation (Sections 10.1, 10.2, 10.5)
+- `presentation_deck.qmd` - Original combined presentation (archived, use separate files instead)
+
+**Generated Output:**
+- `presentation_deck_chapter8.html` - Chapter 8 HTML presentation
+- `presentation_deck_chapter10.html` - Chapter 10 HTML presentation
+- `presentation_deck_chapter*_files/` - Supporting files for reveal.js presentations
+
+**Source Materials:**
 - `System Identification_...pdf` - Source textbook (Ljung, 2nd Edition)
+
+**Configuration:**
+- `styles.css` - Custom CSS for presentation styling
+- `CLAUDE.md` - This file
 
 ## Content Development Workflow
 
@@ -104,24 +153,35 @@ Brief explanation paragraph.
    - Use MathJax for rendering (`html-math-method: mathjax` in YAML)
    - Greek letters should include pronunciation guides in speaker notes
 
-2. **Explanations:**
-   - Break complex concepts into multiple slides
-   - Use incremental reveals (`. . .`) to control information flow
-   - Include concrete numerical examples where helpful
-   - Add visual intuition with ASCII diagrams in code blocks
+2. **Content Distribution (IMPORTANT):**
+   - **Slides should be self-contained and informative** - viewers should understand main points without speaker notes
+   - Move key information, examples, and explanations from speaker notes to slides
+   - Use incremental reveals (`. . .`) to control information flow on slides
+   - Speaker notes should provide deeper context, not essential content
+   - **Bad**: Formula on slide, all explanation in notes
+   - **Good**: Formula with component breakdown on slide, additional context in notes
 
-3. **Speaker Notes:**
+3. **Explanations:**
+   - Break complex concepts into multiple slides
+   - Include concrete numerical examples where helpful
+   - Add visual intuition with tables, ASCII diagrams, or pseudocode blocks
+   - Use comparison tables to show trade-offs between methods
+   - Provide "why it matters" context on slides, not just in notes
+
+4. **Speaker Notes:**
    - Explain non-obvious terminology
    - Provide step-by-step derivations
-   - Include pronunciation guides for Greek letters
+   - Include pronunciation guides for Greek letters (θ, φ, κ, λ, ψ, etc.)
    - Add context about why concepts matter
    - Suggest what to emphasize during presentation
+   - Offer analogies and intuitive explanations
 
-4. **Slide Organization:**
+5. **Slide Organization:**
    - Start with high-level overview
    - Progress from simple to complex
    - Use section headers with background colors for major transitions
    - End sections with summary slides
+   - Split dense slides into multiple focused slides when needed
 
 ## Technical Concepts Covered
 
@@ -136,3 +196,25 @@ Brief explanation paragraph.
 - Back-substitution for triangular systems
 - Initial conditions (prewindowing vs. postwindowing)
 - Yule-Walker equations
+- Levinson algorithm and reflection coefficients
+- Lattice filters
+
+**Section 10.2 Key Topics (Enhanced with better slide content):**
+- When analytical solutions fail (examples on slides)
+- Newton's method with Hessian structure visualized
+- Gradient formula with component breakdown
+- Nonlinear least-squares problem importance
+- Steepest descent: pros/cons with visual intuition
+- Gauss-Newton: Hessian approximation explained on slides
+- Levenberg-Marquardt: adaptive λ strategy with pseudocode
+- Comparison table of all three methods
+- Correlation equations and Newton-Raphson
+
+**Section 10.5 Key Topics:**
+- Local vs. global minima
+- Multi-start strategies
+- Two sources of local minima (structural and sample-induced)
+- Start-up procedures for black-box models
+- IV method initialization
+- Seeding strategy for nonlinear models
+- Initial filter conditions
