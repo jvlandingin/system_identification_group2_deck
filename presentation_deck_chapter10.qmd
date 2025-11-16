@@ -1,6 +1,6 @@
 ---
-title: "System Identification: Selected Topics"
-subtitle: "Chapter 8 (Section 8.5) and Chapter 10 (Sections 10.1, 10.2, 10.5)"
+title: "System Identification: Chapter 10"
+subtitle: "Sections 10.1, 10.2, 10.5: Computing the Estimate"
 author: "System Identification: Theory for the User"
 format:
   revealjs:
@@ -17,191 +17,11 @@ revealjs-plugins:
 
 ## Presentation Overview
 
-**Part 1: Chapter 8 - Convergence and Consistency** - Section 8.5: Frequency-Domain Description of the Limit Model
-
-. . .
-
-**Part 2: Chapter 10 - Computing the Estimate** - Section 10.1: Linear Regressions and Least Squares - Section 10.2: Numerical Solution by Iterative Search Methods - Section 10.5: Local Solutions and Initial Values
-
-------------------------------------------------------------------------
-
-# Chapter 8: Convergence and Consistency {background-color="#1a4d6b"}
-
-------------------------------------------------------------------------
-
-# Section 8.5: Linear Time-Invariant Models {background-color="#2c5f77"}
-
-## A Frequency-Domain Description of the Limit Model
-
-------------------------------------------------------------------------
-
-## Motivation: Understanding Model Misfit
-
-**Theorem 8.2**: The limiting estimate $\theta^* \in D_c$ minimizes the prediction error variance among all models in $\mathcal{M}$
-
-. . .
-
-**Key insight**: If $\theta^* = \theta_0$ (true parameter), the model perfectly describes the system (Theorem 8.3)
-
-. . .
-
-**Otherwise**: The model will differ from the true system - there's a **misfit**
-
-. . .
-
-**This section's goal**: Develop expressions that characterize this misfit for linear time-invariant models in the **frequency domain**
-
-::: notes
-**Context from Chapter 8:**
-
-Theorem 8.2 tells us that as $N \to \infty$, our parameter estimate $\hat{\theta}_N$ converges to $\theta^*$, which minimizes:
-
-$$\theta^* = \arg\min_{\theta \in D_c} \bar{V}(\theta)$$
-
-where $\bar{V}(\theta) = E[\varepsilon^2(t, \theta)]$ is the expected prediction error variance.
-
-**The two cases:**
-
-1.  **System in model set** ($S \in \mathcal{M}$): Then $\theta^* = \theta_0$ (the true parameters), and the model perfectly captures the system
-
-2.  **Model mismatch** ($S \notin \mathcal{M}$): Then $\theta^* \neq \theta_0$, and our model is the "best approximation" within the model class, but there's still a mismatch
-
-**Why frequency domain?**
-
-For linear time-invariant (LTI) systems, the frequency domain provides:
-
--   Intuitive understanding of how well the model fits at different frequencies
--   Clear interpretation of which frequency ranges are well-modeled vs. poorly-modeled
--   Connection to classical frequency response analysis
--   Explicit weighting functions showing what the criterion emphasizes
-
-**What to emphasize:**
-
-This section gives us tools to understand **where** (at which frequencies) our model is good and where it's poor. This is crucial for model validation and for understanding the limits of our identified model.
-
-**Reference to Problem 8G.4:**
-
-The textbook refers to Problem 8G.4 for additional development of these concepts.
-:::
-
-------------------------------------------------------------------------
-
-## Data from Arbitrary Systems
-
-**Key result**: The approximation expressions are applicable to data from **arbitrary, nonlinear, time-varying systems**!
-
-. . .
-
-**Assumption**: Input and output signalsc are jointly quasi-stationary (spectra are defined)
-
-. . .
-
-**The optimal predictor** (Wiener filter):
-
-$$\hat{y}(t|t-1) = W_u(q)u(t) + W_y(q)y(t)$$
-
-where $W_u$ and $W_y$ are computed from cross-spectra $\Phi_u$, $\Phi_{uu}$, and $\Phi_y$
-
-::: notes
-**A surprising and powerful result:**
-
-Even though we start with "assumption S1" (linear system), the approximation theory developed here applies **equally well** to data from:
-
--   Nonlinear systems
--   Time-varying systems
--   Arbitrary stochastic processes
-
-As long as the signals are **jointly quasi-stationary** (their spectra exist and are well-defined).
-
-**The Wiener filter (equation 8.61):**
-
-Say "W u of q times u of t plus W y of q times y of t".
-
-The Wiener filter gives the optimal linear predictor of $y(t)$ from past data. It's computed from:
-
--   $\Phi_u(\omega)$: Spectrum of input
--   $\Phi_y(\omega)$: Spectrum of output
--   $\Phi_{uu}(\omega)$, $\Phi_{yu}(\omega)$: Cross-spectra
-
-**Reference**: Wiener (1949) and Problem 8G.3
-
-**Key property of the prediction error:**
-
-The error $e_0(t) = y(t) - \hat{y}(t|t-1)$ is:
-
--   **Uncorrelated with past inputs and outputs** by construction
--   This means $e_0(k)$, $k < t$ is uncorrelated with $e_0(t)$
-
-**Rewriting in standard form (equation 8.62):**
-
-If we define: - $H_0(q) = (1 - W_y(q))^{-1}$ - $G_0(q) = H_0(q)W_u(q)$
-
-Then we can write:
-
-$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
-
-where $e_0(t)$ is an uncorrelated sequence.
-
-**The fundamental statement:**
-
-Equation (8.62) is a **correct description of the observed data**, if only their **second-order properties** are considered. It's "the best linear time-invariant approximation of the true system."
-
-**Caveat for control:**
-
-This approximation may still be useless for control and decision-making, since it depends on the actual data spectra (not just the system dynamics).
-:::
-
-------------------------------------------------------------------------
-
-## Expression for $\bar{V}(\theta)$ in Frequency Domain
-
-By fundamental expression (2.65):
-
-$$\bar{V}(\theta) = \bar{E}\frac{1}{2}\varepsilon^2(t, \theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
-
-where $\Phi_{\varepsilon}(\omega, \theta)$ is the **spectrum of the prediction errors** $\{\varepsilon(t, \theta)\}$
-
-. . .
-
-**Under assumption S1** (true system is LTI):
-
-$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
-
-where $e_0$ has variance $\lambda_0$
-
-::: notes
-**Parseval's theorem / Fundamental expression (2.65):**
-
-The criterion function $\bar{V}(\theta) = E[\frac{1}{2}\varepsilon^2(t, \theta)]$ can be expressed as an integral over frequency:
-
-$$\bar{V}(\theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
-
-This is a consequence of Parseval's theorem, which relates time-domain energy to frequency-domain energy.
-
-**Why this is useful:**
-
-Instead of thinking about the average squared prediction error in time, we can think about it as an **integral over all frequencies** of the prediction error spectrum. This allows us to see:
-
--   Which frequencies contribute most to the total error
--   How the weighting function affects the fit
--   Where the model is good vs. poor
-
-**The true system description (equation 8.64):**
-
-Under assumption S1, the true system is linear and time-invariant:
-
-$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
-
-where:
-
--   $G_0(q)$ is the true transfer function from input to output
--   $H_0(q)$ is the true noise model
--   $e_0(t)$ is white noise with variance $\lambda_0$
-
-**Next step:**
-
-We'll derive an explicit expression for $\Phi_{\varepsilon}(\omega, \theta)$ in terms of the true system ($G_0$, $H_0$) and the model ($G(\cdot, \theta)$, $H(\cdot, \theta)$).
-:::
+**Chapter 10 - Computing the Estimate**
+
+-   Section 10.1: Linear Regressions and Least Squares
+-   Section 10.2: Numerical Solution by Iterative Search Methods
+-   Section 10.5: Local Solutions and Initial Values
 
 ------------------------------------------------------------------------
 
@@ -1617,7 +1437,7 @@ This orthogonality is **numerically stabilizing**.
 ## Comparing Levinson vs. Lattice Filters
 
 | Aspect | Levinson | Lattice Filters |
-|----|----|----|
+|------------------|--------------------|----------------------------------|
 | **What it updates** | Parameter vector $\hat{\theta}_n$ | Error streams $e_n(t)$ and $f_n(t)$ |
 | **Complexity** | $O(n^2)$ | $O(n^2)$ |
 | **Numerical stability** | Good | Excellent (bounded coefficients) |
@@ -1696,7 +1516,15 @@ $$0 = f_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \zeta(t, \theta)\alpha(\varep
 
 . . .
 
-**Solution**: Use iterative numerical techniques to find the minimum/solution.
+**Examples where analytical solutions fail:**
+
+- Non-linear model structures (Hammerstein-Wiener models)
+- Non-quadratic loss functions (robust estimation)
+- Output error models (prediction errors non-linear in parameters)
+
+. . .
+
+**Solution**: Use iterative numerical techniques
 
 ::: notes
 **Why analytical solutions fail:**
@@ -1795,28 +1623,24 @@ where:
 
 . . .
 
-**Key property**: Gives **one-step convergence** for quadratic functions!
+**The Hessian matrix** for parameter vector of dimension $d$:
+
+$$V''(\theta) = \begin{bmatrix}
+\frac{\partial^2 V}{\partial \theta_1^2} & \frac{\partial^2 V}{\partial \theta_1 \partial \theta_2} & \cdots \\
+\frac{\partial^2 V}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 V}{\partial \theta_2^2} & \cdots \\
+\vdots & \vdots & \ddots
+\end{bmatrix}$$
 
 . . .
 
-**Practical issue**: Computing the full Hessian $V''(\theta)$ can be expensive.
+This approximates $V(\theta)$ by a quadratic function and finds its minimum
 
 ::: notes
 **The Newton direction:**
 
 Say "f at iteration i equals negative V double-prime at theta hat i, inverse, times V prime at theta hat i".
 
-This formula comes from approximating $V(\theta)$ by a quadratic function around the current point $\hat{\theta}^{(i)}$ and finding the minimum of that quadratic approximation.
-
-**Why Newton's method is powerful:**
-
--   **Quadratic convergence**: Near the minimum, the error decreases quadratically with each iteration
-
--   **One-step for quadratics**: If $V(\theta)$ is exactly quadratic, Newton finds the minimum in one step
-
--   **Natural step size**: The formula implicitly determines both direction and step size
-
-**The Hessian matrix** $V''(\theta)$:
+**The Hessian matrix** $V''(\theta)$**:**
 
 For a parameter vector of dimension $d$, the Hessian is a $d \times d$ matrix containing all second partial derivatives:
 
@@ -1825,7 +1649,33 @@ $$V''(\theta) = \begin{bmatrix}
 \frac{\partial^2 V}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 V}{\partial \theta_2^2} & \cdots \\
 \vdots & \vdots & \ddots
 \end{bmatrix}$$
+:::
 
+------------------------------------------------------------------------
+
+## Newton's Method - Properties
+
+**Why Newton's method is powerful:**
+
+-   **Quadratic convergence**: Near the minimum, the error decreases quadratically with each iteration
+
+-   **One-step for quadratics**: If V(θ) is exactly quadratic, Newton finds the minimum in one step
+
+-   **Natural step size**: The formula implicitly determines both direction and step size
+
+. . .
+
+**Practical issue**: Computing the full Hessian $V''(\theta)$ is expensive
+
+- Requires computing all $d^2$ entries of the Hessian matrix
+- Then inverting it costs $O(d^3)$ operations
+- For large parameter spaces: **prohibitively expensive**
+
+. . .
+
+**This motivates quasi-Newton methods** (coming next)
+
+::: notes
 **The computational burden:**
 
 Computing all $d^2$ entries of the Hessian and then inverting it costs $O(d^3)$ operations. For large parameter spaces, this is prohibitively expensive. This motivates quasi-Newton methods.
@@ -1841,11 +1691,19 @@ The gradient is:
 
 $$V_N'(\theta, Z^N) = -\frac{1}{N}\sum_{t=1}^{N} \{\psi(t, \theta)\ell_{\varepsilon}'(\varepsilon(t, \theta), \theta) - \ell_{\theta}'(\varepsilon(t, \theta), \theta)\}$$
 
-where $\psi(t, \theta)$ is the $d \times p$ gradient matrix of $\hat{y}(t|\theta)$ with respect to $\theta$.
+where $\psi(t, \theta) = \frac{\partial \hat{y}(t|\theta)}{\partial \theta}$ is the $d \times p$ gradient matrix
 
 . . .
 
-**Major computational burden**: Computing $\psi(t, \theta)$ for $t = 1, 2, \ldots, N$
+**Components of the gradient:**
+
+- $\psi(t, \theta)$: How predicted output changes with parameters
+- $\ell_{\varepsilon}'$: Derivative of loss w.r.t. prediction error
+- $\ell_{\theta}'$: Direct derivative of loss w.r.t. parameters (often zero)
+
+. . .
+
+**Major computational burden**: Computing $\psi(t, \theta)$ for all $t = 1, \ldots, N$
 
 ::: notes
 **Understanding the gradient formula:**
@@ -1885,9 +1743,15 @@ Consider the special case:
 
 $$V_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \frac{1}{2}\varepsilon^2(t, \theta)$$
 
+This is the **nonlinear least-squares problem** - most common in practice!
+
 . . .
 
-This is the **nonlinear least-squares problem**.
+**Why this case matters:**
+
+- Quadratic loss → good statistical properties
+- Well-studied numerically
+- Balance of accuracy and computational tractability
 
 . . .
 
@@ -1897,9 +1761,11 @@ $$V_N'(\theta, Z^N) = -\frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\varepsilon(t, \
 
 . . .
 
-A general family of search algorithms:
+**General family of search algorithms:**
 
-$$\hat{\theta}_N^{(i-1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [R_N^{(i)}]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
+$$\hat{\theta}_N^{(i+1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [R_N^{(i)}]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
+
+Different choices of $R_N^{(i)}$ and $\mu_N^{(i)}$ give different algorithms
 
 ::: notes
 **The nonlinear least-squares problem:**
@@ -1937,17 +1803,27 @@ This formula is the foundation for the next several slides where we'll explore d
 
 The simplest choice: Take $R_N^{(i)} = I$ (identity matrix)
 
-$$\hat{\theta}_N^{(i-1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
-
-. . .
+$$\hat{\theta}_N^{(i+1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
 
 This is the **gradient descent** or **steepest descent method**.
 
 . . .
 
-**Pros**: Simple, doesn't require second derivatives
+**The idea:** Move in direction of negative gradient (steepest downhill)
 
-**Cons**: Fairly inefficient close to the minimum - convergence can be very slow
+. . .
+
+**Pros**:
+- Simple to implement
+- Doesn't require second derivatives
+- Always descends for small enough $\mu_N^{(i)}$
+
+. . .
+
+**Cons**:
+- Very slow convergence near minimum
+- Zig-zag behavior in narrow valleys
+- Step size $\mu_N^{(i)}$ critical (too small→slow, too large→diverge)
 
 ::: notes
 **The steepest descent method:**
@@ -1981,23 +1857,27 @@ Newton methods perform much better near the minimum because they account for cur
 
 ------------------------------------------------------------------------
 
-## Gauss-Newton Method
+## Gauss-Newton Method - The Hessian Approximation
 
-The Hessian for the quadratic criterion is:
+The full Hessian for quadratic criterion has two terms:
 
-$$V_N''(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\psi^T(t, \theta) - \frac{1}{N}\sum_{t=1}^{N} \psi'(t, \theta)\varepsilon(t, \theta)$$
-
-where $\psi'(t, \theta)$ is the $d \times d$ Hessian of $\varepsilon(t, \theta)$.
+$$V_N''(\theta, Z^N) = \underbrace{\frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\psi^T(t, \theta)}_{\text{First term (always ≥ 0)}} - \underbrace{\frac{1}{N}\sum_{t=1}^{N} \psi'(t, \theta)\varepsilon(t, \theta)}_{\text{Second term (requires 2nd derivatives)}}$$
 
 . . .
 
-**Key approximation**: Near the minimum, errors $\varepsilon(t, \theta_0) = e_0(t)$ are independent with $Ee_0(t) = 0$
+**Key insight**: Near the minimum, prediction errors $\varepsilon(t, \theta)$ become independent innovations with mean zero
 
 . . .
 
-This makes the second sum negligible, giving:
+**Therefore**: The second term averages to ≈ 0
 
-$$V_N''(\theta, Z^N) \approx \frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\psi^T(t, \theta) \triangleq H_N(\theta)$$
+. . .
+
+**Gauss-Newton approximation**:
+
+$$V_N''(\theta, Z^N) \approx H_N(\theta) = \frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\psi^T(t, \theta)$$
+
+**Benefits**: Only needs first derivatives, always positive semidefinite!
 
 ::: notes
 **The full Hessian formula:**
@@ -2035,27 +1915,27 @@ We already need to compute $\psi(t, \theta)$ for the gradient anyway. Using it t
 
 ------------------------------------------------------------------------
 
-## Gauss-Newton Method (continued)
+## Gauss-Newton Method - The Algorithm
 
-Choosing $R_N^{(i)} = H_N(\hat{\theta}_N^{(i)})$ gives:
+Using $R_N^{(i)} = H_N(\hat{\theta}_N^{(i)})$ in the search formula:
 
-$$\hat{\theta}_N^{(i-1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [H_N(\hat{\theta}_N^{(i)})]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
+$$\hat{\theta}_N^{(i+1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [H_N(\hat{\theta}_N^{(i)})]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
 
-. . .
-
-This is known as the **Gauss-Newton method**.
+This is the **Gauss-Newton method**.
 
 . . .
 
-**Advantages**:
+**Why it's powerful:**
 
--   Only requires **first derivatives** (no Hessian computation!)
--   $H_N(\theta)$ is always **positive semidefinite** → descent algorithm guaranteed
--   Good convergence near minimum
+1. **Computational efficiency**: Avoids expensive second derivatives $\psi'(t, \theta)$
+2. **Numerical stability**: $H_N(\theta) \geq 0$ guarantees descent direction
+3. **Fast convergence**: Newton-like speed near the minimum
 
 . . .
 
-**Common choice**: $\mu_N^{(i)} = 1$ (called the "method of scoring" in statistics)
+**Common choice**: $\mu_N^{(i)} = 1$ (no line search needed)
+
+Also called **"method of scoring"** in statistics literature
 
 ::: notes
 **The Gauss-Newton update:**
@@ -2096,26 +1976,58 @@ In statistics literature (Rao, 1973), this technique is called the "method of sc
 
 ## Levenberg-Marquardt Method
 
-**Problem**: $H_N(\theta)$ may be singular or nearly singular (especially if model is overparameterized).
+**Problem with Gauss-Newton**: $H_N(\theta)$ may be singular/nearly singular
+
+- Overparameterized models (redundant parameters)
+- Insufficient data
+- Numerical ill-conditioning
 
 . . .
 
-**Solution**: Use a **regularized** Hessian approximation:
+**Levenberg-Marquardt solution**: Add regularization!
 
-$$R_N^{(i)}(\lambda) = \frac{1}{N}\sum_{t=1}^{N} \psi(t, \hat{\theta}_N^{(i)})\psi^T(t, \hat{\theta}_N^{(i)}) + \lambda I$$
+$$R_N^{(i)}(\lambda) = H_N(\hat{\theta}_N^{(i)}) + \lambda I = \frac{1}{N}\sum_{t=1}^{N} \psi\psi^T + \lambda I$$
 
-. . .
-
--   $\lambda > 0$ is a **regularization parameter**
--   $\mu_N^{(i)} = 1$ (fixed step size)
--   $\lambda$ controls convergence, not step size
+where $\lambda > 0$ is the **damping parameter**
 
 . . .
 
-**Effect of** $\lambda$:
+**How** $\lambda$ **controls the algorithm:**
 
--   $\lambda = 0$: Standard Gauss-Newton
--   $\lambda$ large: Smaller steps toward gradient direction (like steepest descent)
+| $\lambda$ value | Behavior | When to use |
+|----------------|----------|-------------|
+| Small (≈0) | Gauss-Newton | Near minimum |
+| Large | Steepest descent | Far from minimum |
+
+. . .
+
+**Adaptive strategy**: Start large $\lambda$ (robust), decrease as converging (fast)
+
+------------------------------------------------------------------------
+
+## Levenberg-Marquardt - Adaptive λ Strategy
+
+**The algorithm adapts** $\lambda$ **based on progress:**
+
+```
+Initialize: λ = λ₀ (e.g., 0.01)
+
+At each iteration:
+  1. Compute update with current λ
+  2. Try the new parameter values
+
+  If V(θ_new) < V(θ_old):  [Success!]
+     ✓ Accept the update
+     ✓ Decrease λ ← λ/10  (trust model more)
+
+  Else:  [Function increased - bad step]
+     ✗ Reject the update
+     ✗ Increase λ ← λ×10  (be more cautious)
+```
+
+. . .
+
+**Result**: Automatic balance between robustness and speed!
 
 ::: notes
 **The singularity problem:**
@@ -2177,7 +2089,7 @@ Independently developed by Levenberg (1944) and Marquardt (1963). Now a standard
 **Key algorithms**:
 
 | Method | Matrix $R_N^{(i)}$ | Pros | Cons |
-|----|----|----|----|
+|------------------|-------------------|------------------|------------------|
 | Steepest Descent | $I$ | Simple | Slow near minimum |
 | Gauss-Newton | $H_N(\theta) = \frac{1}{N}\sum \psi\psi^T$ | Fast near minimum | May have singularity |
 | Levenberg-Marquardt | $H_N(\theta) + \lambda I$ | Robust + fast | Extra tuning param |

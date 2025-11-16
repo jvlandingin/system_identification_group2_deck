@@ -1,0 +1,204 @@
+---
+title: "System Identification: Chapter 8"
+subtitle: "Section 8.5: Frequency-Domain Description of the Limit Model"
+author: "System Identification: Theory for the User"
+format:
+  revealjs:
+    theme: serif
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    transition: slide
+    html-math-method: mathjax
+    css: styles.css
+revealjs-plugins:
+  - pointer
+---
+
+## Presentation Overview
+
+**Chapter 8 - Convergence and Consistency**
+
+Section 8.5: Frequency-Domain Description of the Limit Model
+
+------------------------------------------------------------------------
+
+# Chapter 8: Convergence and Consistency {background-color="#1a4d6b"}
+
+------------------------------------------------------------------------
+
+# Section 8.5: Linear Time-Invariant Models {background-color="#2c5f77"}
+
+## A Frequency-Domain Description of the Limit Model
+
+------------------------------------------------------------------------
+
+## Motivation: Understanding Model Misfit
+
+**Theorem 8.2**: The limiting estimate $\theta^* \in D_c$ minimizes the prediction error variance among all models in $\mathcal{M}$
+
+. . .
+
+**Key insight**: If $\theta^* = \theta_0$ (true parameter), the model perfectly describes the system (Theorem 8.3)
+
+. . .
+
+**Otherwise**: The model will differ from the true system - there's a **misfit**
+
+. . .
+
+**This section's goal**: Develop expressions that characterize this misfit for linear time-invariant models in the **frequency domain**
+
+::: notes
+**Context from Chapter 8:**
+
+Theorem 8.2 tells us that as $N \to \infty$, our parameter estimate $\hat{\theta}_N$ converges to $\theta^*$, which minimizes:
+
+$$\theta^* = \arg\min_{\theta \in D_c} \bar{V}(\theta)$$
+
+where $\bar{V}(\theta) = E[\varepsilon^2(t, \theta)]$ is the expected prediction error variance.
+
+**The two cases:**
+
+1.  **System in model set** ($S \in \mathcal{M}$): Then $\theta^* = \theta_0$ (the true parameters), and the model perfectly captures the system
+
+2.  **Model mismatch** ($S \notin \mathcal{M}$): Then $\theta^* \neq \theta_0$, and our model is the "best approximation" within the model class, but there's still a mismatch
+
+**Why frequency domain?**
+
+For linear time-invariant (LTI) systems, the frequency domain provides:
+
+-   Intuitive understanding of how well the model fits at different frequencies
+-   Clear interpretation of which frequency ranges are well-modeled vs. poorly-modeled
+-   Connection to classical frequency response analysis
+-   Explicit weighting functions showing what the criterion emphasizes
+
+**What to emphasize:**
+
+This section gives us tools to understand **where** (at which frequencies) our model is good and where it's poor. This is crucial for model validation and for understanding the limits of our identified model.
+
+**Reference to Problem 8G.4:**
+
+The textbook refers to Problem 8G.4 for additional development of these concepts.
+:::
+
+------------------------------------------------------------------------
+
+## Data from Arbitrary Systems
+
+**Key result**: The approximation expressions are applicable to data from **arbitrary, nonlinear, time-varying systems**!
+
+. . .
+
+**Assumption**: Input and output signalsc are jointly quasi-stationary (spectra are defined)
+
+. . .
+
+**The optimal predictor** (Wiener filter):
+
+$$\hat{y}(t|t-1) = W_u(q)u(t) + W_y(q)y(t)$$
+
+where $W_u$ and $W_y$ are computed from cross-spectra $\Phi_u$, $\Phi_{uu}$, and $\Phi_y$
+
+::: notes
+**A surprising and powerful result:**
+
+Even though we start with "assumption S1" (linear system), the approximation theory developed here applies **equally well** to data from:
+
+-   Nonlinear systems
+-   Time-varying systems
+-   Arbitrary stochastic processes
+
+As long as the signals are **jointly quasi-stationary** (their spectra exist and are well-defined).
+
+**The Wiener filter (equation 8.61):**
+
+Say "W u of q times u of t plus W y of q times y of t".
+
+The Wiener filter gives the optimal linear predictor of $y(t)$ from past data. It's computed from:
+
+-   $\Phi_u(\omega)$: Spectrum of input
+-   $\Phi_y(\omega)$: Spectrum of output
+-   $\Phi_{uu}(\omega)$, $\Phi_{yu}(\omega)$: Cross-spectra
+
+**Reference**: Wiener (1949) and Problem 8G.3
+
+**Key property of the prediction error:**
+
+The error $e_0(t) = y(t) - \hat{y}(t|t-1)$ is:
+
+-   **Uncorrelated with past inputs and outputs** by construction
+-   This means $e_0(k)$, $k < t$ is uncorrelated with $e_0(t)$
+
+**Rewriting in standard form (equation 8.62):**
+
+If we define: - $H_0(q) = (1 - W_y(q))^{-1}$ - $G_0(q) = H_0(q)W_u(q)$
+
+Then we can write:
+
+$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
+
+where $e_0(t)$ is an uncorrelated sequence.
+
+**The fundamental statement:**
+
+Equation (8.62) is a **correct description of the observed data**, if only their **second-order properties** are considered. It's "the best linear time-invariant approximation of the true system."
+
+**Caveat for control:**
+
+This approximation may still be useless for control and decision-making, since it depends on the actual data spectra (not just the system dynamics).
+:::
+
+------------------------------------------------------------------------
+
+## Expression for $\bar{V}(\theta)$ in Frequency Domain
+
+By fundamental expression (2.65):
+
+$$\bar{V}(\theta) = \bar{E}\frac{1}{2}\varepsilon^2(t, \theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
+
+where $\Phi_{\varepsilon}(\omega, \theta)$ is the **spectrum of the prediction errors** $\{\varepsilon(t, \theta)\}$
+
+. . .
+
+**Under assumption S1** (true system is LTI):
+
+$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
+
+where $e_0$ has variance $\lambda_0$
+
+::: notes
+**Parseval's theorem / Fundamental expression (2.65):**
+
+The criterion function $\bar{V}(\theta) = E[\frac{1}{2}\varepsilon^2(t, \theta)]$ can be expressed as an integral over frequency:
+
+$$\bar{V}(\theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
+
+This is a consequence of Parseval's theorem, which relates time-domain energy to frequency-domain energy.
+
+**Why this is useful:**
+
+Instead of thinking about the average squared prediction error in time, we can think about it as an **integral over all frequencies** of the prediction error spectrum. This allows us to see:
+
+-   Which frequencies contribute most to the total error
+-   How the weighting function affects the fit
+-   Where the model is good vs. poor
+
+**The true system description (equation 8.64):**
+
+Under assumption S1, the true system is linear and time-invariant:
+
+$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
+
+where:
+
+-   $G_0(q)$ is the true transfer function from input to output
+-   $H_0(q)$ is the true noise model
+-   $e_0(t)$ is white noise with variance $\lambda_0$
+
+**Next step:**
+
+We'll derive an explicit expression for $\Phi_{\varepsilon}(\omega, \theta)$ in terms of the true system ($G_0$, $H_0$) and the model ($G(\cdot, \theta)$, $H(\cdot, \theta)$).
+:::
+
+------------------------------------------------------------------------

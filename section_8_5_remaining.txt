@@ -1,0 +1,720 @@
+**Notation shorthand:**
+-   $H_{\theta} = H(q, \theta)$ (model noise filter)
+-   $G_{\theta} = G(q, \theta)$ (model transfer function)
+
+**Step 1**: Start with the definition of prediction error for a linear predictor:
+
+$$\varepsilon(t, \theta) = H^{-1}(q, \theta)[y(t) - G(q, \theta)u(t)]$$
+
+**Step 2**: Substitute the true system equation $y(t) = G_0(q)u(t) + H_0(q)e_0(t)$:
+
+$$\varepsilon(t, \theta) = H_{\theta}^{-1}[(G_0(q) - G_{\theta}(q))u(t) + H_0(q)e_0(t)]$$
+
+**Step 3**: Add and subtract $H_{\theta}e_0(t)$ to separate the innovation:
+
+$$\varepsilon(t, \theta) = H_{\theta}^{-1}[(G_0 - G_{\theta})u(t) + (H_0 - H_{\theta})e_0(t)] + e_0(t)$$
+
+**Key observation from Theorem 8.3:**
+
+If the system is under feedback control but there's a delay (either in the system or in the regulator), then:
+
+-   $u(t)$ depends only on $y(t-1)$ and earlier values
+-   Both $G_0$ and $G_{\theta}$ contain a delay
+-   $H_0$ and $H_{\theta}$ are monic (leading coefficient = 1)
+
+This means $(H_0 - H_{\theta})e_0(t)$ is **independent of** $e_0(t)$.
+
+**What this means:**
+
+The term $e_0(t)$ will be uncorrelated with the first terms in (8.65). This innovation $e_0(t)$ is the "irreducible" part of the prediction error - it exists even with a perfect model.
+:::
+
+------------------------------------------------------------------------
+
+## The Prediction Error Spectrum Formula
+
+$$\Phi_{\varepsilon}(\omega, \theta) = \frac{1}{|H_{\theta}|^2}[(G_0 - G_{\theta}) \quad (H_0 - H_{\theta})] \begin{bmatrix}\Phi_u & \Phi_{ue} \\ \Phi_{eu} & \lambda_0\end{bmatrix} \begin{bmatrix}\overline{G_0 - G_{\theta}} \\ \overline{H_0 - H_{\theta}}\end{bmatrix} + \lambda_0$$
+
+. . .
+
+**Notation:**
+-   Overbar = complex conjugation ($\bar{\Phi}_{ue} = \Phi_{ue}^*$)
+-   $\Phi_{eu}$ = cross spectrum between $e_0$ and $u$ (zero for open loop)
+-   All functions evaluated at $e^{i\omega}$
+
+::: notes
+**Understanding the formula (equation 8.66):**
+
+This is the key result! The spectrum of the prediction errors is expressed in terms of:
+
+1.  **Model error in transfer function**: $(G_0 - G_{\theta})$
+2.  **Model error in noise dynamics**: $(H_0 - H_{\theta})$
+3.  **Data spectra**: $\Phi_u$, $\Phi_{ue}$, $\lambda_0$
+4.  **Noise model weighting**: $1/|H_{\theta}|^2$
+
+**The cross spectrum $\Phi_{eu}$:**
+
+Say "Phi e u" - this is the cross spectrum between the noise $e_0$ and the input $u$.
+
+-   **Open loop**: $\Phi_{eu} = 0$ (input and noise are independent)
+-   **Closed loop**: $\Phi_{eu} \neq 0$ (input depends on past outputs, which contain noise)
+
+**The data spectrum factorization (equation 8.67):**
+
+The $2 \times 2$ data spectrum matrix can be factorized as:
+
+$$\begin{bmatrix}\Phi_u & \Phi_{ue} \\ \Phi_{eu} & \lambda_0\end{bmatrix} = \begin{bmatrix}I & 0 \\ \frac{\Phi_{eu}}{\Phi_u} & I\end{bmatrix}\begin{bmatrix}\Phi_u & 0 \\ 0 & \lambda_0 - \frac{|\Phi_{eu}|^2}{\Phi_u}\end{bmatrix}\begin{bmatrix}I & \frac{\Phi_{ue}}{\Phi_u} \\ 0 & I\end{bmatrix}$$
+
+This factorization is useful for simplifying the expression in special cases.
+
+**Interpreting the formula:**
+
+Think of this as a **weighted norm** of the model errors:
+
+-   The numerator measures how much the model differs from the true system
+-   The denominator $|H_{\theta}|^2$ acts as a frequency weighting
+-   The data spectra weight different frequencies based on signal energy
+-   The $\lambda_0$ term is the irreducible prediction error (even with perfect model)
+:::
+
+------------------------------------------------------------------------
+
+## Introducing the Bias Term $B(e^{i\omega}, \theta)$
+
+Define:
+
+$$B(e^{i\omega}, \theta) = \frac{(H_0(e^{i\omega}) - H(e^{i\omega}, \theta))\Phi_{ue}(\omega)}{\Phi_u(\omega)}$$
+
+. . .
+
+Then the prediction error spectrum can be rewritten as:
+
+$$\Phi_{\varepsilon}(\omega, \theta) = \frac{|G_0 + B_{\theta} - G_{\theta}|^2\Phi_u}{|H_{\theta}|^2} + \frac{|H_0 - H_{\theta}|^2\left(\lambda_0 - \frac{|\Phi_{ue}|^2}{\Phi_u}\right)}{|H_{\theta}|^2} + \lambda_0$$
+
+::: notes
+**The bias term $B(e^{i\omega}, \theta)$ (equation 8.68):**
+
+Say "B of e to the i omega, theta".
+
+This term represents a **bias pull** - it shows how the noise model error affects the estimate of the transfer function.
+
+**Physical interpretation:**
+
+-   When there's feedback ($\Phi_{ue} \neq 0$), the input and noise are correlated
+-   An error in the noise model $H$ creates a **bias** in the estimated transfer function $G$
+-   The bias is proportional to the cross-spectrum $\Phi_{ue}$ divided by the input spectrum $\Phi_u$
+
+**The rewritten formula (equation 8.69):**
+
+Using the factorization (8.67) and the bias term (8.68), we can rewrite the prediction error spectrum as:
+
+$$\Phi_{\varepsilon}(\omega, \theta) = \frac{|G_0 + B_{\theta} - G_{\theta}|^2\Phi_u}{|H_{\theta}|^2} + \frac{|H_0 - H_{\theta}|^2\left(\lambda_0 - \frac{|\Phi_{ue}|^2}{\Phi_u}\right)}{|H_{\theta}|^2} + \lambda_0$$
+
+**The three terms:**
+
+1.  **Transfer function error**: $\frac{|G_0 + B_{\theta} - G_{\theta}|^2\Phi_u}{|H_{\theta}|^2}$
+    -   Weighted by input spectrum $\Phi_u$
+    -   Includes bias $B_{\theta}$ from noise model error
+
+2.  **Noise model error**: $\frac{|H_0 - H_{\theta}|^2\left(\lambda_0 - \frac{|\Phi_{ue}|^2}{\Phi_u}\right)}{|H_{\theta}|^2}$
+    -   Weighted by "residual" noise spectrum after removing input correlation
+
+3.  **Irreducible error**: $\lambda_0$
+    -   The innovation variance (exists even with perfect model)
+
+**What to emphasize:**
+
+This decomposition shows how errors in $G$ and $H$ contribute separately to the total prediction error, but they're coupled through the bias term $B$.
+:::
+
+------------------------------------------------------------------------
+
+## Characterization of the Limiting Estimate
+
+We now have:
+
+$$D_c = \arg\min_{\theta} \bar{V}(\theta)$$
+
+in the frequency domain!
+
+. . .
+
+**Key insight**: If there's a $\theta_0$ such that $G_{\theta_0} = G_0$ and $H_{\theta_0} = H_0$, then:
+
+-   The first two terms in (8.69) vanish
+-   Only $\lambda_0$ remains (irreducible error)
+-   This minimizes the integral
+
+. . .
+
+**This is a restatement of Theorem 8.3** with more explicit detail
+
+::: notes
+**The characterization (equation 8.70):**
+
+$$D_c = \arg\min_{\theta} \bar{V}(\theta) = \arg\min_{\theta} \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
+
+We now have an **explicit frequency-domain expression** for what $\theta^*$ minimizes!
+
+**The perfect model case:**
+
+If there exists $\theta_0$ such that:
+-   $G(e^{i\omega}, \theta_0) = G_0(e^{i\omega})$ for all $\omega$
+-   $H(e^{i\omega}, \theta_0) = H_0(e^{i\omega})$ for all $\omega$
+
+Then:
+-   First term: $|G_0 + B - G|^2 = 0$
+-   Second term: $|H_0 - H|^2 = 0$
+-   Only $\lambda_0$ remains
+
+This minimizes the integral since $\lambda_0$ is independent of $\theta$.
+
+**Restatement of Theorem 8.3:**
+
+Theorem 8.3 says: "If the true system is in the model set ($S \in \mathcal{M}$), then $\theta^* = \theta_0$."
+
+Our frequency-domain derivation **confirms this** and provides **more explicit detail** about:
+
+-   How the model approximates the true system when $S \notin \mathcal{M}$
+-   What frequency weightings are implicit in the criterion
+-   How $G_{\theta}$ is "pulled towards" $G_0 + B_{\theta}$
+-   How $H_{\theta}$ is "pulled towards" $H_0$
+
+**What to emphasize:**
+
+We have a more complete picture of the approximation. The limiting estimate $\theta^*$ makes $G_{\theta^*}$ and $H_{\theta^*}$ approximate the true system with frequency-dependent weightings determined by the input spectrum and noise model.
+:::
+
+------------------------------------------------------------------------
+
+## Special Case: Open Loop with Fixed Noise Model
+
+**Assumptions**:
+-   System operates in **open loop**: $u$ and $e$ independent → $\Phi_{ue} \equiv 0$, $B = 0$
+-   Noise model is **fixed**: $H(q, \theta) = H_*(q)$
+
+. . .
+
+Then (8.70) and (8.69) specialize to:
+
+$$D_c = \arg\min_{\theta} \int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \theta)|^2 Q_*(\omega)d\omega$$
+
+where the **frequency weighting** is:
+
+$$Q_*(\omega) = \frac{\Phi_u(\omega)}{|H_*(e^{i\omega})|^2}$$
+
+::: notes
+**Open loop simplifications (equations 8.71a, 8.71b):**
+
+When the system operates in open loop:
+
+-   Input $u(t)$ and noise $e(t)$ are **independent**
+-   Cross-spectrum $\Phi_{ue} = 0$
+-   Bias term $B = 0$
+
+**Fixed noise model:**
+
+If we fix the noise model to $H(q, \theta) = H_*(q)$ (not estimated), then the criterion becomes:
+
+$$D_c = \arg\min_{\theta} \int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \theta)|^2 Q_*(\omega)d\omega$$
+
+where we disposed of the $\theta$-independent terms.
+
+**The weighting function $Q_*(\omega)$:**
+
+$$Q_*(\omega) = \frac{\Phi_u(\omega)}{|H_*(e^{i\omega})|^2}$$
+
+This weighting depends on:
+
+1.  **Input spectrum** $\Phi_u(\omega)$: Frequencies with more input energy are weighted more heavily
+
+2.  **Noise model** $H_*$: Acts as a inverse weighting - frequencies where the noise model predicts large noise are weighted less
+
+**Interpretation:**
+
+The limiting model $G(e^{i\omega}, \theta^*)$ is a **clear-cut best mean-square approximation** of $G_0(e^{i\omega})$ with frequency weighting $Q_*$.
+
+-   This weighting can be interpreted as the **model signal-to-noise ratio**
+-   Frequencies with high SNR (large $\Phi_u$, small $|H_*|^2$) are fit better
+-   Frequencies with low SNR are fit poorly (but matter less anyway!)
+
+**What to emphasize:**
+
+This is a very clean result: in open loop with fixed noise model, we're simply doing weighted least squares in the frequency domain. The weighting is the SNR at each frequency.
+:::
+
+------------------------------------------------------------------------
+
+## Independently Parameterized Noise Model
+
+Consider noise model with $\theta = [\rho \quad \eta]$ as in (8.45), (4.128)
+
+Define the **output error spectrum**:
+
+$$(G_0(q) - G(q, \rho))u(t) + H_0(q)e_0(t)$$
+
+for each value $\rho$.
+
+. . .
+
+The spectrum is:
+
+$$\Phi_{ER}(\omega, \rho) = |G_0(e^{i\omega}) - G(e^{i\omega}, \rho)|^2\Phi_u(\omega) + \lambda_0|H_0(e^{i\omega})|^2$$
+
+$$= \beta_{\rho}|R(e^{i\omega}, \rho)|^2$$
+
+where $\beta_{\rho}$ is a spectral factor and $R(e^{i\omega}, \rho)$ is a **monic function**
+
+::: notes
+**Independently parameterized noise model (equation 8.72):**
+
+Consider models where:
+-   $\rho$ parameterizes the transfer function $G(q, \rho)$
+-   $\eta$ parameterizes the noise model $H(q, \eta)$
+-   $\theta = [\rho, \eta]$ where $\rho$ and $\eta$ are independent
+
+This is common in practice (e.g., separate ARX model for dynamics, separate ARMA model for noise).
+
+**The output error:**
+
+For each fixed value of $\rho$, define the output error:
+
+$$(G_0(q) - G(q, \rho))u(t) + H_0(q)e_0(t)$$
+
+This is what's left over after using $G(q, \rho)$ to predict the output from the input.
+
+**The output error spectrum (equation 8.72):**
+
+Say "Phi E R of omega, rho".
+
+$$\Phi_{ER}(\omega, \rho) = |G_0(e^{i\omega}) - G(e^{i\omega}, \rho)|^2\Phi_u(\omega) + \lambda_0|H_0(e^{i\omega})|^2$$
+
+This has two terms:
+
+1.  **Model error**: $|G_0 - G|^2\Phi_u$ (transfer function mismatch weighted by input)
+2.  **True noise**: $\lambda_0|H_0|^2$ (the actual system noise)
+
+**Spectral factorization:**
+
+By the spectral factorization theorem (Section 2.3), we can write:
+
+$$\Phi_{ER}(\omega, \rho) = \beta_{\rho}|R(e^{i\omega}, \rho)|^2$$
+
+where:
+-   $R(e^{i\omega}, \rho)$ is a **monic function** (leading coefficient = 1)
+-   $\beta_{\rho}$ is a positive constant (the "spectral factor")
+
+This factorization is unique.
+
+**Why this matters:**
+
+This factorization will allow us to characterize the optimal noise model $\eta^*$ that best describes the output error spectrum.
+:::
+
+------------------------------------------------------------------------
+
+## Characterizing Optimal Parameters (Open Loop, Independent Parameterization)
+
+For $\theta^* = [\rho^* \quad \eta^*] \in D_c$:
+
+**Optimal transfer function parameter:**
+
+$$\rho^* = \arg\min_{\rho} \int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \rho)|^2 Q_*(\omega, \eta^*)d\omega$$
+
+where $Q_*(\omega, \eta) = \frac{\Phi_u(\omega)}{|H(e^{i\omega}, \eta)|^2}$
+
+. . .
+
+**Optimal noise model parameter:**
+
+$$\eta^* = \arg\min_{\eta} \int_{-\pi}^{\pi} \left|\frac{1}{H(e^{i\omega}, \eta)} - \frac{1}{R(e^{i\omega}, \rho^*)}\right|^2 \Phi_{ER}(\omega, \rho^*)d\omega$$
+
+::: notes
+**The optimal parameters (equations 8.73a, 8.73b, 8.73c):**
+
+For open loop with independently parameterized $\rho$ and $\eta$, we can **characterize each separately**!
+
+**Optimal $\rho^*$ (equation 8.73a):**
+
+$$\rho^* = \arg\min_{\rho} \int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \rho)|^2 Q_*(\omega, \eta^*)d\omega$$
+
+The transfer function $G(e^{i\omega}, \rho^*)$ is fitted to $G_0(e^{i\omega})$ in the $Q(\omega, \eta^*)$ norm.
+
+**The weighting $Q_*(\omega, \eta)$ (equation 8.73b):**
+
+$$Q_*(\omega, \eta) = \frac{\Phi_u(\omega)}{|H(e^{i\omega}, \eta)|^2}$$
+
+This is the **signal-to-noise ratio** at each frequency (same as before).
+
+**Important note:**
+
+This norm is **not known a priori** - it depends on $\eta^*$, which we're trying to find! The norm is only known **after minimization**, once $\eta^*$ is computed.
+
+**Optimal $\eta^*$ (equation 8.73c):**
+
+$$\eta^* = \arg\min_{\eta} \int_{-\pi}^{\pi} \left|\frac{1}{H(e^{i\omega}, \eta)} - \frac{1}{R(e^{i\omega}, \rho^*)}\right|^2 \Phi_{ER}(\omega, \rho^*)d\omega$$
+
+The noise model $H(e^{i\omega}, \eta^*)$ is fitted to **describe the spectrum of the output error**.
+
+**The spectral factor $R$ and $\Phi_{ER}$:**
+
+These are defined by (8.72):
+-   $R(e^{i\omega}, \rho)$ comes from factorizing the output error spectrum
+-   $\Phi_{ER}(\omega, \rho^*)$ is the output error spectrum at the optimal $\rho^*$
+
+**Intuitive summary:**
+
+-   $G(e^{i\omega}, \rho^*)$ fits $G_0(e^{i\omega})$ in the $Q$ norm (a SNR-weighted frequency-domain fit)
+-   $H(e^{i\omega}, \eta^*)$ fits the spectrum of what's left over (the output error)
+
+**What to emphasize:**
+
+With independent parameterization and open loop, we get a **clean separation**: first fit the transfer function, then fit the noise model to describe the residuals. But the two are still coupled through the weighting $Q$.
+:::
+
+------------------------------------------------------------------------
+
+## General Case: Coupled $G$ and $H$
+
+In general (when $G$ and $H$ **share parameters**), no clear-cut formal characterization exists.
+
+. . .
+
+**However**, it's useful and intuitively appealing to view $\theta^*$ as a **compromise** between:
+
+1.  Fitting $G_{\theta}$ to $G_0$ in the frequency norm $\Phi_u/|H_{\theta}|^2$
+
+2.  Fitting the model spectrum $|H_{\theta}|^2$ to the output error spectrum $\Phi_{ER}(\omega, \theta^*)$
+
+::: notes
+**The general case without independent parameterization:**
+
+When the transfer function $G$ and noise model $H$ **share parameters** (e.g., common poles in ARMAX models), we cannot separate the minimization as cleanly.
+
+**No closed-form characterization:**
+
+There's no simple formula like (8.73a, 8.73c) that explicitly characterizes the optimal $\theta^*$ in terms of separate fits.
+
+**Intuitive interpretation:**
+
+Despite the lack of a clean formula, we can still understand $\theta^*$ as a **compromise** or **trade-off**:
+
+-   **Pull toward good $G$ fit**: The estimate wants to make $G_{\theta}$ close to $G_0$ in the frequency-weighted norm $\Phi_u/|H_{\theta}|^2$
+
+-   **Pull toward good $H$ fit**: The estimate wants to make $|H_{\theta}|^2$ match the output error spectrum $\Phi_{ER}(\omega, \theta^*)$
+
+**The coupling:**
+
+Because $G$ and $H$ share parameters, improving one aspect may worsen the other. The optimal $\theta^*$ balances these competing objectives.
+
+**Example:**
+
+In an ARMAX model:
+
+$$y(t) = \frac{B(q)}{A(q)}u(t) + \frac{C(q)}{A(q)}e(t)$$
+
+The denominator $A(q)$ appears in **both** $G$ and $H$. Adjusting $A$ affects both the transfer function fit and the noise model fit simultaneously.
+
+**What to emphasize:**
+
+Even without a clean formula, the frequency-domain perspective gives us **intuition** about what the identification procedure is doing: it's balancing the fit of $G$ (weighted by the SNR) against the fit of $H$ (describing the residual spectrum).
+:::
+
+------------------------------------------------------------------------
+
+## Example 8.5: Frequency Domain Approximation (Setup)
+
+**True system**:
+
+$$y(t) = G_0(q)u(t)$$
+
+where:
+
+$$G_0(q) = \frac{0.001q^{-2}(10 + 7.4q^{-1} + 0.924q^{-2} + 0.1764q^{-3})}{1 - 2.14q^{-1} + 1.553q^{-2} - 0.4387q^{-3} + 0.042q^{-4}}$$
+
+. . .
+
+**Input**: PRBS (Pseudo-Random Binary Signal) with period one sample
+-   $\Phi_u(\omega) \approx 1$ for all $\omega$
+
+. . .
+
+**No disturbances** act on the system
+
+::: notes
+**Example 8.5 setup (equation 8.78):**
+
+This is a concrete example that illustrates the frequency-domain approximation concepts.
+
+**The true system:**
+
+A 4th-order transfer function with a 2-sample delay:
+
+$$G_0(q) = \frac{0.001q^{-2}(10 + 7.4q^{-1} + 0.924q^{-2} + 0.1764q^{-3})}{1 - 2.14q^{-1} + 1.553q^{-2} - 0.4387q^{-3} + 0.042q^{-4}}$$
+
+**Key characteristics:**
+
+-   Numerator order: 3 (plus 2-sample delay)
+-   Denominator order: 4
+-   All poles are inside the unit circle (stable system)
+
+**The input - PRBS:**
+
+PRBS = Pseudo-Random Binary Signal (see Section 13.3)
+
+-   Switches randomly between two levels (like +1 and -1)
+-   With period = one sample, it has nearly **flat spectrum**: $\Phi_u(\omega) \approx 1$ for all $\omega$
+-   This means all frequencies are excited equally (great for system identification!)
+
+**No disturbances:**
+
+Since there's no noise ($e(t) = 0$), this is a noise-free identification problem. The only errors come from **model mismatch**.
+
+**What will happen:**
+
+We'll identify this system using:
+
+1.  **Output Error (OE) model**: Prefilter $L(q) \equiv 1$ (no prefiltering)
+2.  **ARX model**: Using a linear regression predictor
+
+We'll see that the two models give **very different** approximations due to their different frequency weightings!
+:::
+
+------------------------------------------------------------------------
+
+## Example 8.5: Output Error Model
+
+**Model structure (OE)**:
+
+$$\hat{y}(t|\theta) = \frac{b_1q^{-1} + b_2q^{-2}}{1 + f_1q^{-1} + f_2q^{-2}}u(t)$$
+
+with prefilter $L(q) \equiv 1$
+
+. . .
+
+**Result**: Good low-frequency fit, bad at high frequencies
+
+. . .
+
+**Why?** The limiting model is characterized by (8.71):
+
+$$\theta^* = \arg\min_{\theta} \int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \theta)|^2 d\omega$$
+
+since $H^*(q) = 1$ and $\Phi_u(\omega) \equiv 1$
+
+::: notes
+**Output Error (OE) model structure (equation 8.79):**
+
+$$\hat{y}(t|\theta) = \frac{b_1q^{-1} + b_2q^{-2}}{1 + f_1q^{-1} + f_2q^{-2}}u(t)$$
+
+This is a very simple 2nd-order rational transfer function:
+-   2 poles (denominator)
+-   2 zeros (numerator, starting at $q^{-1}$)
+-   Much lower order than the true system (which is 4th order)!
+
+**The prefilter $L(q) \equiv 1$:**
+
+With no prefiltering, the noise model is $H(q, \theta) = L(q) = 1$.
+
+**Results - Figure 8.2a:**
+
+Bode plots show:
+-   **Low frequencies** (< 0.1 rad/s): Model (thin line) matches true system (thick line) **very well**
+-   **High frequencies** (> 1 rad/s): Model is **way off** from true system
+
+**Why this happens (equation 8.80):**
+
+The limiting model is characterized by:
+
+$$\theta^* = \arg\min_{\theta} \int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \theta)|^2 d\omega$$
+
+This is an **unweighted** frequency-domain fit since:
+-   $H^*(q) = 1$ (so $|H^*|^2 = 1$)
+-   $\Phi_u(\omega) \equiv 1$ (flat spectrum from PRBS)
+
+**Why the low-frequency fit is good:**
+
+The amplitude of the true system **falls off** rapidly:
+-   Factor of $10^{-2}$ at $\omega > 1$
+-   Factor of $10^{-3}$ at higher frequencies
+
+Errors at high frequencies contribute **only marginally** to the integral criterion (8.80), so they're essentially ignored. The fit concentrates on low frequencies where the amplitude is large.
+
+**What to emphasize:**
+
+The OE model structure with no prefiltering gives an **unweighted** fit. Since the true system has small gain at high frequencies, the criterion essentially ignores those frequencies → good low-frequency fit, poor high-frequency fit.
+:::
+
+------------------------------------------------------------------------
+
+## Example 8.5: ARX Model
+
+**Model structure (ARX)**:
+
+$$y(t) = \frac{b_1q^{-1} + b_2q^{-2}}{1 + a_1q^{-1} + a_2q^{-2}}u(t) + \frac{1}{1 + a_1q^{-1} + a_2q^{-2}}e(t)$$
+
+(linear regression predictor)
+
+. . .
+
+**Result**: Much **worse** low-frequency fit compared to OE!
+
+. . .
+
+**Why?** The limit model is a **compromise** between:
+
+1.  Fitting $1/|1 + a_1e^{i\omega} + a_2e^{2i\omega}|^2$ to the error spectrum
+2.  Fitting the transfer function (with that weighting)
+
+::: notes
+**ARX model structure (equation 8.81):**
+
+$$y(t) = \frac{b_1q^{-1} + b_2q^{-2}}{1 + a_1q^{-1} + a_2q^{-2}}u(t) + \frac{1}{1 + a_1q^{-1} + a_2q^{-2}}e(t)$$
+
+**Key difference from OE:**
+
+-   Same transfer function structure
+-   But now there's a **noise model**: $H(q) = \frac{1}{A(q)}$
+-   The transfer function and noise model **share the denominator** $A(q)$
+
+**Results - Figure 8.2b:**
+
+The Bode plot shows a **much worse low-frequency fit** than the OE model!
+
+**Why this happens:**
+
+According to our discussion in Section 8.5, the limit model is a **compromise** between:
+
+1.  Fitting $1/|1 + a_1e^{i\omega} + a_2e^{2i\omega}|^2$ to the error spectrum $\Phi_{ER}(\omega, \theta^*)$
+
+2.  Minimizing $(a_1^*$ and $a_2^*$ correspond to the limit estimate $\theta^*)$:
+
+$$\int_{-\pi}^{\pi} |G_0(e^{i\omega}) - G(e^{i\omega}, \theta)|^2 \cdot |1 + a_1^*e^{i\omega} + a_2^*e^{2i\omega}|^2 d\omega$$
+
+**The weighting function (Figure 8.3):**
+
+The function $|A_*(e^{i\omega})|^2 = |1 + a_1^*e^{i\omega} + a_2^*e^{2i\omega}|^2$:
+
+-   Is nearly constant at low frequencies (small weighting)
+-   Grows dramatically at high frequencies (large weighting - factor of $10^4$ higher!)
+
+**What this means:**
+
+The criterion (8.82) **penalizes high-frequency misfit much more** than low-frequency misfit.
+
+-   High frequencies get 10,000× more weight
+-   Low-frequency fit is sacrificed to achieve better high-frequency fit
+-   Result: Poor low-frequency match, better high-frequency match
+
+**Why the weighting is like this:**
+
+The ARX structure forces $H(q) = 1/A(q)$. To describe the error spectrum (which is small at low frequencies and large at high frequencies), $A(q)$ must have large gain at high frequencies. This creates the unfortunate weighting that de-emphasizes low frequencies in the transfer function fit.
+
+**What to emphasize:**
+
+This example dramatically illustrates how **model structure choice** affects the frequency weighting and thus the quality of fit at different frequencies. The ARX structure's coupling of $G$ and $H$ through shared poles creates a problematic weighting for this particular system.
+:::
+
+------------------------------------------------------------------------
+
+## Example 8.5: Closed Loop Extension
+
+**Closed loop case**: Assume linear regulator with time-invariant filters
+
+$$u(t) = K_1(q)r(t) + K_2(q)e_0(t)$$
+
+where $r(t)$ is the reference signal.
+
+. . .
+
+Then we find:
+
+$$|\Phi_{ue}(\omega)|^2 = \lambda_0\Phi_u^r(\omega)$$
+
+where $\Phi_u^r(\omega)$ is the part of the input spectrum originating from $r$.
+
+. . .
+
+The bias-pull term $B$ becomes:
+
+$$|B(e^{i\omega}, \theta)|^2 = \frac{\lambda_0}{\Phi_u(\omega)} \cdot \frac{\Phi_u^r(\omega)}{\Phi_u(\omega)} \cdot |H_0(e^{i\omega}) - H(e^{i\omega}, \theta)|^2$$
+
+::: notes
+**Closed loop extension (equations 8.74, 8.75, 8.76):**
+
+So far we've assumed open loop ($\Phi_{ue} = 0$). What if the system is under feedback control?
+
+**Closed loop setup:**
+
+Linear feedback with time-invariant filters:
+
+$$u(t) = K_1(q)r(t) + K_2(q)e_0(t)$$
+
+where:
+-   $r(t)$ is the reference signal (setpoint changes)
+-   $K_1(q)$ shapes the reference response
+-   $K_2(q)$ is the feedback controller (depends on past outputs, which contain $e_0$)
+
+**Assumption D1:**
+
+The noise source $e_0$ and reference $r$ are **independent** (standard assumption).
+
+**Input spectrum decomposition (equation 8.74):**
+
+$$\Phi_u(\omega) = \Phi_u^r(\omega) + \Phi_u^e(\omega)$$
+
+where:
+-   $\Phi_u^r(\omega)$: Part of input originating from reference $r$
+-   $\Phi_u^e(\omega)$: Part of input originating from noise $e_0$ (feedback)
+
+**Cross-spectrum result (equation 8.75):**
+
+$$|\Phi_{ue}(\omega)|^2 = \lambda_0\Phi_u^e(\omega)$$
+
+This tells us the magnitude of correlation between input and noise.
+
+**The bias-pull term in closed loop (equation 8.76):**
+
+$$|B(e^{i\omega}, \theta)|^2 = \frac{\lambda_0}{\Phi_u(\omega)} \cdot \frac{\Phi_u^e(\omega)}{\Phi_u(\omega)} \cdot |H_0(e^{i\omega}) - H(e^{i\omega}, \theta)|^2$$
+
+**Interpretation:**
+
+The bias grows with:
+
+1.  $\Phi_u^e/\Phi_u$: The fraction of input energy from feedback (not reference)
+2.  The noise model error $|H_0 - H|^2$
+
+**The resulting criterion (equation 8.77):**
+
+$$\int_{-\pi}^{\pi} \frac{|G_0(e^{i\omega}) + B(e^{i\omega}, \theta) - G(e^{i\omega}, \theta)|^2\Phi_u(\omega)}{|H(e^{i\omega}, \theta)|^2}d\omega + \lambda_0\int_{-\pi}^{\pi} \frac{|H_0(e^{i\omega}) - H(e^{i\omega}, \theta)|^2\Phi_u^r(\omega)}{|H(e^{i\omega}, \theta)|^2\Phi_u(\omega)}d\omega$$
+
+This will be investigated further in **Section 13.4**.
+
+**What to emphasize:**
+
+In closed loop, identification becomes more complex:
+-   Input and noise are correlated (bias term $B$)
+-   Transfer function estimate is "biased" unless noise model is correct
+-   The weighting involves the reference spectrum $\Phi_u^r$, not just total input spectrum
+
+This motivates careful experimental design for closed-loop identification!
+:::
+
+------------------------------------------------------------------------
+
+## Summary of Section 8.5
+
+**Key takeaways:**
+
+-   The limiting model $\theta^*$ can be characterized in the **frequency domain**
+-   The criterion integrates the prediction error spectrum: $\bar{V}(\theta) = \frac{1}{4\pi}\int \Phi_{\varepsilon}(\omega, \theta)d\omega$
+-   **Open loop + fixed noise model**: Clean weighted least-squares fit with weighting $Q_*(\omega) = \Phi_u(\omega)/|H_*|^2$
+-   **Model structure affects frequency weighting**: OE vs. ARX give very different fits!
+-   **Closed loop**: Introduces bias term $B$ from input-noise correlation
+
+. . .
+
+**Practical implications:**
+
+-   Different model structures emphasize different frequency ranges
+-   Input spectrum design affects which frequencies are well-identified
