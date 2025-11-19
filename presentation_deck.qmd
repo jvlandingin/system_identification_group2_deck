@@ -11,8 +11,6 @@ format:
     transition: slide
     html-math-method: mathjax
     css: styles.css
-revealjs-plugins:
-  - pointer
 ---
 
 ## Presentation Overview

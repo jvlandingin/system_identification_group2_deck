@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1400 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-size: 24px; font-weight: bold; fill: #333; }
+      .subtitle { font-size: 14px; font-weight: bold; fill: #555; }
+      .label { font-size: 12px; fill: #333; }
+      .curve { fill: none; stroke: #000; stroke-width: 2.5; }
+      .parabola { fill: none; stroke-dasharray: 5,5; stroke-width: 2.5; }
+      .point-current { fill: #FF6B6B; stroke: #8B0000; stroke-width: 2; }
+      .point-next { fill: #2ECC71; stroke: #000; stroke-width: 2; }
+      .arrow { fill: none; stroke: #FF6B6B; stroke-width: 2.5; stroke-linecap: round; }
+      .legend { font-size: 11px; fill: #333; }
+      .grid { stroke: #ddd; stroke-width: 0.5; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="700" y="30" class="title" text-anchor="middle">Newton's Method: Walking Down a Hill in Fog</text>
+
+  <!-- ITERATION 1 -->
+  <g id="iteration1">
+    <!-- Subtitle -->
+    <text x="233" y="60" class="subtitle" text-anchor="middle">Iteration 1</text>
+    
+    <!-- Grid -->
+    <line x1="50" y1="500" x2="416" y2="500" class="grid"/>
+    <line x1="50" y1="450" x2="416" y2="450" class="grid"/>
+    <line x1="50" y1="400" x2="416" y2="400" class="grid"/>
+    <line x1="50" y1="350" x2="416" y2="350" class="grid"/>
+    
+    <!-- Axes -->
+    <line x1="50" y1="500" x2="416" y2="500" stroke="#000" stroke-width="2"/>
+    <line x1="50" y1="500" x2="50" y2="80" stroke="#000" stroke-width="2"/>
+    
+    <!-- True function curve (parabola-like) -->
+    <path d="M 60 480 Q 100 420 150 340 T 250 200 T 350 200" class="curve"/>
+    
+    <!-- Fog effect (light gray circle) -->
+    <circle cx="120" cy="450" r="40" fill="#ddd" opacity="0.2"/>
+    
+    <!-- Quadratic approximation at iteration 1 -->
+    <path d="M 70 460 Q 120 420 170 380" class="parabola" stroke="#FF6B6B"/>
+    
+    <!-- Current position point -->
+    <circle cx="120" cy="450" r="6" class="point-current"/>
+    
+    <!-- Next position point -->
+    <circle cx="180" cy="390" r="6" class="point-next"/>
+    
+    <!-- Arrow showing movement -->
+    <line x1="120" y1="450" x2="180" y2="390" class="arrow" marker-end="url(#arrowhead)"/>
+    
+    <!-- Labels -->
+    <text x="120" y="465" class="label" text-anchor="middle">θ₁</text>
+    <text x="180" y="405" class="label" text-anchor="middle">θ₂</text>
+    <text x="35" y="505" class="label">V(θ)</text>
+    <text x="415" y="515" class="label">θ</text>
+  </g>
+
+  <!-- ITERATION 2 -->
+  <g id="iteration2" transform="translate(466, 0)">
+    <text x="233" y="60" class="subtitle" text-anchor="middle">Iteration 2</text>
+    
+    <!-- Grid -->
+    <line x1="50" y1="500" x2="416" y2="500" class="grid"/>
+    <line x1="50" y1="450" x2="416" y2="450" class="grid"/>
+    <line x1="50" y1="400" x2="416" y2="400" class="grid"/>
+    <line x1="50" y1="350" x2="416" y2="350" class="grid"/>
+    
+    <!-- Axes -->
+    <line x1="50" y1="500" x2="416" y2="500" stroke="#000" stroke-width="2"/>
+    <line x1="50" y1="500" x2="50" y2="80" stroke="#000" stroke-width="2"/>
+    
+    <!-- True function curve -->
+    <path d="M 60 480 Q 100 420 150 340 T 250 200 T 350 200" class="curve"/>
+    
+    <!-- Fog effect -->
+    <circle cx="180" cy="390" r="40" fill="#ddd" opacity="0.2"/>
+    
+    <!-- Quadratic approximation at iteration 2 -->
+    <path d="M 100 420 Q 180 360 250 320" class="parabola" stroke="#4ECDC4"/>
+    
+    <!-- Current position point -->
+    <circle cx="180" cy="390" r="6" class="point-current"/>
+    
+    <!-- Next position point -->
+    <circle cx="240" cy="340" r="6" class="point-next"/>
+    
+    <!-- Arrow -->
+    <line x1="180" y1="390" x2="240" y2="340" class="arrow" marker-end="url(#arrowhead)"/>
+    
+    <!-- Labels -->
+    <text x="180" y="405" class="label" text-anchor="middle">θ₂</text>
+    <text x="240" y="355" class="label" text-anchor="middle">θ₃</text>
+    <text x="35" y="505" class="label">V(θ)</text>
+    <text x="415" y="515" class="label">θ</text>
+  </g>
+
+  <!-- ITERATION 3 -->
+  <g id="iteration3" transform="translate(932, 0)">
+    <text x="233" y="60" class="subtitle" text-anchor="middle">Iteration 3</text>
+    
+    <!-- Grid -->
+    <line x1="50" y1="500" x2="416" y2="500" class="grid"/>
+    <line x1="50" y1="450" x2="416" y2="450" class="grid"/>
+    <line x1="50" y1="400" x2="416" y2="400" class="grid"/>
+    <line x1="50" y1="350" x2="416" y2="350" class="grid"/>
+    
+    <!-- Axes -->
+    <line x1="50" y1="500" x2="416" y2="500" stroke="#000" stroke-width="2"/>
+    <line x1="50" y1="500" x2="50" y2="80" stroke="#000" stroke-width="2"/>
+    
+    <!-- True function curve -->
+    <path d="M 60 480 Q 100 420 150 340 T 250 200 T 350 200" class="curve"/>
+    
+    <!-- Fog effect -->
+    <circle cx="240" cy="340" r="40" fill="#ddd" opacity="0.2"/>
+    
+    <!-- Quadratic approximation at iteration 3 -->
+    <path d="M 160 380 Q 240 310 300 280" class="parabola" stroke="#45B7D1"/>
+    
+    <!-- Current position point -->
+    <circle cx="240" cy="340" r="6" class="point-current"/>
+    
+    <!-- Next position (very close to minimum) -->
+    <circle cx="280" cy="290" r="6" class="point-next"/>
+    
+    <!-- Arrow -->
+    <line x1="240" y1="340" x2="280" y2="290" class="arrow" marker-end="url(#arrowhead)"/>
+    
+    <!-- Labels -->
+    <text x="240" y="355" class="label" text-anchor="middle">θ₃</text>
+    <text x="280" y="305" class="label" text-anchor="middle">θ₄</text>
+    <text x="35" y="505" class="label">V(θ)</text>
+    <text x="415" y="515" class="label">θ</text>
+  </g>
+
+  <!-- Legend Box -->
+  <g id="legend">
+    <rect x="50" y="530" width="1300" height="50" fill="#f9f9f9" stroke="#ccc" stroke-width="1" rx="5"/>
+    
+    <circle cx="80" cy="555" r="4" class="point-current"/>
+    <text x="95" y="560" class="legend">Current position (θᵢ)</text>
+    
+    <circle cx="280" cy="555" r="4" class="point-next"/>
+    <text x="295" y="560" class="legend">Next position (θᵢ₊₁)</text>
+    
+    <line x1="500" y1="550" x2="520" y2="560" class="parabola" stroke="#FF6B6B"/>
+    <text x="535" y="560" class="legend">Quadratic approximation (parabola)</text>
+    
+    <path d="M 850 555 L 870 545" class="arrow" marker-end="url(#arrowhead)" stroke="#FF6B6B"/>
+    <text x="885" y="560" class="legend">Movement direction</text>
+  </g>
+
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#FF6B6B"/>
+    </marker>
+  </defs>
+</svg>

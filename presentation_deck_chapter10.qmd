@@ -10,7 +10,7 @@ format:
     preview-links: auto
     transition: slide
     html-math-method: mathjax
-    css: styles.css
+    css: assets/styles/styles.css
 revealjs-plugins:
   - pointer
 ---
@@ -1516,14 +1516,6 @@ $$0 = f_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \zeta(t, \theta)\alpha(\varep
 
 . . .
 
-**Examples where analytical solutions fail:**
-
-- Non-linear model structures (Hammerstein-Wiener models)
-- Non-quadratic loss functions (robust estimation)
-- Output error models (prediction errors non-linear in parameters)
-
-. . .
-
 **Solution**: Use iterative numerical techniques
 
 ::: notes
@@ -1610,6 +1602,50 @@ The step size must be chosen to ensure that $V(\hat{\theta}^{(i+1)}) < V(\hat{\t
 
 ------------------------------------------------------------------------
 
+## Overview: Specific Methods in Section 10.2
+
+**Problem**: Minimize $V_N(\theta, Z^N)$ or solve $f_N(\theta, Z^N) = 0$
+
+. . .
+
+**For minimization problems** (focus of this section):
+
+| Method | Category | Information Used | Typical Use |
+|--------|----------|------------------|------------|
+| **Newton's Method** | Group 3 | Gradient + Hessian | Near minimum, expensive |
+| **Steepest Descent** | Group 2 | Gradient only | Simple, robust, slow |
+| **Gauss-Newton** | Group 2 | Gradient + approx. Hessian | Least squares, fast |
+| **Levenberg-Marquardt** | Group 2 | Gradient + adaptive damping | Industrial workhorse |
+
+. . .
+
+**For solving equations** (briefly):
+- **Newton-Raphson method**: Analog of Newton's method for $f_N(\theta) = 0$
+- **Substitution method**: Simple iteration on the equation
+
+::: notes
+**Setting up expectations for the next slides:**
+
+We've introduced three broad categories. Now we'll focus on specific practical algorithms for system identification:
+
+1. **Newton's Method**: The reference method with best convergence (but expensive)
+2. **Steepest Descent**: Simplest gradient method (slow but always works)
+3. **Gauss-Newton**: Best approximation for least-squares problems (practical and fast)
+4. **Levenberg-Marquardt**: Combines robustness and speed (most widely used in practice)
+
+**The big idea:**
+
+All these methods are variants of the same iterative formula: $\hat{\theta}^{(i+1)} = \hat{\theta}^{(i)} - \mu^{(i)}[R^{(i)}]^{-1}V'(\hat{\theta}^{(i)})$
+
+The differences are in how they choose $R^{(i)}$ (the matrix) and $\mu^{(i)}$ (the step size). This single formula with different choices gives you the full spectrum from simple/slow to complex/fast.
+
+**What to emphasize:**
+
+You're not learning four completely different algorithms. You're learning how to control ONE framework by changing key components. This is much more elegant and helps you understand the trade-offs.
+:::
+
+------------------------------------------------------------------------
+
 ## Newton's Method
 
 The classic **Newton algorithm** belongs to group 3:
@@ -1620,16 +1656,6 @@ where:
 
 -   $V'(\theta)$ is the **gradient** (first derivative)
 -   $V''(\theta)$ is the **Hessian** (second derivative matrix)
-
-. . .
-
-**The Hessian matrix** for parameter vector of dimension $d$:
-
-$$V''(\theta) = \begin{bmatrix}
-\frac{\partial^2 V}{\partial \theta_1^2} & \frac{\partial^2 V}{\partial \theta_1 \partial \theta_2} & \cdots \\
-\frac{\partial^2 V}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 V}{\partial \theta_2^2} & \cdots \\
-\vdots & \vdots & \ddots
-\end{bmatrix}$$
 
 . . .
 
@@ -1649,6 +1675,20 @@ $$V''(\theta) = \begin{bmatrix}
 \frac{\partial^2 V}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 V}{\partial \theta_2^2} & \cdots \\
 \vdots & \vdots & \ddots
 \end{bmatrix}$$
+
+**What does "approximating a quadratic function" mean?**
+
+At each iteration, Newton creates a **local quadratic model** of the function:
+
+$$V(\theta) \approx V(\theta^{(i)}) + V'(\theta^{(i)})^T(\theta - \theta^{(i)}) + \frac{1}{2}(\theta - \theta^{(i)})^T V''(\theta^{(i)})(\theta - \theta^{(i)})$$
+
+This is the **second-order Taylor approximation**—a quadratic function centered at the current point $\theta^{(i)}$.
+
+Then Newton:
+1. **Finds the minimum** of this approximating quadratic
+2. **Takes one step** to that minimum
+3. **Repeats** at the new point (creates a new quadratic approximation there)
+
 :::
 
 ------------------------------------------------------------------------
@@ -1676,9 +1716,56 @@ $$V''(\theta) = \begin{bmatrix}
 **This motivates quasi-Newton methods** (coming next)
 
 ::: notes
-**The computational burden:**
+**Quadratic convergence:** Error squared at each iteration: $e_{i+1} \approx C \cdot e_i^2$
+Example: 0.1 → 0.01 → 0.0001 (exponential speedup)
+Contrast: Steepest descent linear, $e_{i+1} \approx r \cdot e_i$ (much slower)
 
-Computing all $d^2$ entries of the Hessian and then inverting it costs $O(d^3)$ operations. For large parameter spaces, this is prohibitively expensive. This motivates quasi-Newton methods.
+**One-step for quadratics:** If function is exactly quadratic, Newton solves in one step (Taylor approximation is exact).
+
+**Why it works:** Each iteration creates local quadratic model. Near minimum, approximation is accurate.
+
+**Natural step size:** Hessian matrix automatically determines step size (no manual tuning).
+:::
+
+------------------------------------------------------------------------
+
+## Why We Need to Understand the Gradient
+
+**Key insight from Newton's Method:**
+
+- Newton's method requires **both** $V'(\theta)$ (gradient) and $V''(\theta)$ (Hessian)
+- The Hessian is expensive to compute
+- But to understand quasi-Newton approximations, we need to know what the gradient looks like
+
+. . .
+
+**The gradient formula is central because:**
+
+1. **All methods need it**: Steepest Descent, Gauss-Newton, Levenberg-Marquardt all compute $V'(\theta)$
+2. **Hessian structure depends on it**: Understanding $V'(\theta)$ helps us approximate $V''(\theta)$
+3. **Computational bottleneck**: Computing the gradient for all $N$ data points is the main cost
+
+. . .
+
+**Next:** Let's see the explicit formula for $V'(\theta)$ and understand its structure
+
+::: notes
+**Setting up the gradient computation:**
+
+We've now seen that Newton's method is expensive because it requires the Hessian. The next step is to understand the gradient formula in detail, because:
+
+1. All the methods we'll discuss (Steepest Descent, Gauss-Newton, Levenberg-Marquardt) use the gradient
+2. The Gauss-Newton Hessian approximation is built directly from the gradient
+3. Understanding the gradient components will help explain why Gauss-Newton can approximate the full Hessian
+
+**Why this is important:**
+
+The gradient formula shows us:
+- What information is easy to compute (first derivatives of the model)
+- What's hard to compute (second derivatives appear in the Hessian)
+- How these components appear in the Gauss-Newton approximation
+
+This builds intuition for why Gauss-Newton works: it keeps the easy part of the Hessian and drops the hard part.
 :::
 
 ------------------------------------------------------------------------
@@ -1706,95 +1793,64 @@ where $\psi(t, \theta) = \frac{\partial \hat{y}(t|\theta)}{\partial \theta}$ is 
 **Major computational burden**: Computing $\psi(t, \theta)$ for all $t = 1, \ldots, N$
 
 ::: notes
-**Understanding the gradient formula:**
+Say "V N prime equals negative one over N sum..."
 
-Say "V N prime of theta, Z to the N equals negative one over N times the sum..."
+**Components:**
+- $\psi(t, \theta)$: Gradient of predictor w.r.t. parameters
+- $\ell_{\varepsilon}'$: Derivative of loss w.r.t. prediction error
+- $\ell_{\theta}'$: Direct derivative (often zero)
 
-This formula tells us how to compute the direction of steepest ascent of the criterion function. The negative of this gives us the steepest descent direction.
+**Key computational burden:** Computing $\psi(t, \theta)$ for all $t = 1, \ldots, N$
 
-**Components of the formula:**
-
--   $\psi(t, \theta)$: The gradient of the predictor $\hat{y}(t|\theta)$ with respect to parameters. This is a matrix because the output might be multidimensional.
-
--   $\ell_{\varepsilon}'(\varepsilon(t, \theta), \theta)$: Derivative of loss function with respect to the prediction error
-
--   $\ell_{\theta}'(\varepsilon(t, \theta), \theta)$: Direct derivative of loss function with respect to parameters (often zero)
-
-**Why computing** $\psi(t, \theta)$ is hard:
-
-For each time point $t = 1, 2, \ldots, N$, we need to compute how the predicted output changes with respect to each parameter. This requires:
-
--   Understanding the model structure
--   Chain rule for composite functions
--   Potentially recursive calculations for dynamic models
-
-Section 10.3 discusses efficient techniques for computing $\psi(t, \theta)$ for common model structures.
-
-**Analogy:**
-
-Think of the gradient as a compass that points uphill. At each iteration, we compute this compass direction and then walk downhill (negative gradient) to decrease $V(\theta)$.
+**Analogy:** Gradient is a compass pointing uphill. We move downhill (negative gradient) to decrease $V(\theta)$.
 :::
 
 ------------------------------------------------------------------------
 
-## Scalar Output and Quadratic Criterion
+## Overview: Iterative Search Methods
 
-Consider the special case:
-
-$$V_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \frac{1}{2}\varepsilon^2(t, \theta)$$
-
-This is the **nonlinear least-squares problem** - most common in practice!
-
-. . .
-
-**Why this case matters:**
-
-- Quadratic loss → good statistical properties
-- Well-studied numerically
-- Balance of accuracy and computational tractability
-
-. . .
-
-The gradient simplifies to:
-
-$$V_N'(\theta, Z^N) = -\frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\varepsilon(t, \theta)$$
-
-. . .
-
-**General family of search algorithms:**
+**The general update formula:**
 
 $$\hat{\theta}_N^{(i+1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [R_N^{(i)}]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
 
-Different choices of $R_N^{(i)}$ and $\mu_N^{(i)}$ give different algorithms
+Different choices of $R_N^{(i)}$ (Hessian approximation) and $\mu_N^{(i)}$ (step size) give different algorithms.
+
+. . .
+
+**Methods we'll cover:**
+
+1. **Steepest Descent**: Simple gradient direction, slow convergence
+2. **Gauss-Newton**: Hessian approximation using prediction sensitivity
+3. **Levenberg-Marquardt**: Adaptive blend between Gauss-Newton and Steepest Descent
+
+. . .
+
+**Trade-off to understand:**
+
+- More accurate $R_N^{(i)}$ → faster convergence but more computation
+- How do we choose step size $\mu_N^{(i)}$? (Line search or adaptive)
 
 ::: notes
-**The nonlinear least-squares problem:**
+**Setting up the taxonomy of methods:**
 
-This is one of the most important special cases in system identification. We're minimizing the sum of squared prediction errors, just like linear regression, but now the prediction errors $\varepsilon(t, \theta)$ are non-linear functions of $\theta$.
+All gradient-based iterative methods can be understood as variants of this single formula. The key differences are:
 
-**Why this case matters:**
+**Matrix $R_N^{(i)}$ choices:**
 
--   Most common criterion in practice (quadratic loss)
--   Well-studied numerically (extensive literature)
--   Good balance of statistical properties and computational tractability
+- Steepest descent: $R_N^{(i)} = I$ (no curvature information)
+- Newton's method: $R_N^{(i)} = V''(\theta)$ (exact Hessian)
+- Gauss-Newton: $R_N^{(i)}$ approximates Hessian using first-order info only
+- Levenberg-Marquardt: $R_N^{(i)} = V''(\theta) + \lambda I$ (adaptive blend)
 
-**The general search formula:**
+**Step size $\mu_N^{(i)}$:**
 
-Say "theta hat N at iteration i minus 1 equals theta hat N at iteration i minus mu N at iteration i times R N at iteration i inverse times V N prime..."
-
-This is a template that covers many specific algorithms:
-
--   $R_N^{(i)}$: A matrix that modifies the search direction (we'll discuss choices next)
--   $\mu_N^{(i)}$: Step size parameter (will be discussed)
--   $V_N'(\hat{\theta}_N^{(i)}, Z^N)$: The gradient at the current iterate
-
-**The negative sign:**
-
-Note the minus sign in the formula - we're moving in the direction opposite to the gradient, which is downhill.
+- Fixed: Use constant step size (rare)
+- Line search: Find optimal step size at each iteration
+- Adaptive: Adjust based on convergence behavior (LM does this)
 
 **What to emphasize:**
 
-This formula is the foundation for the next several slides where we'll explore different choices for $R_N^{(i)}$ and $\mu_N^{(i)}$ that give rise to different algorithms.
+This framework unifies seemingly different algorithms. By understanding the general formula and how different choices lead to different methods, students can appreciate the trade-offs and know when to use which method.
 :::
 
 ------------------------------------------------------------------------
@@ -1813,17 +1869,25 @@ This is the **gradient descent** or **steepest descent method**.
 
 . . .
 
-**Pros**:
+::: {.columns}
+
+:::: {.column width="50%"}
+**Pros** ✓
+
 - Simple to implement
 - Doesn't require second derivatives
 - Always descends for small enough $\mu_N^{(i)}$
+::::
 
-. . .
+:::: {.column width="50%"}
+**Cons** ✗
 
-**Cons**:
 - Very slow convergence near minimum
 - Zig-zag behavior in narrow valleys
 - Step size $\mu_N^{(i)}$ critical (too small→slow, too large→diverge)
+::::
+
+:::
 
 ::: notes
 **The steepest descent method:**
@@ -2030,6 +2094,8 @@ At each iteration:
 **Result**: Automatic balance between robustness and speed!
 
 ::: notes
+**What is singularity?** A singular matrix cannot be inverted (no unique solution exists). This happens when the matrix has zero eigenvalues, meaning some parameter directions have no information.
+
 **The singularity problem:**
 
 $H_N(\theta)$ can be singular or nearly singular when:
