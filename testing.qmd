@@ -1,0 +1,6 @@
+---
+title: "Untitled"
+format: html
+---
+
+$y(t) = \frac{b_1 \cdot b_2}{a_1 \cdot a_2} u(t)$

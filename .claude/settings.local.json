@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(quarto render:*)",
+      "Bash(timeout 30 tail:*)",
+      "Bash(python comprehensive_script_adder.py:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

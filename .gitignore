@@ -2,6 +2,9 @@
 *.html
 *.pdf
 presentation_deck_files/
+presentation_deck_chapter8_files/
+presentation_deck_chapter10_files/
+_extensions/
 
 # OS
 .DS_Store

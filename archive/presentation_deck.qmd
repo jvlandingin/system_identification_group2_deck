@@ -1,0 +1,2874 @@
+---
+title: "System Identification: Selected Topics"
+subtitle: "Chapter 8 (Section 8.5) and Chapter 10 (Sections 10.1, 10.2, 10.5)"
+author: "System Identification: Theory for the User"
+format:
+  revealjs:
+    theme: serif
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    transition: slide
+    html-math-method: mathjax
+    css: styles.css
+revealjs-plugins:
+  - pointer
+---
+
+## Presentation Overview
+
+**Part 1: Chapter 8 - Convergence and Consistency** - Section 8.5: Frequency-Domain Description of the Limit Model
+
+. . .
+
+**Part 2: Chapter 10 - Computing the Estimate** - Section 10.1: Linear Regressions and Least Squares - Section 10.2: Numerical Solution by Iterative Search Methods - Section 10.5: Local Solutions and Initial Values
+
+------------------------------------------------------------------------
+
+# Chapter 8: Convergence and Consistency {background-color="#1a4d6b"}
+
+------------------------------------------------------------------------
+
+# Section 8.5: Linear Time-Invariant Models {background-color="#2c5f77"}
+
+## A Frequency-Domain Description of the Limit Model
+
+------------------------------------------------------------------------
+
+## Motivation: Understanding Model Misfit
+
+**Theorem 8.2**: The limiting estimate $\theta^* \in D_c$ minimizes the prediction error variance among all models in $\mathcal{M}$
+
+. . .
+
+**Key insight**: If $\theta^* = \theta_0$ (true parameter), the model perfectly describes the system (Theorem 8.3)
+
+. . .
+
+**Otherwise**: The model will differ from the true system - there's a **misfit**
+
+. . .
+
+**This section's goal**: Develop expressions that characterize this misfit for linear time-invariant models in the **frequency domain**
+
+::: notes
+**Context from Chapter 8:**
+
+Theorem 8.2 tells us that as $N \to \infty$, our parameter estimate $\hat{\theta}_N$ converges to $\theta^*$, which minimizes:
+
+$$\theta^* = \arg\min_{\theta \in D_c} \bar{V}(\theta)$$
+
+where $\bar{V}(\theta) = E[\varepsilon^2(t, \theta)]$ is the expected prediction error variance.
+
+**The two cases:**
+
+1.  **System in model set** ($S \in \mathcal{M}$): Then $\theta^* = \theta_0$ (the true parameters), and the model perfectly captures the system
+
+2.  **Model mismatch** ($S \notin \mathcal{M}$): Then $\theta^* \neq \theta_0$, and our model is the "best approximation" within the model class, but there's still a mismatch
+
+**Why frequency domain?**
+
+For linear time-invariant (LTI) systems, the frequency domain provides:
+
+-   Intuitive understanding of how well the model fits at different frequencies
+-   Clear interpretation of which frequency ranges are well-modeled vs. poorly-modeled
+-   Connection to classical frequency response analysis
+-   Explicit weighting functions showing what the criterion emphasizes
+
+**What to emphasize:**
+
+This section gives us tools to understand **where** (at which frequencies) our model is good and where it's poor. This is crucial for model validation and for understanding the limits of our identified model.
+
+**Reference to Problem 8G.4:**
+
+The textbook refers to Problem 8G.4 for additional development of these concepts.
+:::
+
+------------------------------------------------------------------------
+
+## Data from Arbitrary Systems
+
+**Key result**: The approximation expressions are applicable to data from **arbitrary, nonlinear, time-varying systems**!
+
+. . .
+
+**Assumption**: Input and output signalsc are jointly quasi-stationary (spectra are defined)
+
+. . .
+
+**The optimal predictor** (Wiener filter):
+
+$$\hat{y}(t|t-1) = W_u(q)u(t) + W_y(q)y(t)$$
+
+where $W_u$ and $W_y$ are computed from cross-spectra $\Phi_u$, $\Phi_{uu}$, and $\Phi_y$
+
+::: notes
+**A surprising and powerful result:**
+
+Even though we start with "assumption S1" (linear system), the approximation theory developed here applies **equally well** to data from:
+
+-   Nonlinear systems
+-   Time-varying systems
+-   Arbitrary stochastic processes
+
+As long as the signals are **jointly quasi-stationary** (their spectra exist and are well-defined).
+
+**The Wiener filter (equation 8.61):**
+
+Say "W u of q times u of t plus W y of q times y of t".
+
+The Wiener filter gives the optimal linear predictor of $y(t)$ from past data. It's computed from:
+
+-   $\Phi_u(\omega)$: Spectrum of input
+-   $\Phi_y(\omega)$: Spectrum of output
+-   $\Phi_{uu}(\omega)$, $\Phi_{yu}(\omega)$: Cross-spectra
+
+**Reference**: Wiener (1949) and Problem 8G.3
+
+**Key property of the prediction error:**
+
+The error $e_0(t) = y(t) - \hat{y}(t|t-1)$ is:
+
+-   **Uncorrelated with past inputs and outputs** by construction
+-   This means $e_0(k)$, $k < t$ is uncorrelated with $e_0(t)$
+
+**Rewriting in standard form (equation 8.62):**
+
+If we define: - $H_0(q) = (1 - W_y(q))^{-1}$ - $G_0(q) = H_0(q)W_u(q)$
+
+Then we can write:
+
+$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
+
+where $e_0(t)$ is an uncorrelated sequence.
+
+**The fundamental statement:**
+
+Equation (8.62) is a **correct description of the observed data**, if only their **second-order properties** are considered. It's "the best linear time-invariant approximation of the true system."
+
+**Caveat for control:**
+
+This approximation may still be useless for control and decision-making, since it depends on the actual data spectra (not just the system dynamics).
+:::
+
+------------------------------------------------------------------------
+
+## Expression for $\bar{V}(\theta)$ in Frequency Domain
+
+By fundamental expression (2.65):
+
+$$\bar{V}(\theta) = \bar{E}\frac{1}{2}\varepsilon^2(t, \theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
+
+where $\Phi_{\varepsilon}(\omega, \theta)$ is the **spectrum of the prediction errors** $\{\varepsilon(t, \theta)\}$
+
+. . .
+
+**Under assumption S1** (true system is LTI):
+
+$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
+
+where $e_0$ has variance $\lambda_0$
+
+::: notes
+**Parseval's theorem / Fundamental expression (2.65):**
+
+The criterion function $\bar{V}(\theta) = E[\frac{1}{2}\varepsilon^2(t, \theta)]$ can be expressed as an integral over frequency:
+
+$$\bar{V}(\theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi} \Phi_{\varepsilon}(\omega, \theta)d\omega$$
+
+This is a consequence of Parseval's theorem, which relates time-domain energy to frequency-domain energy.
+
+**Why this is useful:**
+
+Instead of thinking about the average squared prediction error in time, we can think about it as an **integral over all frequencies** of the prediction error spectrum. This allows us to see:
+
+-   Which frequencies contribute most to the total error
+-   How the weighting function affects the fit
+-   Where the model is good vs. poor
+
+**The true system description (equation 8.64):**
+
+Under assumption S1, the true system is linear and time-invariant:
+
+$$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
+
+where:
+
+-   $G_0(q)$ is the true transfer function from input to output
+-   $H_0(q)$ is the true noise model
+-   $e_0(t)$ is white noise with variance $\lambda_0$
+
+**Next step:**
+
+We'll derive an explicit expression for $\Phi_{\varepsilon}(\omega, \theta)$ in terms of the true system ($G_0$, $H_0$) and the model ($G(\cdot, \theta)$, $H(\cdot, \theta)$).
+:::
+
+------------------------------------------------------------------------
+
+# Chapter 10: Computing the Estimate {background-color="#1a4d6b"}
+
+------------------------------------------------------------------------
+
+## Chapter 10 Overview
+
+In Chapter 7, we introduced three basic procedures for parameter estimation:
+
+1.  **Prediction-error approach**: Minimize $V_N(\theta, Z^N)$ with respect to $\theta$
+
+2.  **Correlation approach**: Solve equation $f_N(\theta, Z^N) = 0$ for $\theta$
+
+3.  **Subspace approach**: For estimating state space models
+
+. . .
+
+**This chapter**: How to solve these problems numerically
+
+------------------------------------------------------------------------
+
+## The Numerical Problem
+
+At time $N$, when the data set $Z^N$ is known:
+
+-   $V_N$ and $f_N$ are ordinary functions of a finite-dimensional parameter vector $\theta$
+-   This amounts to standard **nonlinear programming** and **numerical analysis**
+
+. . .
+
+**However**: The specific structure of parameter estimation problems makes specialized methods worthwhile
+
+------------------------------------------------------------------------
+
+# Section 10.1: Linear Regressions and Least Squares {background-color="#2c5f77"}
+
+------------------------------------------------------------------------
+
+## The Normal Equations
+
+For linear regressions, the prediction is:
+
+$$\hat{y}(t|\theta) = \varphi^T(t)\theta$$
+
+where:
+
+-   $\varphi(t)$ is the **regression vector**
+-   $\theta$ is the **parameter vector**
+
+::: notes
+**Greek letter pronunciations:**
+
+-   $\theta$ = "theta" (THAY-tah)
+-   $\varphi$ = "phi" (fie, rhymes with "pie") or "varphi" for this variant
+-   $\hat{y}$ = "y hat" (the hat denotes an estimate/prediction)
+:::
+
+------------------------------------------------------------------------
+
+## Least Squares Solution
+
+The prediction-error approach with quadratic norm gives the LS estimate:
+
+$$\hat{\theta}_N^{LS} = R^{-1}(N)f(N)$$
+
+where:
+
+$$R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t)$$
+
+$$f(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)y(t)$$
+
+::: notes
+**What is the "quadratic norm"?**
+
+A **norm** is a way to measure the "size" of something (like length of a vector).
+
+A **quadratic norm** means we measure size by **squaring and summing**: - For a prediction error $e(t) = y(t) - \hat{y}(t|\theta)$ - The quadratic norm is: $\|e\|^2 = \sum_{t=1}^{N} e(t)^2 = \sum_{t=1}^{N} |y(t) - \hat{y}(t|\theta)|^2$
+
+**Why "quadratic"?** - Because we square the errors (power of 2) - This is also called the **squared error** or **2-norm squared**
+
+**Why use it?** 1. **Penalizes large errors more**: A large error gets squared, so it's heavily penalized 2. **Mathematically convenient**: Derivatives are easy to compute 3. **Unique minimum**: The squared error criterion has a single, well-defined minimum
+
+**Notation note:** - $|x|^2$ for scalars means $x^2$ - $\|x\|^2$ for vectors means $x^T x = \sum_i x_i^2$
+
+**In our case:** We minimize $V_N(\theta) = \sum_{t=1}^{N} |y(t) - \varphi^T(t)\theta|^2$ with respect to $\theta$
+:::
+
+------------------------------------------------------------------------
+
+## Understanding the LS Estimate
+
+$$\hat{y}(t|\theta) = \varphi^T(t)\theta$$
+
+**What is** $\hat{\theta}_N^{LS}$?
+
+The parameter vector that **minimizes the sum of squared errors**
+
+. . .
+
+**Components:**
+
+-   $R(N)$: Sample **covariance matrix** of regressors $\varphi(t)$
+-   $f(N)$: Sample **cross-covariance** of regressors $\varphi(t)$ and outputs $y(t)$
+
+. . .
+
+This solution is obtained by solving the system of linear equations
+
+------------------------------------------------------------------------
+
+## The Normal Equations (Alternative View)
+
+The LS estimate $\hat{\theta}_N^{LS}$ solves:
+
+$$R(N)\hat{\theta}_N^{LS} = f(N)$$
+
+. . .
+
+**These are called the *normal equations***
+
+------------------------------------------------------------------------
+
+## Numerical Challenge
+
+**Problem**: The coefficient matrix $R(N)$ may be **ill-conditioned**
+
+-   Particularly when dimension is high
+-   Direct solution can be numerically unstable
+-   Computing $R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t)$ involves products of original data
+
+. . .
+
+**Solution**: Use matrix factorization techniques
+
+-   Don't form $R(N)$ directly
+-   Instead, construct a matrix $R$ such that $RR^T = R(N)$
+-   This approach offers superior numerical stability
+
+------------------------------------------------------------------------
+
+## QR Factorization Definition
+
+For an $n \times d$ matrix $A$:
+
+$$A = QR$$
+
+where:
+
+-   $Q$ is $n \times n$ orthogonal: $QQ^T = I$
+-   $R$ is $n \times d$ upper triangular
+
+. . .
+
+Various approaches exist: Householder transformations, Gram-Schmidt procedure, Cholesky decomposition
+
+------------------------------------------------------------------------
+
+## Understanding QR Factorization
+
+**What does this decomposition do?**
+
+Any matrix $A$ can be written as the product of:
+
+1.  $Q$: An **orthogonal matrix** (preserves lengths and angles)
+    -   Think of it as a rotation/reflection
+    -   Property: $QQ^T = I$ (its transpose is its inverse)
+2.  $R$: An **upper triangular matrix** (zeros below diagonal)
+    -   Easy to solve systems with (back-substitution)
+
+::: notes
+**Understanding** $I$ (Identity Matrix): - $I$ is the identity matrix: a square matrix with 1's on the diagonal and 0's everywhere else - Example: $I = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$ for 3×3 case - It's like the number 1 for matrices: $I \cdot A = A$ and $A \cdot I = A$
+
+**Understanding** $QQ^T = I$: - This means $Q^T$ is the inverse of $Q$ - so we get the inverse "for free" by just transposing! - Geometrically: $Q$ preserves lengths and angles (it's a pure rotation/reflection) - The columns of $Q$ are orthonormal: length 1 and perpendicular to each other - This is why $Q$ is "nice" - when you multiply by Q, you're essentially rotating/reflecting the space without stretching or distorting
+
+**The R matrix:** - Being upper triangular is key - this means we can solve $Rx = b$ very efficiently using back-substitution (start from bottom row and work up) - **Example to mention**: For a 3×3 upper triangular matrix, the last equation has only one unknown, second-to-last has two unknowns (but we already know one), etc.
+
+**Common question**: "Why is this better than just inverting?" Answer: Forming $R(N)$ involves multiplying matrices which squares the condition number. QR avoids this multiplication step entirely.
+
+**The beauty**: QR gives us the "square root" of what we need, and working with the square root is numerically much more stable
+:::
+
+------------------------------------------------------------------------
+
+## Why QR Factorization? The Core Problem
+
+**Recall our goal:** Solve $R(N)\hat{\theta}_N^{LS} = f(N)$
+
+. . .
+
+**The issue with** $R(N)$:
+
+$$R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t) = \frac{1}{N}\mathbf{\Phi}^T\mathbf{\Phi}$$
+
+. . .
+
+Notice: $R(N)$ is formed by **multiplying** $\mathbf{\Phi}^T$ by $\mathbf{\Phi}$
+
+This multiplication **squares the condition number**, amplifying numerical errors!
+
+::: notes
+**Key terminology to explain:**
+
+**Condition number (**$\kappa$): - Measures how "sensitive" a matrix is to numerical errors - Think of it as: "How much do small errors in input get magnified in output?" - Low condition number (close to 1): Well-conditioned, stable - High condition number (e.g., 1000+): Ill-conditioned, unstable - Example: If $\kappa = 100$, a 1% error in data can become a 100% error in solution!
+
+**Big** $\mathbf{\Phi}$ vs. small $\varphi(t)$: - $\varphi(t)$ (small phi): The regression vector at a **single time** $t$ (a column vector) - $\mathbf{\Phi}$ (big bold Phi): The **entire data matrix** stacking all regression vectors - $\mathbf{\Phi}$ has $N$ rows (one for each time point) - Each row of $\mathbf{\Phi}$ is $\varphi(t)^T$ (transposed regression vector) - So: $\mathbf{\Phi} = [\varphi(1)^T; \varphi(2)^T; ...; \varphi(N)^T]$ (stacked vertically)
+
+**Why "squares" the condition number:**
+
+-   When you compute $\mathbf{\Phi}^T\mathbf{\Phi}$, you're multiplying two matrices
+
+-   This operation squares the condition number: $\kappa(R(N)) = \kappa(\mathbf{\Phi})^2$
+
+-   Example: If $\mathbf{\Phi}$ has $\kappa = 100$, then $R(N)$ has $\kappa = 10,000$!
+
+**Greek letter pronunciations:** - $\kappa$ = "kappa" (CAP-uh) - $\varphi$ = "phi" (fie, rhymes with "pie") - $\mathbf{\Phi}$ = "capital Phi" (same pronunciation, but refers to the matrix) - $\theta$ = "theta" (THAY-tah) - $\epsilon$ = "epsilon" (EP-sih-lon) - appears in error terms
+:::
+
+------------------------------------------------------------------------
+
+## Numerical Example: Why Multiplication is Bad
+
+Consider a simple case where data has condition number $\kappa = 100$
+
+. . .
+
+**Direct approach:**
+
+-   Form $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$
+
+-   Condition number of $R(N)$: $\kappa^2 = 10,000$
+
+-   Relative error magnified by factor of 10,000!
+
+------------------------------------------------------------------------
+
+## Numerical Example: Why Multiplication is Bad
+
+Consider a simple case where data has condition number $\kappa = 100$
+
+**QR approach:**
+
+-   Work with $R_1$ from QR factorization
+
+-   Condition number of $R_1$: $\kappa = 100$
+
+-   Relative error magnified only by factor of 100
+
+. . .
+
+**Result:** 100× improvement in numerical stability!
+
+------------------------------------------------------------------------
+
+## QR Factorization: The Key Insight
+
+**Instead of computing** $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$ directly...
+
+. . .
+
+**Factor** $\mathbf{\Phi}$ itself:
+
+$$\mathbf{\Phi} = QR_1$$
+
+. . .
+
+**Then:**
+
+$$R(N) = \mathbf{\Phi}^T\mathbf{\Phi} = (QR_1)^T(QR_1) = R_1^T Q^T Q R_1 = R_1^T R_1$$
+
+(using $Q^TQ = I$)
+
+. . .
+
+**Key point:** - We never form $\mathbf{\Phi}^T\mathbf{\Phi}$
+
+-   we work with $R_1$ directly!
+
+------------------------------------------------------------------------
+
+## Concrete Example: 2×2 Case
+
+Let's work through a small example:
+
+$$\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+. . .
+
+**Direct approach:** Form $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$
+
+$$R(N) = \begin{bmatrix} 3 & 4 & 0 \\ 0 & 0 & 5 \end{bmatrix} \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix}$$
+
+------------------------------------------------------------------------
+
+## Concrete Example: QR Approach - Setup {.small-font}
+
+Same matrix: $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$
+
+. . .
+
+We want to factor this as: $\mathbf{\Phi} = QR_1$
+
+. . .
+
+**What will we get?**
+
+-   $Q$: An orthogonal matrix (preserves geometry)
+-   $R_1$: An upper triangular matrix (easy to solve)
+
+------------------------------------------------------------------------
+
+## Concrete Example: QR Approach - Results {.small-font}
+
+**QR factorization of** $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$ **gives:**
+
+$$Q = \begin{bmatrix} 0.6 & 0 & -0.8 \\ 0.8 & 0 & 0.6 \\ 0 & 1 & 0 \end{bmatrix}$$
+
+. . .
+
+$$R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+------------------------------------------------------------------------
+
+## QR Approach: Verification
+
+**Check:** $R_1^T R_1$ equals $R(N)$:
+
+$$R_1^T R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix} = R(N) \checkmark$$
+
+. . .
+
+**Key difference:**
+
+We work with $R_1$ (entries \~5) not $R(N)$ (entries \~25)!
+
+------------------------------------------------------------------------
+
+## Analogy: Square Root
+
+**Computing** $R(N)$ directly is like:
+
+-   Squaring a number with errors: $(x + \epsilon)^2 = x^2 + 2x\epsilon + \epsilon^2$
+
+-   The error term gets amplified!
+
+. . .
+
+**QR factorization** is like:
+
+-   Finding the square root first: If $R(N) = 100$, work with $R_1 = 10$
+
+-   Solving with smaller, better-conditioned numbers
+
+-   Less amplification of errors
+
+------------------------------------------------------------------------
+
+## Analogy: Square Root
+
+**Mathematical analogy:**
+
+-   Instead of solving: $x^2 = 100$ (error grows), we solve: $x = 10$ (error controlled)
+
+------------------------------------------------------------------------
+
+## Applying QR to LS Estimation
+
+Define matrices for the multivariable case:
+
+$$\mathbf{Y}^T = [y^T(1) \; \cdots \; y^T(N)], \quad \mathbf{Y} \text{ is } Np \times 1$$
+
+$$\mathbf{\Phi}^T = [\varphi(1) \; \cdots \; \varphi(N)], \quad \mathbf{\Phi} \text{ is } Np \times d$$
+
+. . .
+
+The LS criterion:
+
+$$V_N(\theta, Z^N) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2 = \sum_{t=1}^{N}|y(t) - \varphi^T(t)\theta|^2$$
+
+------------------------------------------------------------------------
+
+## Orthonormal Transformation Property
+
+**Key insight**: The norm is invariant under orthonormal transformations
+
+For any vector $v$ and orthonormal matrix $Q$ ($QQ^T = I$):
+
+$$|Qv|^2 = |v|^2$$
+
+. . .
+
+**Why?** Because $|Qv|^2 = (Qv)^T(Qv) = v^TQ^TQv = v^Tv = |v|^2$
+
+. . .
+
+**Application to our problem:**
+
+$$V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2 = |Q(\mathbf{Y} - \mathbf{\Phi}\theta)|^2$$
+
+We can multiply by $Q$ without changing the criterion!
+
+------------------------------------------------------------------------
+
+## QR Factorization of Augmented Matrix
+
+**Key idea**: Stack data matrix $\mathbf{\Phi}$ and output vector $\mathbf{Y}$ side-by-side
+
+$$[\mathbf{\Phi} \; \mathbf{Y}] = QR$$
+
+::: notes
+**Why augment** $\mathbf{\Phi}$ with $\mathbf{Y}$?
+
+-   We need to solve: minimize $|\mathbf{Y} - \mathbf{\Phi}\theta|^2$
+-   **Clever trick**: Put both $\mathbf{\Phi}$ and $\mathbf{Y}$ into one big matrix
+-   Augmented matrix: $[\mathbf{\Phi} \; \mathbf{Y}]$ has dimensions $(Np) \times (d+1)$
+    -   First $d$ columns: the data matrix $\mathbf{\Phi}$
+
+    -   Last column: the output vector $\mathbf{Y}$
+
+**What happens when we do QR?**
+
+-   We get $[\mathbf{\Phi} \; \mathbf{Y}] = QR$ \* $Q$ is $(Np) \times (Np)$ orthogonal
+
+-   $R$ is $(Np) \times (d+1)$ upper triangular
+
+-   Only the top $(d+1) \times (d+1)$ block of $R$ is non-zero - we call this $R_0$
+:::
+
+------------------------------------------------------------------------
+
+## Structure of the QR Result
+
+After factorization:
+
+$$[\mathbf{\Phi} \; \mathbf{Y}] = QR, \quad R = \begin{bmatrix} R_0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}$$
+
+Only $R_0$ (the top block) matters - it's $(d+1) \times (d+1)$ and upper triangular
+
+::: notes
+**Understanding the structure:**
+
+-   Original augmented matrix: $(Np) \times (d+1)$ - typically $Np \gg d+1$ (many more data points than parameters)
+-   After QR: $R$ has the same dimensions $(Np) \times (d+1)$
+-   Because $R$ is upper triangular and skinny (tall and narrow), most of it is zeros!
+-   All the information is in the top $(d+1) \times (d+1)$ block, which we call $R_0$
+-   The rest is just zeros (shown as 0, $\vdots$, 0)
+
+**Why does this help?**
+
+-   We don't need to store the huge $(Np) \times (d+1)$ matrix
+
+-   Just store the small $(d+1) \times (d+1)$ block $R_0$
+
+-   Massive computational savings!
+:::
+
+------------------------------------------------------------------------
+
+## Decomposing $R_0$: Separating Data and Outputs
+
+Partition $R_0$ to separate the $\mathbf{\Phi}$ part from the $\mathbf{Y}$ part:
+
+$$R_0 = \begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix}$$
+
+where:
+
+-   $R_1$ is $d \times d$ (corresponds to $\mathbf{\Phi}$)
+-   $R_2$ is $d \times 1$ (interaction between $\mathbf{\Phi}$ and $\mathbf{Y}$)
+-   $R_3$ is scalar (corresponds to $\mathbf{Y}$)
+
+::: notes
+**Why partition** $R_0$ this way?
+
+Remember: $[\mathbf{\Phi} \; \mathbf{Y}]$ had $d$ columns from $\mathbf{\Phi}$ and 1 column from $\mathbf{Y}$
+
+So $R_0$ inherits this structure:
+
+-   **First** $d$ columns come from $\mathbf{\Phi}$ → forms $R_1$ and the zero below it
+-   **Last column** comes from $\mathbf{Y}$ → forms $R_2$ and $R_3$
+
+**Block structure:**
+
+```         
+      ← d cols → ← 1 →
+    ┌──────────┬─────┐ ↑
+    │          │     │ d rows
+    │    R₁    │ R₂  │ ↓
+    ├──────────┼─────┤ ↑
+    │    0     │ R₃  │ 1 row
+    └──────────┴─────┘ ↓
+```
+
+-   $R_1$: $d \times d$ upper triangular
+-   $R_2$: $d \times 1$ vector
+-   Bottom-left: zero (because $R_0$ is upper triangular!)
+-   $R_3$: $1 \times 1$ scalar
+:::
+
+------------------------------------------------------------------------
+
+## How This Transforms the LS Criterion
+
+Original criterion: $V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2$
+
+After applying $Q^T$ (using $QQ^T = I$):
+
+$V_N(\theta) = |Q^T(\mathbf{Y} - \mathbf{\Phi}\theta)|^2 = |Q^T[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+. . .
+
+$V_N(\theta) = |Q^T[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+. . .
+
+$V_N(\theta) = |R \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+::: notes
+**Step-by-step transformation:**
+
+1.  **Start with**: $V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2$
+
+2.  **Rewrite as**: $V_N(\theta) = |[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+    -   Check: $[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix} = \mathbf{\Phi}(-\theta) + \mathbf{Y}(1) = \mathbf{Y} - \mathbf{\Phi}\theta$ ✓
+
+3.  **Apply orthogonal transformation** $Q^T$ (doesn't change the norm!): $V_N(\theta) = |Q^T[\mathbf{\Phi} \; \mathbf{Y}] \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+4.  **Use QR factorization** $[\mathbf{\Phi} \; \mathbf{Y}] = QR$: $V_N(\theta) = |R \begin{bmatrix} -\theta \\ 1 \end{bmatrix}|^2$
+
+5.  **Recall structure of** $R$: Since $R$ has the form $\begin{bmatrix} R_0 \\ 0 \\ \vdots \\ 0 \end{bmatrix}$, only the top block $R_0$ contributes!
+
+This is why we factored the augmented matrix!
+:::
+
+------------------------------------------------------------------------
+
+## Transformed Criterion (Final Form)
+
+Since only $R_0$ is non-zero, and using the block structure:
+
+$$V_N(\theta) = \left|\begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix} \begin{bmatrix} -\theta \\ 1 \end{bmatrix}\right|^2$$
+
+$$= \left|\begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}\right|^2 = |R_2 - R_1\theta|^2 + |R_3|^2$$
+
+::: notes
+**Breaking down the matrix multiplication:**
+
+$$\begin{bmatrix} R_1 & R_2 \\ 0 & R_3 \end{bmatrix} \begin{bmatrix} -\theta \\ 1 \end{bmatrix} = \begin{bmatrix} R_1(-\theta) + R_2(1) \\ 0(-\theta) + R_3(1) \end{bmatrix} = \begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}$$
+
+**Taking the squared norm:**
+
+$$\left|\begin{bmatrix} -R_1\theta + R_2 \\ R_3 \end{bmatrix}\right|^2 = |{-R_1\theta + R_2}|^2 + |R_3|^2 = |R_2 - R_1\theta|^2 + |R_3|^2$$
+
+**Key insight:**
+
+-   First term: $|R_2 - R_1\theta|^2$ **depends on** $\theta$ → we can minimize this!
+
+-   Second term: $|R_3|^2$ **doesn't depend on** $\theta$ → just a constant
+
+So minimizing the whole thing means minimizing $|R_2 - R_1\theta|^2$
+:::
+
+------------------------------------------------------------------------
+
+## Finding the Minimum
+
+To minimize: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R_3|^2$
+
+The minimum occurs when $|R_2 - R_1\theta|^2 = 0$, i.e.:
+
+$$R_1\hat{\theta}_N = R_2$$
+
+Minimum value: $V_N(\hat{\theta}_N) = |R_3|^2$
+
+::: notes
+**Why this is the minimum:**
+
+-   $|R_3|^2$ is a constant (doesn't depend on $\theta$)
+-   $|R_2 - R_1\theta|^2$ is always ≥ 0 (it's a squared norm!)
+-   Best we can do: make $|R_2 - R_1\theta|^2 = 0$
+-   This happens when $R_1\theta = R_2$
+
+**Solving for** $\hat{\theta}_N$:
+
+-   We need: $R_1\hat{\theta}_N = R_2$
+
+-   Since $R_1$ is upper triangular, solve by **back-substitution** (easy!)
+
+-   No need to invert $R_1$ explicitly
+
+**The minimum value:**
+
+-   When $\theta = \hat{\theta}_N$: first term becomes zero
+
+-   So $V_N(\hat{\theta}_N) = 0 + |R_3|^2 = |R_3|^2$
+
+-   This is the smallest possible least squares error for this problem
+
+-   Bonus: $|R_3|$ tells us the quality of the fit!
+:::
+
+------------------------------------------------------------------------
+
+## Summary: Why QR Works
+
+**Step-by-step what we solved:**
+
+Starting from the transformed criterion: $V_N(\theta) = |R_2 - R_1\theta|^2 + |R_3|^2$
+
+1.  **Used all blocks** ($R_1$, $R_2$, $R_3$) to find the optimal $\theta$
+2.  **Solved**: $R_1\hat{\theta}_N = R_2$ using back-substitution
+3.  **Residual**: $|R_3|^2$ tells us the minimum achievable loss
+
+------------------------------------------------------------------------
+
+## Summary: Why QR Works
+
+**Why this is better than normal equations:**
+
+-   **Conditioning**: $\kappa(R_1) = \sqrt{\kappa(R(N))}$ — square root improvement!
+-   **Stability**: Never compute $\mathbf{\Phi}^T\mathbf{\Phi}$ which squares the condition number
+-   **Speed**: Back-substitution on triangular $R_1$ is fast and numerically stable
+
+------------------------------------------------------------------------
+
+## Initial Conditions Problem
+
+**Key challenge in real applications**: The regression vector $\varphi(t)$ typically contains **shifted data**:
+
+$$\varphi(t) = \begin{bmatrix} z(t-1) \\ z(t-2) \\ \vdots \\ z(t-n) \end{bmatrix}$$
+
+. . .
+
+**The issue**: When $t = 1$, we need $z(0), z(-1), \ldots, z(1-n)$ but we only have data for $t \geq 1$
+
+**What do we do with these missing initial conditions?**
+
+::: notes
+**Shifted data** means you're using **past values** of a signal to predict or analyze **current values**.
+:::
+
+------------------------------------------------------------------------
+
+## Example: ARX Model
+
+**Concrete example**: What does shifted data look like in practice?
+
+For ARX model with $n_a = n_b = n$:
+
+$$z(t) = \begin{bmatrix} -y(t) \\ u(t) \end{bmatrix}$$
+
+. . .
+
+For AR model ($p$-dimensional process):
+
+$$z(t) = -y(t)$$
+
+::: notes
+**ARX = Autoregressive with eXogenous input**
+
+The regression vector for an ARX model contains past outputs and past inputs. This is a common real-world scenario where you're trying to predict the output based on recent history.
+
+For an AR (autoregressive) model, you only look at past outputs—no external inputs.
+
+Both are examples where the regression vector uses shifted (lagged) data.
+
+**What does the notation mean?**
+
+-   $n_a$ = order of the autoregressive part (how many past outputs you use)
+-   $n_b$ = order of the exogenous input part (how many past inputs you use)
+-   $n_a = n_b = n$ = both orders are equal to the same value $n$
+
+**Concrete example** with $n_a = n_b = 2$:
+
+Your regression vector would look like: $$\varphi(t) = \begin{bmatrix} -y(t-1) \\ -y(t-2) \\ u(t-1) \\ u(t-2) \end{bmatrix}$$
+
+Where: - $y(t-1), y(t-2)$ are the **past 2 outputs** (the autoregressive part) - $u(t-1), u(t-2)$ are the **past 2 inputs** (the exogenous part)
+
+The "$n_a = n_b = n$" notation is just a simplifying assumption—saying "we use the same number of past outputs as past inputs." In practice, you could have $n_a \neq n_b$.
+:::
+
+------------------------------------------------------------------------
+
+## Initial Conditions: "Windowed" Data
+
+**Typical structure** of regression vector $\varphi(t)$:
+
+$$\varphi(t) = \begin{bmatrix} z(t-1) \\ \vdots \\ z(t-n) \end{bmatrix}$$
+
+. . .
+
+It consists of **shifted data** (possibly after trivial reordering)
+
+::: notes
+**What is "windowed" data?**
+
+"Windowed" refers to taking a **sliding window** of past data points. At each time $t$, you look back at a fixed-size window of historical values:
+
+-   At time $t=5$: your window contains $z(4), z(3), z(2), \ldots, z(5-n)$ (the last $n$ values)
+-   At time $t=6$: your window shifts forward to contain $z(5), z(4), z(3), \ldots, z(6-n)$
+-   And so on...
+
+This is called "windowing" because you're looking through a **fixed-size window** that slides along the time axis.
+
+**What is "trivial reordering"?**
+
+Sometimes the regression vector doesn't contain the past values in a simple backward order. For example:
+
+Instead of: $\varphi(t) = \begin{bmatrix} z(t-1) \\ z(t-2) \\ z(t-3) \end{bmatrix}$
+
+You might have: $\varphi(t) = \begin{bmatrix} z(t-2) \\ z(t-1) \\ z(t-3) \end{bmatrix}$ (mixed order)
+
+Or with multiple variables: $\varphi(t) = \begin{bmatrix} u(t-1) \\ y(t-1) \\ u(t-2) \\ y(t-2) \end{bmatrix}$ (inputs and outputs interleaved)
+
+"Trivial reordering" means you can rearrange the entries to put them back in standard order—it doesn't change the mathematical meaning, just the order of the rows. The core idea is still: **past values arranged as a regression vector**.
+
+**Bottom line:** Windowed data is just a structured way of organizing past values into a regression vector for LS estimation.
+:::
+
+------------------------------------------------------------------------
+
+## The Initial Conditions Problem (Formal)
+
+With structure $\varphi(t) = [z(t-1)^T \; \cdots \; z(t-n)^T]^T$:
+
+$$R_{ij}(N) = \frac{1}{N}\sum_{t=1}^{N} z(t-i)z^T(t-ji)$$
+
+. . .
+
+**Problem**: If we only have data for $1 \leq t \leq N$, what about initial conditions for $t \leq 0$?
+
+We can't compute $z(0), z(-1), \ldots, z(1-n)$ because they don't exist!
+
+::: notes
+**The equation - R_ij(N):**
+
+This equation defines the elements of the correlation matrix $R(N)$. Say "R sub i j of N equals one over N times the sum from t equals 1 to N of z of t minus i times z transpose of t minus j".
+
+**What each part means:**
+
+-   $R_{ij}(N)$ is one element (row $i$, column $j$) of the correlation matrix
+
+-   The summation averages over all $N$ time points in our dataset
+
+-   $z(t-i)$ and $z(t-j)$ are lagged versions of our measurement vector $z$
+
+-   We're computing how measurements at different time lags correlate with each other
+
+**The problem this reveals:**
+
+When $t=1$ and we need $z(t-1)$, that's $z(0)$. When we need $z(t-n)$, that could be $z(1-n)$, which is negative time! We don't have measurements before $t=1$.
+
+**How to present:**
+
+Start by saying "Let's write this formally." Point to the equation and explain it's computing correlations between lagged measurements. Then pause at the incremental reveal and emphasize: "But wait - there's a problem." Point out that the sum starts at $t=1$, but we need values for $t=0$, $t=-1$, and so on. These don't exist in our dataset.
+:::
+
+------------------------------------------------------------------------
+
+## Two Approaches
+
+**Approach 1: Start summation later** (Covariance method)
+
+-   Start at $t = n+1$ instead of $t=1$
+-   All sums involve only known data
+-   Loses $n$ data points, but straightforward
+
+. . .
+
+**Approach 2: Prewindowing (zero padding)** (Autocorrelation method)
+
+-   Replace unknown initial values by zeros
+-   For symmetry: also replace trailing values by zeros ("postwindowing")
+-   **Advantage**: Keeps all $N$ data points
+
+. . .
+
+**Key insight**: Approach 2 gives $R(N)$ a special **block Toeplitz structure**, leading to the **Yule-Walker equations**
+
+::: notes
+**Covariance method vs. Autocorrelation method:**
+
+-   **Approach 1 (Covariance)**: Logically more natural—only use data you have. But you lose the first $n$ time steps.
+
+-   **Approach 2 (Autocorrelation)**: Pads with zeros, which seems artificial. But it creates a special **Toeplitz matrix structure** that has computational advantages (faster algorithms like Levinson's algorithm).
+
+**What are Yule-Walker equations?**
+
+When you use prewindowing (Approach 2), the normal equations $R(N)\theta = f(N)$ take on a special form called the **Yule-Walker equations**:
+
+-   Named after George Udny Yule and Gilbert Walker (early 1900s statisticians)
+
+-   They're just the normal equations but with **Toeplitz structure** due to zero padding
+
+-   For AR models: $\sum_{j=1}^{n} R(i-j)\theta_j = R(i), \quad i = 1, ..., n$
+
+-   Notice how $R(i-j)$ depends only on the **difference** $i-j$, not $i$ and $j$ separately
+
+**Why this structure matters:**
+
+This Toeplitz structure is the **key that unlocks computational efficiency**:
+
+-   Standard methods: $O(n^3)$ to solve
+
+-   With Toeplitz structure: Can use **Levinson algorithm** for $O(n^2)$ solution
+
+-   Even better: Can solve for **all orders** 1 through $n$ in $O(n^2)$ total!
+
+**Block Toeplitz matrix:**
+
+When you use prewindowing, $R(N)$ becomes a **block Toeplitz matrix**, meaning: $$R_{ij}(N) = R_{\tau}(N), \quad \tau = i - j$$
+
+In other words, entries depend only on the difference between indices, not the indices themselves. This structure enables fast algorithms.
+
+**When does it matter?**
+
+When $N \gg n$ (lots of data compared to model order), the difference between the two approaches becomes **insignificant**. The padding effect washes out.
+
+**The trade-off:**
+
+-   Covariance method: No artificial zeros, but no special structure → use standard $O(n^3)$ methods
+
+-   Autocorrelation method: Artificial zeros, but Toeplitz structure → use Levinson $O(n^2)$ methods
+
+For large $N$, the computational savings of Levinson often outweigh the slight bias from zero padding!
+:::
+
+------------------------------------------------------------------------
+
+## Why Toeplitz Structure Matters
+
+**The connection we just established:**
+
+-   Prewindowing (zero padding) → Toeplitz structure → Yule-Walker equations
+
+. . .
+
+**Why is this important?**
+
+The Toeplitz structure means the normal equations have **redundancy**:
+
+-   Entries depend only on distance from diagonal, not absolute position
+-   This redundancy can be exploited computationally!
+
+. . .
+
+**What does this enable?**
+
+When fitting AR models of different orders, we can **reuse previous computations** instead of starting from scratch each time
+
+. . .
+
+**This leads us to the Levinson algorithm...**
+
+::: notes
+**Setting up the Levinson algorithm:**
+
+This slide serves as a **bridge** between initial conditions and the Levinson algorithm. Here's the logical flow:
+
+1.  **Problem**: Missing initial conditions when we have shifted data
+
+2.  **Solution**: Prewindowing (zero padding)
+
+3.  **Side benefit**: Creates Toeplitz structure (Yule-Walker equations)
+
+4.  **Exploitation**: Toeplitz structure enables fast recursive algorithms
+
+5.  **Result**: Levinson algorithm!
+
+**What to emphasize:**
+
+-   Prewindowing wasn't chosen just to handle missing data
+
+-   It has the **bonus feature** of creating special structure
+
+-   This structure is what makes model order selection practical
+
+-   Without Toeplitz structure, we'd be stuck with $O(n^3)$ per order
+
+**The key insight:**
+
+Sometimes in numerical computing, an "artificial" choice (like padding with zeros) that seems theoretically inelegant actually has **huge practical benefits** because it creates exploitable structure.
+
+This is a great example of the interplay between:
+
+-   Theory (what's mathematically "pure")
+-   Computation (what's practically efficient)
+
+Prewindowing sacrifices a bit of theoretical purity (artificial zeros) for massive computational gains (Toeplitz structure → Levinson algorithm).
+:::
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - The Problem
+
+**Real-world scenario**: You're building an AR model but don't know the right order $n$
+
+. . .
+
+**The challenge**:
+
+-   Too low an order: Model misses important dynamics
+-   Too high an order: Model overfits noise
+
+. . .
+
+**Solution**: Try multiple orders ($n=1, 2, 3, ..., 10$) and pick the best using criteria like AIC or BIC
+
+. . .
+
+**But there's a computational cost...**
+
+::: notes
+**What are "orders" in AR models?**
+
+An AR model of order $n$ means you're using the past $n$ data points to predict the current value:
+
+-   **Order 1 AR**: $y(t) = \theta_1 y(t-1) + \text{error}$ (use only 1 past value)
+
+-   **Order 2 AR**: $y(t) = \theta_1 y(t-1) + \theta_2 y(t-2) + \text{error}$ (use 2 past values)
+
+-   **Order 3 AR**: $y(t) = \theta_1 y(t-1) + \theta_2 y(t-2) + \theta_3 y(t-3) + \text{error}$ (use 3 past values)
+
+Higher order = more parameters = potentially better predictions, but also more complexity.
+
+**Why don't we know the right order beforehand?**
+
+In practice, the true system order is unknown. You need to:
+
+1.  Try different model orders
+
+2.  Evaluate each one (using AIC, BIC, cross-validation, etc.)
+
+3.  Pick the best trade-off between fit quality and model complexity
+
+**The problem**: If testing each order is expensive, model selection becomes impractical!
+:::
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - Naive Approach
+
+**Naive approach**: Try $n=1, n=2, n=3, ..., n=10$ separately
+
+-   Each requires solving the normal equations from scratch
+
+-   For each order: $O(n^3)$ operations (using QR factorization or matrix inversion)
+
+-   Total: $10 \times O(n^3)$ = **very expensive!**
+
+. . .
+
+**Example with** $n=10$:
+
+-   Each solve: \~1000 operations
+-   Total: $10 \times 1000 = 10,000$ operations
+
+. . .
+
+**The waste**: We throw away all our work from order $n$ when computing order $n+1$
+
+::: notes
+**What's happening in the naive approach:**
+
+Imagine you want to test models of order 1, 2, 3, ..., up to 10 to find which fits best.
+
+The **straightforward but wasteful way** is:
+
+1.  Solve the normal equations for order 1 (from scratch)
+
+2.  Solve the normal equations for order 2 (completely from scratch, ignoring previous work)
+
+3.  Solve the normal equations for order 3 (again from scratch)
+
+4.  ... and so on
+
+**Why is each solve expensive?**
+
+-   We've learned that solving $R(N)\theta = f(N)$ requires either:
+
+    -   Matrix inversion: $O(n^3)$ operations
+    -   QR factorization: Also $O(n^3)$ operations
+
+-   The $O(n^3)$ means the cost grows **cubically** with the order
+
+-   For $n=10$: roughly $10^3 = 1000$ operations per solve
+
+**Total cost calculation:**
+
+-   10 different orders × 1000 operations each = 10,000 operations total
+
+**The fundamental waste:**
+
+Here's the key insight: When you compute the solution for order 5, you're doing a ton of calculation. Then when you move to order 6, you **throw all that work away** and start fresh!
+
+It's like building a 5-story building, tearing it down, then building a 6-story building from the ground up. Surely there's a better way?
+
+**This is what motivates the Levinson algorithm** - can we reuse the work we did for order $n$ when computing order $n+1$?
+:::
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - The Clever Solution
+
+**Levinson approach**: Build solutions incrementally, reusing previous work!
+
+-   Start with $n=1$ solution
+
+-   Use it to build $n=2$ solution (just $O(2)$ extra work)
+
+-   Use $n=2$ to build $n=3$ solution (just $O(3)$ extra work)
+
+-   ... and so on
+
+. . .
+
+**Total cost**: $O(1+2+3+...+10) = O(n^2)$ — **much faster!**
+
+. . .
+
+**Example with** $n=10$:
+
+-   Total: $1+2+3+...+10 = 55$ operations
+-   **Speedup**: $10,000 / 55 \approx 180$ times faster!
+
+::: notes
+**The Levinson insight:**
+
+Instead of starting from scratch each time, what if we could **build on previous solutions**?
+
+Going back to our building analogy: Instead of tearing down the 5-story building to build a 6-story one, just **add one more floor on top**!
+
+**How the incremental approach works:**
+
+1.  **Order 1**: Solve from scratch (cost: \~1 operation for this simple case)
+
+2.  **Order 2**: Take the order-1 solution and **update it** (cost: \~2 operations)
+
+3.  **Order 3**: Take the order-2 solution and **update it** (cost: \~3 operations)
+
+4.  ... and so on up to order 10 (cost: \~10 operations)
+
+**Total cost:**
+
+-   $1 + 2 + 3 + ... + 10 = 55$ operations
+
+-   This is the formula for the sum of first $n$ integers: $\frac{n(n+1)}{2} = \frac{10 \times 11}{2} = 55$
+
+-   Compare to naive: 10,000 operations
+
+-   **Speedup: 10,000 / 55 ≈ 180 times faster!**
+
+**Why does this work?**
+
+The key is the **Toeplitz structure** from prewindowing. This special structure means:
+
+-   The solution for order $n$ contains information that's useful for order $n+1$
+
+-   We can write a **recursive formula** that updates parameters instead of recomputing from scratch
+
+-   Each update only costs $O(n)$ operations instead of $O(n^3)$
+
+**The beauty:**
+
+-   From $O(n^3)$ per order → $O(n)$ per order
+
+-   From $O(n^4)$ total for all orders → $O(n^2)$ total
+
+This is a **dramatic** computational savings that makes model order selection practical!
+:::
+
+------------------------------------------------------------------------
+
+## How Levinson Algorithm Works
+
+**Core idea**: Build the solution for order $n+1$ from the solution for order $n$
+
+. . .
+
+**Key observation**: When using **prewindowing** (zero padding), the matrix $R(N)$ has **Toeplitz structure**
+
+-   Toeplitz = entries depend only on distance from diagonal
+-   This special structure means previous solutions contain useful information!
+
+. . .
+
+**Update mechanism**:
+
+1.  Start with order $n$ solution: $\hat{\theta}_n$
+2.  Add a "correction term" proportional to the old solution
+3.  Scale by **reflection coefficient** $\rho_n$ which measures the new information at order $n+1$
+
+::: notes
+**Breaking down how the Levinson algorithm works:**
+
+**The core idea in plain English:**
+
+Suppose you've already solved for the best AR model of order $n$. You have parameters $\hat{\theta}_1^n, \hat{\theta}_2^n, ..., \hat{\theta}_n^n$.
+
+Now you want to solve for order $n+1$. Instead of starting from scratch, Levinson says: "I can **adjust** the old parameters and **add one new parameter** using a simple formula."
+
+**What is Toeplitz structure?**
+
+A Toeplitz (pronounced "TOPE-litz") matrix has a special pattern:
+
+-   All diagonals are constant (entries depend only on distance from the main diagonal)
+
+-   Example: $\begin{bmatrix} a & b & c \\ b & a & b \\ c & b & a \end{bmatrix}$ (notice the diagonal patterns)
+
+**When do we get Toeplitz structure?**
+
+-   Remember prewindowing? We pad missing initial values with zeros
+
+-   This creates a Toeplitz structure in $R(N)$
+
+-   The Toeplitz structure means there's **redundancy** in the equations
+
+-   This redundancy is what Levinson exploits!
+
+**The update mechanism explained:**
+
+Think of it like this:
+
+1.  **Start**: You have $\hat{\theta}^n = [\theta_1^n, \theta_2^n, ..., \theta_n^n]$ (the old solution)
+
+2.  **Adjust**: Each old parameter gets a small correction based on the **reflection coefficient** $\rho_n$
+
+3.  **Add**: One new parameter $\theta_{n+1}^{n+1} = \rho_n$ is added to the end
+
+**What is the reflection coefficient** $\rho_n$?
+
+-   It's a **single number** computed from the data that captures all the new information at order $n+1$
+
+-   Magnitude tells you how important the new order is
+
+-   Small $|\rho_n|$ → not much gained by adding order $n+1$
+
+-   Large $|\rho_n|$ → order $n+1$ adds significant new information
+
+**Why "reflection"?**
+
+-   Comes from electrical engineering: modeling signal reflections in transmission lines
+
+-   The Levinson recursion has the same mathematical structure as wave reflections
+
+-   The coefficient $\rho_n$ is like a "reflection gain" in the signal
+:::
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - The Formulas
+
+**Recursive update relationships:**
+
+$$\hat{\theta}_k^{n+1} = \hat{\theta}_k^n + \rho_n \hat{\theta}_{n+1-k}^n, \quad k = 1, \ldots, n$$
+
+$$\hat{\theta}_{n+1}^{n+1} = \rho_n, \quad V_{n+1} = V_n + \rho_n \alpha_n$$
+
+where $\rho_n = -\alpha_n / V_n$ is a **reflection coefficient** capturing new information at order $n+1$
+
+::: notes
+**Simple explanation of the equations:**
+
+The first equation: $\hat{\theta}_k^{n+1} = \hat{\theta}_k^n + \rho_n \hat{\theta}_{n+1-k}^n$
+
+-   $\hat{\theta}_k^{n+1}$: The **updated parameter** $k$ when we add order $n+1$
+
+-   $\hat{\theta}_k^n$: The **old parameter** $k$ from order $n$ (keep this!)
+
+-   $\rho_n \hat{\theta}_{n+1-k}^n$: The **correction term** (new information we learned)
+
+-   $\rho_n$: A **scaling factor** (reflection coefficient)
+
+In words: **New parameter = Old parameter + (scaling factor) × (correction)**
+
+The second equation has two parts:
+
+-   $\hat{\theta}_{n+1}^{n+1} = \rho_n$ ← The **newest parameter** added at order $n+1$
+
+-   $V_{n+1} = V_n + \rho_n \alpha_n$ ← The **error** updates as we add more orders
+
+**What is a "reflection coefficient"?**
+
+The reflection coefficient $\rho_n = -\alpha_n / V_n$ measures **how much new information we gain** by adding order $n$:
+
+-   **Magnitude** $|\rho_n|$:
+
+    -   Small value (close to 0): Adding order $n$ barely helps; the new parameter is weak
+    -   Large value (close to 1): Adding order $n$ is critical; the new parameter is strong
+    -   Always bounded: $|\rho_n| < 1$ for stable systems
+
+-   **Interpretation**:
+
+    -   It's a **correlation measure**: How much does the new parameter correlate with existing ones?
+    -   Comes from the Toeplitz structure: In a structured problem, this single number captures all the information needed for the update
+    -   Also called **PACF** (Partial Autocorrelation Function) in time series analysis
+
+-   **Why "reflection"?**:
+
+    -   In signal processing, these coefficients represent **reflections in a transmission line**
+    -   The Lattice filter architecture (coming next) is literally shaped like a physical transmission line with reflections!
+    -   Historically coined this term because the problem came from studying electrical transmission
+
+**Intuition summary:** The Levinson algorithm says: "If you know the parameters for order $n$, you can compute order $n+1$ by adding a tiny adjustment that's proportional to the reflection coefficient. The coefficient tells you how important this new order is."
+:::
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - Computational Impact
+
+**Key efficiency gains:**
+
+-   **Going from order** $n$ to $n+1$: Only $O(n)$ operations (not $O(n^3)$!)
+-   **Computing all orders 1 to** $n$: Total $O(n^2)$ operations
+
+. . .
+
+**Real impact**: For $n=20$ (testing orders 1-20):
+
+-   **Standard approach**: $20 \times 8000 = 160,000$ units of work
+-   **Levinson approach**: $400$ units of work
+-   **Speedup**: 400× faster!
+
+. . .
+
+**Why it matters**:
+
+-   Makes **model order selection** practical
+-   **Developed by Levinson (1947)** — classical workhorse in signal processing
+
+::: notes
+**Understanding Big-O notation:**
+
+Big-O describes how computational cost grows as the problem size increases:
+
+-   $O(n)$ = "linear time": If you double the problem size, the time roughly doubles
+
+-   $O(n^2)$ = "quadratic time": If you double the problem size, the time quadruples (4×)
+
+-   $O(n^3)$ = "cubic time": If you double the problem size, the time grows 8× (very expensive!)
+
+**Why this is a big deal:**
+
+The traditional approach to solving the normal equations uses methods like:
+
+-   Matrix inversion: $O(n^3)$ operations
+
+-   QR factorization: Also $O(n^3)$ operations
+
+But the Levinson algorithm exploits the special Toeplitz structure to get:
+
+-   **Updating from order** $n$ to $n+1$: Only $O(n)$ operations (linear!)
+
+-   **Computing all orders 1 through** $n$: Total $O(1 + 2 + 3 + ... + n) = O(n^2)$ operations
+
+**Historical note:**
+
+Norman Levinson published this algorithm in 1947. It became a cornerstone of:
+
+-   Digital signal processing (1960s-1980s)
+
+-   Speech coding (LPC - Linear Predictive Coding)
+
+-   Radar and sonar signal processing
+
+-   Modern control theory (Kalman filtering connections)
+
+Even today, despite more powerful computers, the Levinson algorithm is still used because:
+
+1.  It's extremely efficient for Toeplitz systems
+
+2.  It's numerically stable (bounded reflection coefficients)
+
+3.  It provides useful diagnostic information (reflection coefficients indicate model quality)
+
+**What to emphasize:**
+
+-   The jump from $O(n^3)$ to $O(n^2)$ is **not just a constant factor** — it's a fundamental reduction in computational complexity
+
+-   This makes model order selection practical: you can afford to try many different orders
+
+-   The Toeplitz structure is the key that unlocks this efficiency — without it, you can't use Levinson
+
+-   This is a classic example of **structure exploitation** in numerical computing: recognizing special patterns enables dramatic speedups
+:::
+
+------------------------------------------------------------------------
+
+## Levinson Algorithm - Intuition
+
+**Think of it as building a "ladder" of models**:
+
+-   **Order 1**: Simple model with 1 parameter
+-   **Order 2**: Add parameter 2 using info from order 1
+-   **Order 3**: Add parameter 3 using info from orders 1 & 2
+-   ... and so on
+
+. . .
+
+Each step **reuses previous work** rather than starting from scratch. This is why adding one more order only costs $O(n)$ extra work, not $O(n^3)$.
+
+. . .
+
+**The reflection coefficient** $\rho_n$ acts like a **diagnostic**:
+
+-   If $|\rho_n| \approx 0$: Adding order $n$ gives little new information
+-   If $|\rho_n| \approx 1$: Adding order $n$ is critical for the fit
+
+::: notes
+**The "ladder" metaphor:**
+
+Think of building AR models like climbing a ladder where each rung represents a higher order:
+
+-   **Rung 1** (Order 1): You estimate 1 parameter. Simple model: $y(t) = \theta_1 y(t-1) + e(t)$
+
+-   **Rung 2** (Order 2): Instead of starting over, you **stand on rung 1** and reach up. You adjust $\theta_1$ slightly and add $\theta_2$
+
+-   **Rung 3** (Order 3): Standing on rung 2, adjust $\theta_1$ and $\theta_2$ slightly, add $\theta_3$
+
+-   ... and so on up the ladder
+
+**Why this is efficient:**
+
+Each time you climb one rung, you:
+
+-   **Keep** the structure from below (don't rebuild from ground)
+
+-   **Adjust** existing parameters (small corrections)
+
+-   **Add** one new parameter (one new degree of freedom)
+
+This costs $O(n)$ work, not $O(n^3)$ like rebuilding from scratch!
+
+**The reflection coefficient as a diagnostic tool:**
+
+The magnitude of $\rho_n$ tells you whether it's worth climbing to the next rung:
+
+-   $|\rho_n| \approx 0$: The new parameter is weak
+
+    -   Adding order $n$ barely improves the fit
+    -   You might be at the "right" model order already
+    -   Further orders may just overfit noise
+
+-   $|\rho_n| \approx 1$: The new parameter is strong
+
+    -   Adding order $n$ significantly improves the fit
+    -   You haven't captured all the system dynamics yet
+    -   Keep climbing! (try higher orders)
+
+**Practical use:**
+
+In practice, you can:
+
+1.  Compute reflection coefficients for orders 1, 2, 3, ..., 20
+
+2.  Plot $|\rho_n|$ vs. $n$
+
+3.  Look for where $|\rho_n|$ becomes small (close to 0)
+
+4.  That's a good indicator of the "true" system order!
+
+This is actually the **Partial Autocorrelation Function (PACF)** used in time series analysis for model order selection.
+
+**Key takeaway:**
+
+Levinson gives you **two benefits**:
+
+1.  **Computational**: Fast way to try many orders ($O(n^2)$ total)
+
+2.  **Diagnostic**: Reflection coefficients guide you to the right order
+:::
+
+------------------------------------------------------------------------
+
+## Lattice Filters
+
+**What is a lattice filter?**
+
+An alternative **network architecture** for computing the same Levinson recursion, but structured differently:
+
+**How it works**: Instead of updating parameter vectors directly, it processes two parallel **error streams**:
+
+-   **Forward error** $e_n(t)$: Predicting $y(t)$ from its past (standard prediction)
+-   **Backward error** $f_n(t)$: "Predicting" past data from future (novel idea!)
+
+. . .
+
+**Key insight**: These two errors are **orthogonal** (independent) at different orders $$\frac{1}{N}\sum_{t=1}^{N} e_n(t)e_{n-k}(t-k) = \begin{cases} V_n, & k = 0 \\ 0, & k \neq 0 \end{cases}$$
+
+This orthogonality is **numerically stabilizing**.
+
+------------------------------------------------------------------------
+
+## Lattice Filters - Why They're Superior
+
+**Reflection coefficients** $\rho_n$ (also called PACF):
+
+-   **Bounded**: Always $|\rho_n| < 1$ (naturally prevents numerical overflow!)
+-   **Interpretation**: Measure of how much order $n$ adds beyond previous orders
+-   **Stability detector**: If $|\rho_n| \approx 1$ → system becoming unstable
+
+. . .
+
+**Advantages over standard Levinson**:
+
+1.  **Better numerical stability**: Bounded coefficients prevent round-off errors from growing
+2.  **Adaptive/real-time capable**: Can process data one sample at a time (streaming)
+3.  **Applications**: Speech processing, Kalman filtering, adaptive signal processing
+
+------------------------------------------------------------------------
+
+## Comparing Levinson vs. Lattice Filters
+
+| Aspect | Levinson | Lattice Filters |
+|------------------|--------------------|----------------------------------|
+| **What it updates** | Parameter vector $\hat{\theta}_n$ | Error streams $e_n(t)$ and $f_n(t)$ |
+| **Complexity** | $O(n^2)$ | $O(n^2)$ |
+| **Numerical stability** | Good | Excellent (bounded coefficients) |
+| **Real-time capable** | Not naturally | Yes (process sample-by-sample) |
+| **Industry use** | Academic/theoretical | Speech, adaptive filtering, control |
+
+. . .
+
+**Bottom line**: Both solve the same problem recursively. Lattice filters trade computation for better stability and adaptability.
+
+------------------------------------------------------------------------
+
+## Data Tapering (Optional refinement)
+
+To soften artifacts from zero padding:
+
+-   Apply **tapering weights** to both ends of the data record
+-   Reduces edge effects from the appended zeros
+-   Used in conjunction with prewindowing for refinement
+
+::: notes
+**What is tapering?**
+
+Instead of abrupt zero padding, you gradually taper the data to zero at the boundaries. This is like multiplying your data by a **window function** (like a Hann or Hamming window) that smoothly goes from 1 to 0 at the edges.
+
+**Why use it?**
+
+Zero padding is artificial—it introduces a discontinuity. When you abruptly multiply by zero at the boundary, you introduce spectral leakage and edge artifacts. Tapering softens this by gradually reducing the data rather than cutting it off abruptly.
+
+**When to apply tapering:**
+
+-   Use with prewindowing to reduce edge effects
+-   Common in spectral estimation and signal processing
+-   Typically applied as a **weighting function** applied to the data before processing
+
+This is refinement-level detail and not critical for understanding the main concepts.
+:::
+
+------------------------------------------------------------------------
+
+## Summary of Section 10.1
+
+**Key takeaways:**
+
+-   **Normal equations** provide the foundation for LS estimation
+
+-   **QR factorization** offers superior numerical stability
+
+-   **Why it works**: Better conditioning, triangular structure, avoids ill-conditioned matrix products
+
+-   **Initial conditions** are handled by prewindowing or starting summation later
+
+-   **Practical insight**: Implement via $R_0$ only, avoiding large matrix storage
+
+------------------------------------------------------------------------
+
+# Section 10.2: Numerical Solution by Iterative Search Methods {background-color="#2c5f77"}
+
+------------------------------------------------------------------------
+
+## When Analytical Solutions Fail
+
+In general, the function
+
+$$V_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \ell(\varepsilon(t, \theta), \theta)$$
+
+**cannot be minimized by analytical methods.**
+
+. . .
+
+Similarly, the equation
+
+$$0 = f_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \zeta(t, \theta)\alpha(\varepsilon(t, \theta))$$
+
+**cannot be solved by direct means in general.**
+
+. . .
+
+**Solution**: Use iterative numerical techniques to find the minimum/solution.
+
+::: notes
+**Why analytical solutions fail:**
+
+In Section 10.1, we dealt with linear regression problems where the solution could be found analytically using the normal equations $R(N)\theta = f(N)$. However, for more general system identification problems, we encounter non-linear optimization problems that cannot be solved in closed form.
+
+**The criterion function** $V_N(\theta, Z^N)$:
+
+This is the general loss function we're trying to minimize. It's an average of loss terms $\ell(\varepsilon(t, \theta), \theta)$ over all $N$ data points. When $\ell$ is non-quadratic or when $\varepsilon(t, \theta)$ is a non-linear function of $\theta$, we can't minimize this analytically.
+
+**The correlation equation** $f_N(\theta, Z^N) = 0$:
+
+This is a generalization of the normal equations. When we can't solve this equation directly, we need iterative methods.
+
+**Examples where this occurs:**
+
+-   Non-linear model structures (e.g., Hammerstein-Wiener models)
+-   Non-quadratic loss functions (e.g., robust estimation with absolute errors)
+-   Output error models where prediction errors are non-linear in parameters
+
+**What to emphasize:**
+
+Start by acknowledging that Section 10.1's analytical approach was the "easy case." Now we're moving to the general case where we need numerical optimization algorithms.
+:::
+
+------------------------------------------------------------------------
+
+## Numerical Minimization - General Approach
+
+Methods for numerical minimization update the estimate iteratively:
+
+$$\hat{\theta}^{(i+1)} = \hat{\theta}^{(i)} + \alpha f^{(i)}$$
+
+where:
+
+-   $f^{(i)}$ is a **search direction** based on information about $V(\theta)$
+-   $\alpha$ is a **positive constant** (step size) to ensure decrease in $V(\theta)$
+
+. . .
+
+**Three categories of methods:**
+
+1.  **Function values only** (e.g., simplex methods)
+2.  **Function + gradient** (e.g., steepest descent, Gauss-Newton)
+3.  **Function + gradient + Hessian** (e.g., Newton's method)
+
+::: notes
+**The iterative update formula:**
+
+Say "theta hat at iteration i plus 1 equals theta hat at iteration i plus alpha times f at iteration i".
+
+This is the fundamental structure of all numerical optimization algorithms:
+
+-   Start with an initial guess $\hat{\theta}^{(0)}$
+-   Compute a search direction $f^{(i)}$
+-   Take a step of size $\alpha$ in that direction
+-   Repeat until convergence
+
+**The search direction** $f^{(i)}$:
+
+Different algorithms differ primarily in how they choose the search direction:
+
+-   **Smarter directions** → faster convergence
+-   **Better information** (gradient, Hessian) → smarter directions
+-   **Trade-off**: More information per iteration vs. cost per iteration
+
+**The step size** $\alpha$:
+
+The step size must be chosen to ensure that $V(\hat{\theta}^{(i+1)}) < V(\hat{\theta}^{(i)})$, meaning we're making progress. Common strategies:
+
+-   **Fixed step size**: Simple but may overshoot or be too slow
+-   **Line search**: Optimize $\alpha$ to minimize $V$ along the search direction
+-   **Trust region**: Limit step size based on how well the local approximation is trusted
+
+**Three method categories:**
+
+-   **Group 1**: Only evaluates $V(\theta)$ at different points. Slow but robust. Example: Nelder-Mead simplex.
+
+-   **Group 2**: Uses gradient $V'(\theta)$ to find downhill direction. Much faster. Most common in practice.
+
+-   **Group 3**: Uses both gradient and Hessian (second derivative matrix) for best convergence near minimum. Expensive per iteration but fewer iterations needed.
+:::
+
+------------------------------------------------------------------------
+
+## Newton's Method
+
+The classic **Newton algorithm** belongs to group 3:
+
+$$f^{(i)} = -[V''(\hat{\theta}^{(i)})]^{-1} V'(\hat{\theta}^{(i)})$$
+
+where:
+
+-   $V'(\theta)$ is the **gradient** (first derivative)
+-   $V''(\theta)$ is the **Hessian** (second derivative matrix)
+
+. . .
+
+**Key property**: Gives **one-step convergence** for quadratic functions!
+
+. . .
+
+**Practical issue**: Computing the full Hessian $V''(\theta)$ can be expensive.
+
+::: notes
+**The Newton direction:**
+
+Say "f at iteration i equals negative V double-prime at theta hat i, inverse, times V prime at theta hat i".
+
+This formula comes from approximating $V(\theta)$ by a quadratic function around the current point $\hat{\theta}^{(i)}$ and finding the minimum of that quadratic approximation.
+
+**Why Newton's method is powerful:**
+
+-   **Quadratic convergence**: Near the minimum, the error decreases quadratically with each iteration
+
+-   **One-step for quadratics**: If $V(\theta)$ is exactly quadratic, Newton finds the minimum in one step
+
+-   **Natural step size**: The formula implicitly determines both direction and step size
+
+**The Hessian matrix** $V''(\theta)$:
+
+For a parameter vector of dimension $d$, the Hessian is a $d \times d$ matrix containing all second partial derivatives:
+
+$$V''(\theta) = \begin{bmatrix}
+\frac{\partial^2 V}{\partial \theta_1^2} & \frac{\partial^2 V}{\partial \theta_1 \partial \theta_2} & \cdots \\
+\frac{\partial^2 V}{\partial \theta_2 \partial \theta_1} & \frac{\partial^2 V}{\partial \theta_2^2} & \cdots \\
+\vdots & \vdots & \ddots
+\end{bmatrix}$$
+
+**The computational burden:**
+
+Computing all $d^2$ entries of the Hessian and then inverting it costs $O(d^3)$ operations. For large parameter spaces, this is prohibitively expensive. This motivates quasi-Newton methods.
+:::
+
+------------------------------------------------------------------------
+
+## The Gradient Formula
+
+For the criterion $V_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \ell(\varepsilon(t, \theta), \theta)$
+
+The gradient is:
+
+$$V_N'(\theta, Z^N) = -\frac{1}{N}\sum_{t=1}^{N} \{\psi(t, \theta)\ell_{\varepsilon}'(\varepsilon(t, \theta), \theta) - \ell_{\theta}'(\varepsilon(t, \theta), \theta)\}$$
+
+where $\psi(t, \theta)$ is the $d \times p$ gradient matrix of $\hat{y}(t|\theta)$ with respect to $\theta$.
+
+. . .
+
+**Major computational burden**: Computing $\psi(t, \theta)$ for $t = 1, 2, \ldots, N$
+
+::: notes
+**Understanding the gradient formula:**
+
+Say "V N prime of theta, Z to the N equals negative one over N times the sum..."
+
+This formula tells us how to compute the direction of steepest ascent of the criterion function. The negative of this gives us the steepest descent direction.
+
+**Components of the formula:**
+
+-   $\psi(t, \theta)$: The gradient of the predictor $\hat{y}(t|\theta)$ with respect to parameters. This is a matrix because the output might be multidimensional.
+
+-   $\ell_{\varepsilon}'(\varepsilon(t, \theta), \theta)$: Derivative of loss function with respect to the prediction error
+
+-   $\ell_{\theta}'(\varepsilon(t, \theta), \theta)$: Direct derivative of loss function with respect to parameters (often zero)
+
+**Why computing** $\psi(t, \theta)$ is hard:
+
+For each time point $t = 1, 2, \ldots, N$, we need to compute how the predicted output changes with respect to each parameter. This requires:
+
+-   Understanding the model structure
+-   Chain rule for composite functions
+-   Potentially recursive calculations for dynamic models
+
+Section 10.3 discusses efficient techniques for computing $\psi(t, \theta)$ for common model structures.
+
+**Analogy:**
+
+Think of the gradient as a compass that points uphill. At each iteration, we compute this compass direction and then walk downhill (negative gradient) to decrease $V(\theta)$.
+:::
+
+------------------------------------------------------------------------
+
+## Scalar Output and Quadratic Criterion
+
+Consider the special case:
+
+$$V_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \frac{1}{2}\varepsilon^2(t, \theta)$$
+
+. . .
+
+This is the **nonlinear least-squares problem**.
+
+. . .
+
+The gradient simplifies to:
+
+$$V_N'(\theta, Z^N) = -\frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\varepsilon(t, \theta)$$
+
+. . .
+
+A general family of search algorithms:
+
+$$\hat{\theta}_N^{(i-1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [R_N^{(i)}]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
+
+::: notes
+**The nonlinear least-squares problem:**
+
+This is one of the most important special cases in system identification. We're minimizing the sum of squared prediction errors, just like linear regression, but now the prediction errors $\varepsilon(t, \theta)$ are non-linear functions of $\theta$.
+
+**Why this case matters:**
+
+-   Most common criterion in practice (quadratic loss)
+-   Well-studied numerically (extensive literature)
+-   Good balance of statistical properties and computational tractability
+
+**The general search formula:**
+
+Say "theta hat N at iteration i minus 1 equals theta hat N at iteration i minus mu N at iteration i times R N at iteration i inverse times V N prime..."
+
+This is a template that covers many specific algorithms:
+
+-   $R_N^{(i)}$: A matrix that modifies the search direction (we'll discuss choices next)
+-   $\mu_N^{(i)}$: Step size parameter (will be discussed)
+-   $V_N'(\hat{\theta}_N^{(i)}, Z^N)$: The gradient at the current iterate
+
+**The negative sign:**
+
+Note the minus sign in the formula - we're moving in the direction opposite to the gradient, which is downhill.
+
+**What to emphasize:**
+
+This formula is the foundation for the next several slides where we'll explore different choices for $R_N^{(i)}$ and $\mu_N^{(i)}$ that give rise to different algorithms.
+:::
+
+------------------------------------------------------------------------
+
+## Steepest Descent Method
+
+The simplest choice: Take $R_N^{(i)} = I$ (identity matrix)
+
+$$\hat{\theta}_N^{(i-1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
+
+. . .
+
+This is the **gradient descent** or **steepest descent method**.
+
+. . .
+
+**Pros**: Simple, doesn't require second derivatives
+
+**Cons**: Fairly inefficient close to the minimum - convergence can be very slow
+
+::: notes
+**The steepest descent method:**
+
+This is the most straightforward gradient-based optimization algorithm. At each step, we simply move in the direction of the negative gradient (steepest downhill direction).
+
+**Why it's called "steepest descent":**
+
+The negative gradient $-V'(\theta)$ is the direction of steepest decrease in the function value. Moving in this direction guarantees a decrease in $V(\theta)$ for sufficiently small step size.
+
+**The step size** $\mu_N^{(i)}$:
+
+Choosing the right step size is critical:
+
+-   **Too small**: Convergence is very slow (taking tiny steps)
+-   **Too large**: May overshoot the minimum and even diverge
+-   **Common strategy**: Line search to find $\mu$ that minimizes $V(\hat{\theta}^{(i)} - \mu V'(\hat{\theta}^{(i)}))$
+
+**Why it's inefficient near the minimum:**
+
+Imagine a long, narrow valley. Steepest descent takes many small zig-zag steps down the valley instead of going directly toward the minimum. This happens because it only uses local gradient information and doesn't account for the curvature of the function.
+
+**When to use it:**
+
+-   Far from the minimum (initial iterations)
+-   When computing the Hessian is too expensive
+-   As a fallback when Newton-type methods have numerical issues
+
+Newton methods perform much better near the minimum because they account for curvature.
+:::
+
+------------------------------------------------------------------------
+
+## Gauss-Newton Method
+
+The Hessian for the quadratic criterion is:
+
+$$V_N''(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\psi^T(t, \theta) - \frac{1}{N}\sum_{t=1}^{N} \psi'(t, \theta)\varepsilon(t, \theta)$$
+
+where $\psi'(t, \theta)$ is the $d \times d$ Hessian of $\varepsilon(t, \theta)$.
+
+. . .
+
+**Key approximation**: Near the minimum, errors $\varepsilon(t, \theta_0) = e_0(t)$ are independent with $Ee_0(t) = 0$
+
+. . .
+
+This makes the second sum negligible, giving:
+
+$$V_N''(\theta, Z^N) \approx \frac{1}{N}\sum_{t=1}^{N} \psi(t, \theta)\psi^T(t, \theta) \triangleq H_N(\theta)$$
+
+::: notes
+**The full Hessian formula:**
+
+For the quadratic criterion $V_N = \frac{1}{N}\sum \frac{1}{2}\varepsilon^2(t, \theta)$, taking the second derivative gives two terms:
+
+1.  **First term**: $\frac{1}{N}\sum \psi(t, \theta)\psi^T(t, \theta)$ - This is always positive semidefinite
+
+2.  **Second term**: $-\frac{1}{N}\sum \psi'(t, \theta)\varepsilon(t, \theta)$ - This involves the Hessian of each error term
+
+**Why the second term becomes negligible:**
+
+At the minimum $\theta_0$, if the model is correct, the prediction errors become independent innovations $e_0(t)$ with $Ee_0(t) = 0$. Then:
+
+$$E[\psi'(t, \theta_0)e_0(t)] = E[\psi'(t, \theta_0)]E[e_0(t)] = 0$$
+
+So the second sum averages to approximately zero.
+
+**The approximation** $H_N(\theta)$:
+
+Say "H N of theta" - this is our approximation to the Hessian that:
+
+-   Only requires first derivatives $\psi(t, \theta)$, not second derivatives
+-   Is guaranteed to be positive semidefinite
+-   Is a good approximation near the minimum
+
+**Computing** $H_N(\theta)$:
+
+Notice that $H_N(\theta) = \frac{1}{N}\sum \psi(t, \theta)\psi^T(t, \theta)$ is just an outer product sum. This is much cheaper to compute than the full Hessian with second derivatives!
+
+**What makes this practical:**
+
+We already need to compute $\psi(t, \theta)$ for the gradient anyway. Using it to approximate the Hessian adds minimal computational cost.
+:::
+
+------------------------------------------------------------------------
+
+## Gauss-Newton Method (continued)
+
+Choosing $R_N^{(i)} = H_N(\hat{\theta}_N^{(i)})$ gives:
+
+$$\hat{\theta}_N^{(i-1)} = \hat{\theta}_N^{(i)} - \mu_N^{(i)} [H_N(\hat{\theta}_N^{(i)})]^{-1} V_N'(\hat{\theta}_N^{(i)}, Z^N)$$
+
+. . .
+
+This is known as the **Gauss-Newton method**.
+
+. . .
+
+**Advantages**:
+
+-   Only requires **first derivatives** (no Hessian computation!)
+-   $H_N(\theta)$ is always **positive semidefinite** → descent algorithm guaranteed
+-   Good convergence near minimum
+
+. . .
+
+**Common choice**: $\mu_N^{(i)} = 1$ (called the "method of scoring" in statistics)
+
+::: notes
+**The Gauss-Newton update:**
+
+Say "theta hat N at iteration i minus 1 equals theta hat N at i minus mu N at i times H N at theta hat N at i, inverse, times V N prime..."
+
+This is a quasi-Newton method that approximates the Newton direction using only first derivatives.
+
+**Why it's called Gauss-Newton:**
+
+-   **Gauss**: Least squares (quadratic loss function)
+-   **Newton**: Newton-like structure with an approximate Hessian
+
+**Advantages in detail:**
+
+1.  **Computational efficiency**: We avoid computing $\psi'(t, \theta)$ (the second derivative). This can be very expensive for complex models.
+
+2.  **Numerical stability**: By omitting the second sum in the Hessian, we guarantee that $H_N(\theta)$ is positive semidefinite. This means:
+
+    -   The search direction is always a descent direction
+    -   The algorithm won't diverge due to negative curvature
+    -   Matrix inversion is numerically stable
+
+3.  **Near-optimal convergence**: Near the minimum, where the approximation is accurate, Gauss-Newton has Newton-like convergence speed.
+
+**The "method of scoring":**
+
+In statistics literature (Rao, 1973), this technique is called the "method of scoring" when $\mu_N^{(i)} = 1$. The term comes from using the **expected information matrix** (Fisher information) instead of the observed Hessian.
+
+**When might it struggle:**
+
+-   Far from the minimum, the approximation may not be accurate
+-   If the model is badly misspecified, errors won't average to zero
+-   In these cases, damping (adjusting $\mu$) may be needed
+:::
+
+------------------------------------------------------------------------
+
+## Levenberg-Marquardt Method
+
+**Problem**: $H_N(\theta)$ may be singular or nearly singular (especially if model is overparameterized).
+
+. . .
+
+**Solution**: Use a **regularized** Hessian approximation:
+
+$$R_N^{(i)}(\lambda) = \frac{1}{N}\sum_{t=1}^{N} \psi(t, \hat{\theta}_N^{(i)})\psi^T(t, \hat{\theta}_N^{(i)}) + \lambda I$$
+
+. . .
+
+-   $\lambda > 0$ is a **regularization parameter**
+-   $\mu_N^{(i)} = 1$ (fixed step size)
+-   $\lambda$ controls convergence, not step size
+
+. . .
+
+**Effect of** $\lambda$:
+
+-   $\lambda = 0$: Standard Gauss-Newton
+-   $\lambda$ large: Smaller steps toward gradient direction (like steepest descent)
+
+::: notes
+**The singularity problem:**
+
+$H_N(\theta)$ can be singular or nearly singular when:
+
+-   **Overparameterization**: More parameters than necessary (redundant parameters)
+-   **Insufficient data**: Not enough information to determine all parameters uniquely
+-   **Numerical issues**: Ill-conditioning from poorly scaled parameters
+
+When $H_N(\theta)$ is singular, we can't invert it, and the algorithm breaks down.
+
+**Levenberg-Marquardt regularization:**
+
+Say "R N at iteration i of lambda equals one over N sum of psi psi transpose plus lambda I".
+
+By adding $\lambda I$ to the Hessian approximation, we ensure it's always invertible:
+
+-   The eigenvalues are shifted by $\lambda$
+-   Even if $H_N$ has a zero eigenvalue, $H_N + \lambda I$ has eigenvalue $\lambda > 0$
+-   The matrix is now **strictly positive definite**
+
+**How** $\lambda$ controls the algorithm:
+
+-   **Small** $\lambda$ (near 0):
+    -   Behaves like Gauss-Newton
+    -   Larger steps
+    -   Faster convergence near minimum
+    -   Risk of numerical issues
+-   **Large** $\lambda$:
+    -   The $\lambda I$ term dominates
+    -   $[H_N + \lambda I]^{-1} \approx \frac{1}{\lambda}I$
+    -   Search direction becomes $-\frac{1}{\lambda}V'(\theta)$ (steepest descent with step size $\frac{1}{\lambda}$)
+    -   Smaller, more cautious steps
+    -   More robust but slower
+
+**Adaptive** $\lambda$ strategy:
+
+Start with large $\lambda$ (robust, small steps). As iterations progress and we get closer to the minimum:
+
+-   If iteration succeeds (function decreases): Decrease $\lambda$ (trust the model more)
+-   If iteration fails (function increases): Increase $\lambda$ (be more cautious)
+
+This gives the best of both worlds: robust far from minimum, fast convergence near minimum.
+
+**Historical note:**
+
+Independently developed by Levenberg (1944) and Marquardt (1963). Now a standard technique for nonlinear least squares problems.
+:::
+
+------------------------------------------------------------------------
+
+## Summary: Iterative Methods for Nonlinear Least Squares
+
+**Problem**: Minimize $V_N(\theta) = \frac{1}{N}\sum_{t=1}^{N} \frac{1}{2}\varepsilon^2(t, \theta)$ where $\varepsilon(t, \theta)$ is nonlinear in $\theta$
+
+. . .
+
+**Key algorithms**:
+
+| Method | Matrix $R_N^{(i)}$ | Pros | Cons |
+|-----------------|----------------------|-----------------|-----------------|
+| Steepest Descent | $I$ | Simple | Slow near minimum |
+| Gauss-Newton | $H_N(\theta) = \frac{1}{N}\sum \psi\psi^T$ | Fast near minimum | May have singularity |
+| Levenberg-Marquardt | $H_N(\theta) + \lambda I$ | Robust + fast | Extra tuning param |
+
+. . .
+
+**Practical recommendation**: Use **Levenberg-Marquardt** with adaptive $\lambda$ for robustness
+
+::: notes
+**Comparing the three methods:**
+
+**Steepest Descent**:
+
+-   **When to use**: Simple problems, far from minimum, or when computing $\psi(t, \theta)$ is prohibitively expensive
+-   **Limitation**: Takes many iterations to converge, especially in narrow valleys
+
+**Gauss-Newton**:
+
+-   **When to use**: Near the minimum, well-conditioned problems, good initial guess
+-   **Limitation**: Can fail if $H_N(\theta)$ is singular or nearly singular
+-   **Performance**: Newton-like quadratic convergence near minimum
+
+**Levenberg-Marquardt**:
+
+-   **When to use**: General-purpose workhorse for nonlinear least squares
+-   **Why it's popular**: Combines robustness of steepest descent with speed of Gauss-Newton
+-   **Adaptive strategy**: Automatically adjusts between the two extremes based on progress
+
+**The computational bottleneck:**
+
+For all three methods, the main computational cost is:
+
+1.  Computing prediction errors $\varepsilon(t, \theta)$ for $t = 1, \ldots, N$
+2.  Computing the gradient matrix $\psi(t, \theta)$ for $t = 1, \ldots, N$
+
+Section 10.3 will address efficient computation of these quantities for common model structures.
+
+**Convergence to global vs. local minimum:**
+
+All these methods find **local minima**. For non-convex problems (which is common in system identification):
+
+-   Initial guess matters a lot
+-   May need multiple random starts
+-   May need domain knowledge to get good starting point
+
+**What to emphasize:**
+
+The choice of algorithm involves a trade-off between robustness and convergence speed. Levenberg-Marquardt with adaptive $\lambda$ is the industry standard because it handles this trade-off automatically.
+:::
+
+------------------------------------------------------------------------
+
+## Solving the Correlation Equation
+
+Recall the general equation:
+
+$$0 = f_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \zeta(t, \theta)\alpha(\varepsilon(t, \theta))$$
+
+. . .
+
+This is analogous to minimization of $V_N(\theta)$. Standard procedures:
+
+. . .
+
+**Substitution method** \[analogous to steepest descent\]:
+
+$$\hat{\theta}_N^{(i)} = \hat{\theta}_N^{(i-1)} - \mu_N^{(i)} f_N(\hat{\theta}_N^{(i-1)}, Z^N)$$
+
+. . .
+
+**Newton-Raphson method** \[analogous to Newton's method\]:
+
+$$\hat{\theta}_N^{(i)} = \hat{\theta}_N^{(i-1)} - \mu_N^{(i)} [f_N'(\hat{\theta}_N^{(i-1)}, Z^N)]^{-1} f_N(\hat{\theta}_N^{(i-1)}, Z^N)$$
+
+::: notes
+**The correlation equation:**
+
+This is a system of equations we're trying to solve for $\theta$. It's called a "correlation equation" because in many cases $\zeta(t, \theta)$ represents correlations we want to drive to zero.
+
+**Connection to minimization:**
+
+Solving $f_N(\theta) = 0$ is closely related to minimizing $V_N(\theta)$:
+
+-   If $V_N(\theta)$ is differentiable, then at a minimum we have $V_N'(\theta) = 0$
+-   The correlation equation is a generalization of this condition
+-   Same numerical techniques apply!
+
+**Substitution method:**
+
+Say "theta hat N at iteration i equals theta hat N at i minus 1 minus mu N at i times f N at theta hat N at i minus 1".
+
+This is the equation-solving analog of steepest descent:
+
+-   Simple iteration scheme
+-   $\mu_N^{(i)}$ controls step size
+-   Converges slowly but reliably
+
+**Newton-Raphson method:**
+
+Say "theta hat N at iteration i equals theta hat N at i minus 1 minus mu N at i times f N prime at theta hat N at i minus 1, inverse, times f N at theta hat N at i minus 1".
+
+This is the equation-solving analog of Newton's method:
+
+-   Requires computing the Jacobian $f_N'(\theta)$ (derivative of $f_N$ with respect to $\theta$)
+-   Quadratic convergence near the solution
+-   More expensive per iteration but fewer iterations needed
+
+**When to use correlation equations:**
+
+Some identification methods are naturally formulated as correlation equations rather than optimization problems. Examples:
+
+-   Instrumental variable methods
+-   Generalized method of moments
+-   Certain robust estimation procedures
+
+The same numerical techniques we developed for optimization apply here with minimal modification.
+:::
+
+------------------------------------------------------------------------
+
+## Summary of Section 10.2
+
+**Key takeaways:**
+
+-   When analytical solutions fail, use **iterative numerical methods**
+
+-   Three levels of information: function values only, gradient, or gradient + Hessian
+
+-   **Gauss-Newton method**: Quasi-Newton approach using only first derivatives
+
+-   **Levenberg-Marquardt**: Regularized Gauss-Newton for robustness
+
+-   Main computational burden: Computing $\varepsilon(t, \theta)$ and $\psi(t, \theta)$ for all $t$
+
+-   Same techniques apply to solving correlation equations
+
+------------------------------------------------------------------------
+
+# Section 10.5: Local Solutions and Initial Values {background-color="#2c5f77"}
+
+------------------------------------------------------------------------
+
+## The Local Minimum Problem
+
+The iterative methods from Section 10.2 converge to a **local minimum**, not necessarily the **global minimum**.
+
+. . .
+
+**For minimization**: We want $\hat{\theta}_N$ that minimizes $V_N(\theta, Z^N)$ globally
+
+. . .
+
+**For equation solving**: We want $\hat{\theta}_N^*$ that satisfies $f_N(\hat{\theta}_N^*, Z^N) = 0$
+
+. . .
+
+**The challenge**: Iterative search only guarantees convergence to a **local solution**
+
+::: notes
+**Local vs. Global Minimum:**
+
+Say "theta hat N star" for the solution point.
+
+**The fundamental issue:**
+
+In Section 10.2, we learned powerful iterative methods (Gauss-Newton, Levinson-Marquardt). However, these methods have an important limitation: they only guarantee convergence to a **local minimum** - a point where the function is lower than nearby points, but not necessarily the lowest point overall.
+
+**Why this matters:**
+
+-   **Theoretical results** (Chapters 8 and 9): Deal with properties of the **global minimum** $\hat{\theta}_N$
+-   **Practical algorithms** (Section 10.2): Only find **local minima**
+-   **The gap**: We need strategies to find the global minimum in practice
+
+**Equation solving analogy:**
+
+The same issue applies when solving $f_N(\theta, Z^N) = 0$. This equation may have **multiple solutions**, and iterative methods like Newton-Raphson will converge to whichever solution is closest to the initial guess.
+
+**Visual intuition:**
+
+Imagine a hilly landscape. Steepest descent takes you to the bottom of whichever valley you start in. If you start on the wrong hill, you'll end up in the wrong valley - a local minimum, not the deepest valley (global minimum).
+
+**What to emphasize:**
+
+This is not a flaw in the algorithms - it's a fundamental property of non-convex optimization. The only general strategy is to try multiple starting points and compare the results.
+:::
+
+------------------------------------------------------------------------
+
+## Finding the Global Minimum
+
+**Strategy**: Start the iterative minimization from different feasible initial values and compare results
+
+. . .
+
+**Why this is necessary**:
+
+-   No algorithm can guarantee finding the global minimum in general
+-   Starting point determines which local minimum you converge to
+-   Must explore the parameter space with multiple starts
+
+. . .
+
+**Practical approach**:
+
+1.  Use preliminary estimation procedures for good initial values
+2.  Run optimization from several different starting points
+3.  Select the solution with the lowest criterion value
+
+::: notes
+**The multi-start strategy:**
+
+This is the most general approach to finding global minima: try multiple starting points and pick the best result.
+
+**Why there's no "magic" algorithm:**
+
+For general non-convex problems, no algorithm can efficiently guarantee finding the global minimum without trying many starting points. This is a fundamental limitation of optimization theory.
+
+**How to choose starting points:**
+
+-   **Random sampling**: Try random feasible parameter values
+-   **Grid search**: Try points on a grid in parameter space
+-   **Smart initialization**: Use preliminary estimation methods (discussed next)
+-   **Domain knowledge**: Use physical insight about reasonable parameter ranges
+
+**Computational cost:**
+
+If you run $K$ different starting points, you multiply your computational cost by $K$. However:
+
+-   You can run these in parallel (embarrassingly parallel problem)
+-   Smart initialization reduces the number of starts needed
+-   It's worth the cost to avoid getting stuck in a bad local minimum
+
+**Model validation perspective:**
+
+From Section 16.5-16.6 (validation), if a model passes validation tests, it's acceptable even if it's not the global minimum. Local minima that pass validation are often good enough for practical purposes.
+
+**What to emphasize:**
+
+The goal is to find a solution that works well, not necessarily to prove it's the absolute global minimum. Good initial values are key to efficiency.
+:::
+
+------------------------------------------------------------------------
+
+## Two Aspects of "False" Local Minima
+
+**Aspect 1: Limit criterion** $\bar{V}(\theta)$
+
+-   As $N \to \infty$, the limit $\bar{V}(\theta) = \lim_{N \to \infty} V_N(\theta, Z^N)$ may have local minima
+-   Then $V_N(\theta, Z^N)$ will have such minima for large $N$ (Lemma 8.2)
+
+. . .
+
+**Aspect 2: Finite-sample randomness**
+
+-   Even if $\bar{V}(\theta)$ has only one local minimum (= global), $V_N(\theta, Z^N)$ may have other local minima due to randomness in data
+-   Much harder to analyze analytically
+
+. . .
+
+**Exception**: Linear regression LS has no false local minima by construction
+
+::: notes
+**Understanding the two sources of local minima:**
+
+**Aspect 1 - Structural local minima:**
+
+Say "V bar of theta" for the limit criterion.
+
+These local minima are inherent to the problem formulation:
+
+-   $\bar{V}(\theta)$ is the expected value of the criterion as the amount of data goes to infinity
+-   If $\bar{V}(\theta)$ itself has multiple local minima, then for large enough $N$, $V_N(\theta)$ will have minima near those same locations
+-   This is a property of the **model structure** and the **true system**, not just sampling variation
+
+**Why this happens:**
+
+-   Complex model structures (e.g., neural networks, nonlinear models)
+-   Model mismatch (true system not in model set)
+-   Identifiability issues (different parameter values give similar predictions)
+
+**Aspect 2 - Sample-induced local minima:**
+
+Even if the population criterion $\bar{V}(\theta)$ is convex (single minimum), the finite-sample criterion $V_N(\theta, Z^N)$ can have multiple local minima due to:
+
+-   Random fluctuations in the data
+-   Outliers
+-   Finite sample effects
+
+This is much harder to characterize theoretically because it depends on the specific data realization.
+
+**The linear regression exception:**
+
+For linear regression with least squares:
+
+$$V_N(\theta) = \frac{1}{N}\sum_{t=1}^{N} (y(t) - \varphi^T(t)\theta)^2$$
+
+This is a **quadratic function** of $\theta$, which is strictly convex. It has exactly one minimum (the global one), regardless of the data. No false local minima are possible by construction.
+
+**What to emphasize:**
+
+Understanding which type of local minima you're dealing with helps determine the right strategy. Structural local minima require careful model selection; sample-induced minima may disappear with more data.
+:::
+
+------------------------------------------------------------------------
+
+## Results for SISO Black-box Models
+
+**Assumption**: The true system can be described within the model set: $S \in \mathcal{M}$
+
+Consider the criterion:
+
+$$\bar{V}(\theta) = \bar{E}\frac{1}{2}\varepsilon^2(t, \theta)$$
+
+. . .
+
+**Key results for different model structures:**
+
+-   **ARMA models** ($B \equiv 0, D \equiv F \equiv 1$): All stationary points are global minima
+-   **ARARX models** ($C = F \equiv 1$): No false minima if SNR is large enough
+-   **Single-input models** ($n_f = 1$): No false local minima
+-   **Box-Jenkins** ($A = C = D \equiv 1$): No false minima if input is white noise
+
+::: notes
+**SISO = Single-Input Single-Output:**
+
+These results apply to single-input single-output systems using standard black-box model structures.
+
+**The crucial assumption** $S \in \mathcal{M}$:
+
+Say "S in script M" - the true system is in the model set.
+
+These theoretical results assume the model structure is correct - the true system can be exactly represented by some parameter value in your model class. This is a strong assumption!
+
+**ARMA models - the best case:**
+
+For ARMA models (output error without input):
+
+$$y(t) = \frac{C(q)}{A(q)}e(t)$$
+
+**Every stationary point** is a global minimum (Aström and Söderström, 1974). This means gradient-based methods will find the global solution from any reasonable starting point.
+
+**ARARX models (ARX with colored noise):**
+
+For ARARX models (Box-Jenkins type):
+
+$$y(t) = \frac{B(q)}{A(q)}u(t) + \frac{C(q)}{F(q)}e(t)$$
+
+No false local minima **if the signal-to-noise ratio is large enough**. If SNR is very small, false local minima can exist (Söderström, 1974).
+
+**Single-input case (**$n_f = 1$):
+
+When there's only one input, no false local minima exist (Söderström, 1975c).
+
+**Box-Jenkins special case:**
+
+For $A = C = D \equiv 1$ (pure transfer function estimation):
+
+$$y(t) = \frac{B(q)}{F(q)}u(t) + e(t)$$
+
+No false local minima if the **input is white noise**. For other inputs, false local minima can exist (Söderström, 1975c).
+
+**What about ARMAX?**
+
+For the general ARMAX model ($F \equiv D \equiv 1$), it's not known whether false local minima exist. However, practical experience (Bohlin, 1971) suggests that the global minimum is usually found without too much difficulty.
+
+**Output error structures:**
+
+For output error structures, convergence to false local minima is **not uncommon** in practice.
+
+**Pseudolinear regression result:**
+
+For ARMAX models using pseudolinear regression, it can be shown that:
+
+$$\bar{E}\varphi(t, \theta)\varepsilon(t, \theta) = 0 \implies \theta = \theta_0$$
+
+(Ljung, Söderström, and Gustavsson, 1975). This means the correlation equation has a unique solution.
+:::
+
+------------------------------------------------------------------------
+
+## Initial Parameter Values
+
+**Why good initial values matter:**
+
+1.  Avoid converging to undesired local minima
+2.  Faster convergence (fewer iterations needed)
+3.  Shorter total computing time
+
+. . .
+
+**For physically parametrized models**:
+
+-   Use physical insight for reasonable initial values
+-   Allows monitoring and interaction with the search
+
+. . .
+
+**For linear black-box models**: Use a start-up procedure...
+
+::: notes
+**The importance of good initialization:**
+
+Newton-type methods (Gauss-Newton, Levenberg-Marquardt) have:
+
+-   **Good local convergence**: Fast convergence near the minimum (quadratic convergence rate)
+-   **Poor global convergence**: Not necessarily fast from far away
+
+This means the initial guess has a big impact on:
+
+1.  **Which minimum** you converge to (if multiple exist)
+2.  **How many iterations** it takes to get there
+3.  **Total computational cost** of the identification
+
+**Physically parametrized models:**
+
+When parameters have physical meaning (mass, damping, time constants, etc.), you often have good intuition about reasonable ranges:
+
+-   Mass must be positive
+-   Damping ratios typically between 0 and 1
+-   Time constants roughly match observed dynamics
+
+**Benefits of physical parametrization:**
+
+-   Easy to provide good initial guesses
+-   Can **monitor** the iterative search (are parameters staying physical?)
+-   Can **interact** with the search (stop if parameters become unrealistic)
+
+**Black-box models:**
+
+For models like ARMAX where parameters don't have direct physical meaning, we need systematic procedures to generate good initial values. The next slides describe a standard start-up procedure.
+
+**Effort vs. reward:**
+
+Spending time on good initialization usually pays off in:
+
+-   Fewer total iterations
+-   Better chance of finding global minimum
+-   More confidence in the result
+:::
+
+------------------------------------------------------------------------
+
+## Start-up Procedure for Black-box Models
+
+**General SISO model structure** (10.62):
+
+$$y(t) = \frac{B(q)}{A(q)F(q)}u(t) + \frac{C(q)}{A(q)D(q)}e(t)$$
+
+. . .
+
+**Three-step initialization procedure:**
+
+1.  **Estimate transfer function** $B/AF$ using IV method
+    -   For open-loop systems: First estimate ARX model, use it to generate instruments
+    -   Most often one of $A$ or $F$ is unity
+
+. . .
+
+2.  **Estimate equation noise model** from residuals
+
+. . .
+
+3.  **Estimate noise model** $C$ and/or $D$ using high-order AR model
+
+::: notes
+**The general SISO model structure:**
+
+Say "B over A F for the input, C over A D for the noise".
+
+This is the most general single-input single-output model structure (equation 10.62 from the book):
+
+-   $B/AF$ describes how the input $u(t)$ affects the output
+-   $C/AD$ describes the noise characteristics
+
+Special cases:
+
+-   ARX: $C = F = D \equiv 1$
+-   ARMAX: $F = D \equiv 1$
+-   Output Error: $C = D \equiv 1$
+-   Box-Jenkins: $A = 1$
+
+**Step 1: Estimate the transfer function**
+
+The goal is to get initial estimates for $A$, $B$, and $F$.
+
+**Instrumental Variable (IV) method:**
+
+-   Provides consistent estimates even with colored noise
+-   For systems operating in open loop, first estimate an ARX model
+-   Use the ARX model to generate instruments (equation 7.123)
+-   Apply IV method to estimate $B/AF$
+
+**Common simplifications:**
+
+Usually one of $A$ or $F$ is taken as unity (no poles or no input model), making the estimation simpler.
+
+**Step 2: Estimate the equation noise**
+
+After estimating the transfer function in step 1, compute residuals:
+
+$$\hat{e}(t) = y(t) - \frac{\hat{B}(q)}{\hat{A}(q)\hat{F}(q)}u(t)$$
+
+These residuals approximate the equation noise that needs to be modeled by $C/AD$.
+
+**Step 3: Estimate noise model orders**
+
+Use the residuals $\hat{e}(t)$ to:
+
+-   Fit a high-order AR model to find $\hat{e}(t)$ (unnecessary if $C = 1$)
+-   Use equation (10.76) after (10.75)
+-   Choose the AR order as the sum of all model orders in $C$ and $D$ to balance computational effort
+
+**Why this works:**
+
+If $S \in \mathcal{M}$ (true system in model set), this procedure brings the initial parameter estimate **arbitrarily close** to the true values as $N$ increases. Then the iterative methods of Section 10.2 efficiently take us to the global minimum.
+
+This gives us a procedure that is **globally convergent** for large enough $N$!
+:::
+
+------------------------------------------------------------------------
+
+## Start-up for Nonlinear Black-box Models
+
+**Nonlinear model structure** (10.61):
+
+$$y(t) = g(u(t), y_k, \beta_k) + v(t), \quad v(t) = h(\gamma_k, e_k)$$
+
+where $g$ and $h$ are nonlinear functions.
+
+. . .
+
+**Simple initialization approach**:
+
+1.  "Seed" many fixed values of the nonlinear parameters $\beta_k$, $\gamma_k$
+2.  For each seed, estimate the linear parameters by linear least squares
+3.  Select the estimates with most significant values (relative to standard deviations)
+4.  Use selected $\beta_k$ and $\gamma_k$ as initial values for Gauss-Newton
+
+::: notes
+**Nonlinear black-box models:**
+
+The general nonlinear SISO model (equation 10.61) has the form:
+
+$$y(t) = g(u(t), y_{k}, \beta_k) + v(t)$$
+
+where:
+
+-   $g$ is a **nonlinear function** of past inputs/outputs and parameters $\beta_k$
+-   $y_k$ represents past outputs $y(t-1), y(t-2), \ldots$
+-   $v(t)$ is colored noise with structure $h(\gamma_k, e_k)$
+
+**Examples:**
+
+-   Hammerstein-Wiener models (static nonlinearity before/after linear dynamics)
+-   Neural network models
+-   Polynomial NARX models
+
+**The challenge:**
+
+Unlike linear models, there's no systematic IV or ARX method to get good initial estimates. The parameter space is much more complex.
+
+**The "seeding" strategy:**
+
+This is a grid-search approach:
+
+1.  **Fix nonlinear parameters**: Choose many different values of $\beta_k$ and $\gamma_k$ (the parameters that appear nonlinearly)
+
+2.  **Linear least squares**: For each fixed choice, the remaining parameters enter linearly. Estimate them by ordinary least squares - this is fast!
+
+3.  **Statistical significance**: Compute standard deviations for the estimated parameters. Select combinations where the estimates are statistically significant (large compared to their uncertainty).
+
+4.  **Gauss-Newton refinement**: Use the selected parameter values as starting points for the full nonlinear Gauss-Newton optimization.
+
+**Why this works:**
+
+-   Linear LS is fast, so we can try many seeds
+-   Statistically significant estimates are more likely to be near the true values
+-   Provides multiple good starting points for the final optimization
+
+**How many seeds?**
+
+This depends on the problem. Typical ranges:
+
+-   10-100 seeds for simple nonlinear models
+-   100-1000 seeds for complex models like neural networks
+
+The seeds can be chosen randomly or on a grid in the parameter space.
+
+**Modern alternatives:**
+
+For neural networks and deep learning, more sophisticated initialization schemes exist (Xavier initialization, He initialization, etc.), but the basic principle is similar.
+:::
+
+------------------------------------------------------------------------
+
+## Initial Filter Conditions
+
+**The problem**: Filters require initial values $\varphi(0, \theta)$
+
+Recall the predictor filter:
+
+$$\hat{y}(t|\theta) = H_f(q, \theta)y(t) + H_g(q, \theta)u(t)$$
+
+which requires past values to start.
+
+. . .
+
+**Four approaches to handle initial conditions:**
+
+1.  **Set to zero**: $\varphi(0, \theta) = 0$
+2.  **Match data exactly**: Choose $\varphi(0, \theta)$ so first $\hat{y}(t|\theta), t = 1, \ldots, \dim\varphi$ match $y(t)$ exactly
+3.  **Treat as parameter**: Estimate $\varphi(0, \theta) = \eta$ along with $\theta$
+4.  **Backforecast**: Estimate $\varphi(0, \theta)$ from data by running filters backwards (Knudsen, 1994)
+
+::: notes
+**Why we need initial conditions:**
+
+The predictor filters (equations 10.53-10.54 and 10.56) are recursive:
+
+$$\varphi(t|\theta) = F(\varphi(t-1|\theta), y(t-1), u(t-1), \theta)$$
+
+To start the recursion at $t = 1$, we need $\varphi(0, \theta)$ - the filter state before we have any data.
+
+**Special case - Finite impulse response:**
+
+For ARX models with $n_a = 0$ (FIR), the filters have finite impulse response. In this case, we can wait to initialize until enough past data are known. This is "approach 1 following (10.13)" from Section 10.1.
+
+**General case:**
+
+For models with infinite impulse response (IIR), we need a strategy for the unknown initial conditions.
+
+**Approach 1: Set to zero**
+
+$\varphi(0, \theta) = 0$
+
+-   **Pros**: Simple, always works
+-   **Cons**: Can cause transient errors, especially if system has slow dynamics
+-   **When to use**: When the filter transient is short compared to the data length
+
+**Approach 2: Match data exactly**
+
+Choose $\varphi(0, \theta)$ so that the first few predictions $\hat{y}(t|\theta)$ match $y(t)$ exactly.
+
+-   **Pros**: No initial transient error
+-   **Cons**: Requires solving for initial conditions, may not always be possible
+-   **When to use**: When you want to avoid any initial transient
+
+**Approach 3: Treat as parameters**
+
+Introduce $\eta = \varphi(0, \theta)$ as additional parameters and estimate them along with $\theta$.
+
+-   **Pros**: Optimal in some sense, treats initial conditions probabilistically
+-   **Cons**: Increases parameter dimension, more complex optimization
+-   **When to use**: When initial conditions are truly uncertain and important
+
+**Approach 4: Backforecast**
+
+Run suitable filters backwards in time from the data to estimate $\varphi(0, \theta)$ (Knudsen, 1994).
+
+-   **Pros**: Uses all available data, no arbitrary choices
+-   **Cons**: More complex implementation, requires additional computation
+-   **When to use**: For sophisticated applications where initial conditions matter
+
+**When does it matter?**
+
+For models where the predictor filter **transient is short** compared to the data record, it doesn't matter much which approach is taken.
+
+However, with **slowly decaying transients**, the first two methods may have a **very negative influence** on model quality. This is particularly pronounced for **OE models** (Output Error), where no noise model will pick up the residuals from bad transient behavior.
+
+**What to emphasize:**
+
+For most practical applications with reasonable amounts of data, approach 1 (zero initialization) is sufficient. Only worry about more sophisticated approaches when dealing with slow dynamics or short data records.
+:::
+
+------------------------------------------------------------------------
+
+## Summary of Section 10.5
+
+**Key takeaways:**
+
+-   Iterative methods converge to **local minima**, not necessarily global
+-   **Multi-start strategy**: Use multiple initial values and compare results
+-   **Two types of local minima**:
+    -   Structural (in $\bar{V}(\theta)$)
+    -   Sample-induced (randomness in $V_N(\theta, Z^N)$)
+-   **Good initialization is crucial** for efficiency and finding global minimum
+
+. . .
+
+**Practical recommendations:**
+
+-   For black-box models: Use systematic start-up procedures (IV method → noise estimation)
+-   For nonlinear models: Use seeding + grid search
+-   Initial filter conditions: Usually zero initialization is sufficient

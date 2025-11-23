@@ -1,0 +1,650 @@
+---
+title: "System Identification: Chapter 10"
+subtitle: "Sections 10.1, 10.2, 10.5: Computing the Estimate"
+author: "System Identification: Theory for the User"
+format:
+  revealjs:
+    theme: serif
+    slide-number: true
+    chalkboard: true
+    preview-links: auto
+    transition: slide
+    html-math-method: mathjax
+    css: assets/styles/styles.css
+    width: 1600
+    height: 900
+revealjs-plugins:
+  - pointer
+---
+
+## Presentation Overview
+
+**Chapter 10 - Computing the Estimate**
+
+-   Section 10.1: Linear Regressions and Least Squares
+-   Section 10.2: Numerical Solution by Iterative Search Methods
+-   Section 10.5: Local Solutions and Initial Values
+
+::: notes
+**SCRIPT:**
+
+Good afternoon everyone. Today we'll be presenting Chapter 10 from Ljung's System Identification textbook. The main question this chapter answers is: how do we actually compute parameter estimates?
+
+We'll cover three main sections. First is Section 10.1 on Linear Regressions and Least Squares - this is for when we have linear problems that we can solve directly. Second is Section 10.2 on Numerical Solution by Iterative Search Methods - this is for when the problem is nonlinear and we need to search for the solution. And finally, Section 10.5 on Local Solutions and Initial Values - this deals with practical issues like where to start the search and how to avoid getting stuck.
+
+Let's begin with the chapter overview.
+:::
+
+------------------------------------------------------------------------
+
+# Chapter 10: Computing the Estimate {background-color="#1a4d6b"}
+
+------------------------------------------------------------------------
+
+## Chapter 10 Overview
+
+In Chapter 7, we introduced three basic procedures for parameter estimation:
+
+1.  **Prediction-error approach**: Minimize $V_N(\theta, Z^N)$ with respect to $\theta$
+
+2.  **Correlation approach**: Solve equation $f_N(\theta, Z^N) = 0$ for $\theta$
+
+3.  **Subspace approach**: For estimating state space models
+
+. . .
+
+**This chapter**: How to solve these problems numerically
+
+::: notes
+**SCRIPT:**
+
+Let me give you some context first. In Chapter 7, we learned about three approaches to parameter estimation. The prediction-error approach, where we minimize some criterion V N of theta. The correlation approach, where we solve an equation f N of theta equals zero. And the subspace approach for state space models.
+
+Now, Chapter 7 told us what to do - minimize this, solve that - but it didn't tell us how to actually compute these things on a computer. That's what Chapter 10 is about.
+
+Here's the key idea: once we have our data set Z to the N, these functions V N and f N are just ordinary functions of our parameter vector theta. So this becomes a standard optimization problem that we can solve numerically.
+
+But here's the thing - we don't want to just use any generic optimization method. Parameter estimation problems have special structure, and if we take advantage of that structure, we can be much more efficient.
+:::
+
+------------------------------------------------------------------------
+
+## The Numerical Problem
+
+At time $N$, when the data set $Z^N$ is known:
+
+-   $V_N$ and $f_N$ are ordinary functions of a finite-dimensional parameter vector $\theta$
+-   This amounts to standard **nonlinear programming** and **numerical analysis**
+
+. . .
+
+**However**: The specific structure of parameter estimation problems makes specialized methods worthwhile
+
+::: notes
+**SCRIPT:**
+
+So let me explain the numerical problem we're facing. At time N, when we have our data set Z to the N, these functions V N and f N become just ordinary functions of the parameter vector theta. In other words, this is now a standard optimization problem.
+
+Now you might be thinking - okay, so we can just use MATLAB's built-in optimization functions or something like that, right? Well, yes, but there's a better way. Parameter estimation problems have special structure. And if we use methods designed specifically for this structure, we can solve these problems much faster and more reliably than if we just use generic methods.
+:::
+
+------------------------------------------------------------------------
+
+# Section 10.1: Linear Regressions and Least Squares {background-color="#2c5f77"}
+
+------------------------------------------------------------------------
+
+## The Normal Equations
+
+For linear regressions, the prediction is:
+
+$$\hat{y}(t|\theta) = \varphi^T(t)\theta$$
+
+where:
+
+-   $\varphi(t)$ is the **regression vector**
+-   $\theta$ is the **parameter vector**
+
+::: notes
+**SCRIPT:**
+
+Okay, now we move to Section 10.1 on linear regressions. Let me start with the basics.
+
+For linear regressions, our prediction looks like this equation - y hat at time t equals phi transpose of t times theta. Now what does this mean? It's saying that our prediction is a linear combination of our parameters theta, weighted by this regression vector phi.
+
+Think of phi as containing all the measured data and past values that we're using to make the prediction. And theta contains the unknown parameters we're trying to find.
+
+Just for pronunciation - theta is THAY-tah, phi is "fie", and y hat just means the estimated value of y.
+
+The key thing here is that because this is linear in theta, we can actually solve for theta analytically. We don't need to search - we can compute it directly using what are called the normal equations.
+:::
+
+------------------------------------------------------------------------
+
+## Least Squares Solution
+
+The prediction-error approach with quadratic norm gives the LS estimate:
+
+$$\hat{\theta}_N^{LS} = R^{-1}(N)f(N)$$
+
+where:
+
+$$R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t)$$
+
+$$f(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)y(t)$$
+
+::: notes
+**SCRIPT:**
+
+So what's the least squares solution? When we use the prediction-error approach with a quadratic norm - meaning we're minimizing the sum of squared errors - we get this formula. Theta hat N LS equals R inverse of N times f of N.
+
+Now let me break down what R and f are, because these are important. R of N is this matrix here - one over N times the sum of phi times phi transpose. This is basically measuring how the regression vectors correlate with each other. And f of N is one over N times the sum of phi times y - this measures how the regressors correlate with the outputs.
+
+The great thing about this solution is that it's analytical. We don't need to iterate or search - we just compute R and f from our data, invert R, multiply, and we're done.
+
+But - and this is important - there's a catch. Computing this solution numerically can actually be tricky, as we'll see in the next slides.
+
+**What is the "quadratic norm"?**
+
+A **norm** is a way to measure the "size" of something (like length of a vector).
+
+A **quadratic norm** means we measure size by **squaring and summing**: - For a prediction error $e(t) = y(t) - \hat{y}(t|\theta)$ - The quadratic norm is: $\|e\|^2 = \sum_{t=1}^{N} e(t)^2 = \sum_{t=1}^{N} |y(t) - \hat{y}(t|\theta)|^2$
+
+**Why "quadratic"?** - Because we square the errors (power of 2) - This is also called the **squared error** or **2-norm squared**
+
+**Why use it?** 1. **Penalizes large errors more**: A large error gets squared, so it's heavily penalized 2. **Mathematically convenient**: Derivatives are easy to compute 3. **Unique minimum**: The squared error criterion has a single, well-defined minimum
+
+**Notation note:** - $|x|^2$ for scalars means $x^2$ - $\|x\|^2$ for vectors means $x^T x = \sum_i x_i^2$
+
+**In our case:** We minimize $V_N(\theta) = \sum_{t=1}^{N} |y(t) - \varphi^T(t)\theta|^2$ with respect to $\theta$
+:::
+
+------------------------------------------------------------------------
+
+## Understanding the LS Estimate
+
+$$\hat{y}(t|\theta) = \varphi^T(t)\theta$$
+
+**What is** $\hat{\theta}_N^{LS}$?
+
+The parameter vector that **minimizes the sum of squared errors**
+
+. . .
+
+**Components:**
+
+-   $R(N)$: Sample **covariance matrix** of regressors $\varphi(t)$
+-   $f(N)$: Sample **cross-covariance** of regressors $\varphi(t)$ and outputs $y(t)$
+
+. . .
+
+This solution is obtained by solving the system of linear equations
+
+::: notes
+**SCRIPT:**
+
+Let's clarify what theta hat N LS represents. It's the parameter vector that minimizes the sum of squared errors - in other words, it makes our predictions as close as possible to the actual data in a least-squares sense.
+
+There are two key components. R of N is the sample covariance matrix of the regressors, showing how the input variables relate to each other. F of N is the sample cross-covariance between regressors and outputs, showing how inputs relate to outputs.
+
+This solution is obtained by solving a system of linear equations, which makes linear regression analytically tractable.
+:::
+
+------------------------------------------------------------------------
+
+## The Normal Equations (Alternative View)
+
+The LS estimate $\hat{\theta}_N^{LS}$ solves:
+
+$$R(N)\hat{\theta}_N^{LS} = f(N)$$
+
+. . .
+
+**These are called the *normal equations***
+
+::: notes
+**SCRIPT:**
+
+The LS estimate theta hat N LS can also be expressed as the solution to this equation: R of N times theta hat N LS equals f of N.
+
+These are called the normal equations. The term "normal" comes from geometry - the solution makes the error vector perpendicular, or normal, to the space of regressors.
+
+This is a system of linear equations in the standard form A x equals b, where A is R of N, x is our unknown parameter vector theta, and b is f of N.
+:::
+
+------------------------------------------------------------------------
+
+## Numerical Challenge
+
+**Problem**: The coefficient matrix $R(N)$ may be **ill-conditioned**
+
+-   Particularly when dimension is high
+-   Direct solution can be numerically unstable
+-   Computing $R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t)$ involves products of original data
+
+. . .
+
+**Solution**: Use matrix factorization techniques
+
+-   Don't form $R(N)$ directly
+-   Instead, construct a matrix $R$ such that $RR^T = R(N)$
+-   This approach offers superior numerical stability
+
+::: notes
+**SCRIPT:**
+
+There is a numerical challenge with the direct approach. The coefficient matrix R of N may be ill-conditioned, particularly when the dimension is high. Ill-conditioning means small numerical errors can lead to large errors in the solution. The direct solution can therefore be numerically unstable.
+
+The root cause is that computing R of N involves the product phi of t times phi transpose of t. Matrix multiplication like this squares the condition number, amplifying numerical errors.
+
+The solution is to use matrix factorization techniques. Instead of forming R of N directly, we construct a matrix R such that R times R transpose equals R of N. This is analogous to working with a square root rather than the full value, and provides significantly better numerical stability.
+:::
+
+------------------------------------------------------------------------
+
+## QR Factorization Definition
+
+For an $n \times d$ matrix $A$:
+
+$$A = QR$$
+
+where:
+
+-   $Q$ is $n \times n$ orthogonal: $QQ^T = I$
+-   $R$ is $n \times d$ upper triangular
+
+. . .
+
+Various approaches exist: Householder transformations, Gram-Schmidt procedure, Cholesky decomposition
+
+::: notes
+**SCRIPT:**
+
+QR factorization decomposes any n by d matrix A as the product A equals Q times R.
+
+Q is an n by n orthogonal matrix, meaning Q times Q transpose equals I, the identity matrix. Geometrically, Q preserves lengths and angles - it represents a rotation or reflection. The transpose of Q is also its inverse.
+
+R is an n by d upper triangular matrix, meaning all entries below the diagonal are zero. Triangular systems can be solved efficiently using back-substitution.
+
+Various algorithms exist for computing this factorization, including Householder transformations, Gram-Schmidt procedure, and Cholesky decomposition. Efficient implementations are available in standard numerical libraries.
+:::
+
+------------------------------------------------------------------------
+
+## Understanding QR Factorization
+
+**What does this decomposition do?**
+
+Any matrix $A$ can be written as the product of:
+
+1.  $Q$: An **orthogonal matrix** (preserves lengths and angles)
+    -   Think of it as a rotation/reflection
+    -   Property: $QQ^T = I$ (its transpose is its inverse)
+2.  $R$: An **upper triangular matrix** (zeros below diagonal)
+    -   Easy to solve systems with (back-substitution)
+
+::: notes
+**SCRIPT:**
+
+Let's clarify what QR decomposition accomplishes. Any matrix A can be written as the product of Q and R, where Q and R have specific properties.
+
+The Q matrix is orthogonal, with the property Q times Q transpose equals I. Here, I is the identity matrix - a matrix with 1s on the diagonal and 0s elsewhere. This property means Q transpose is the inverse of Q. Geometrically, Q preserves lengths and angles.
+
+The R matrix is upper triangular, with all entries below the diagonal equal to zero. Solving systems of the form R times x equals b is straightforward using back-substitution, starting from the bottom row and working upward.
+
+The advantage of QR factorization over direct inversion of R of N is that forming R of N requires multiplying phi transpose by phi, which squares the condition number. QR factorization avoids this multiplication, providing the square root of the needed quantity, which is numerically more stable.
+:::
+
+------------------------------------------------------------------------
+
+## Why QR Factorization? The Core Problem
+
+**Recall our goal:** Solve $R(N)\hat{\theta}_N^{LS} = f(N)$
+
+. . .
+
+**The issue with** $R(N)$:
+
+$$R(N) = \frac{1}{N}\sum_{t=1}^{N}\varphi(t)\varphi^T(t) = \frac{1}{N}\mathbf{\Phi}^T\mathbf{\Phi}$$
+
+. . .
+
+Notice: $R(N)$ is formed by **multiplying** $\mathbf{\Phi}^T$ by $\mathbf{\Phi}$
+
+This multiplication **squares the condition number**, amplifying numerical errors!
+
+::: notes
+**SCRIPT:**
+
+Let me show you why QR factorization is so important. Remember, our goal is to solve this equation - R of N times theta hat equals f of N. That's the normal equations.
+
+Now here's the issue with R of N. Look at this formula here - R of N equals one over N times the sum of phi times phi transpose. We can also write this as one over N times big Phi transpose times big Phi, where big Phi is our full data matrix stacking all the phi vectors.
+
+Notice what's happening here - R of N is formed by multiplying big Phi transpose by big Phi. And here's the killer - this multiplication squares the condition number.
+
+Let me explain what that means. The condition number, usually written as kappa, measures how sensitive your solution is to small errors. If kappa is 100, it means a 1 percent error in your data can become a 100 percent error in your solution. Now when you form R of N by multiplying Phi transpose by Phi, you square kappa. So if Phi had a condition number of 100, R of N has a condition number of 10,000! That's a hundred times worse. This amplifies numerical errors dramatically, and that's why direct methods can fail spectacularly.
+:::
+
+::: notes
+**Key terminology to explain:**
+
+**Condition number (**$\kappa$): - Measures how "sensitive" a matrix is to numerical errors - Think of it as: "How much do small errors in input get magnified in output?" - Low condition number (close to 1): Well-conditioned, stable - High condition number (e.g., 1000+): Ill-conditioned, unstable - Example: If $\kappa = 100$, a 1% error in data can become a 100% error in solution!
+
+**Big** $\mathbf{\Phi}$ vs. small $\varphi(t)$: - $\varphi(t)$ (small phi): The regression vector at a **single time** $t$ (a column vector) - $\mathbf{\Phi}$ (big bold Phi): The **entire data matrix** stacking all regression vectors - $\mathbf{\Phi}$ has $N$ rows (one for each time point) - Each row of $\mathbf{\Phi}$ is $\varphi(t)^T$ (transposed regression vector) - So: $\mathbf{\Phi} = [\varphi(1)^T; \varphi(2)^T; ...; \varphi(N)^T]$ (stacked vertically)
+
+**Why "squares" the condition number:**
+
+-   When you compute $\mathbf{\Phi}^T\mathbf{\Phi}$, you're multiplying two matrices
+
+-   This operation squares the condition number: $\kappa(R(N)) = \kappa(\mathbf{\Phi})^2$
+
+-   Example: If $\mathbf{\Phi}$ has $\kappa = 100$, then $R(N)$ has $\kappa = 10,000$!
+
+**Greek letter pronunciations:** - $\kappa$ = "kappa" (CAP-uh) - $\varphi$ = "phi" (fie, rhymes with "pie") - $\mathbf{\Phi}$ = "capital Phi" (same pronunciation, but refers to the matrix) - $\theta$ = "theta" (THAY-tah) - $\epsilon$ = "epsilon" (EP-sih-lon) - appears in error terms
+:::
+
+------------------------------------------------------------------------
+
+## Numerical Example: Why Multiplication is Bad
+
+Consider a simple case where data has condition number $\kappa = 100$
+
+. . .
+
+**Direct approach:**
+
+-   Form $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$
+
+-   Condition number of $R(N)$: $\kappa^2 = 10,000$
+
+-   Relative error magnified by factor of 10,000!
+
+::: notes
+**SCRIPT:**
+
+Let me give you a concrete numerical example to show why forming R of N directly is bad. Suppose your data matrix Phi has a condition number kappa of 100. That's already not great - it means small errors can get magnified by a factor of 100.
+
+Now, if you use the direct approach and form R of N by multiplying Phi transpose times Phi, look what happens. The condition number gets squared. So instead of 100, you now have a condition number of 10,000. That means a tiny 0.01 percent error in your data can become a 100 percent error in your solution. Your answer could be completely wrong just from rounding errors in the computer.
+
+---
+ADDITIONAL NOTES:
+
+- Kappa is pronounced "CAP-uh"
+- This squaring of the condition number is a fundamental property of matrix multiplication
+- Real-world problems often have kappa > 1000, making this issue severe
+:::
+
+
+------------------------------------------------------------------------
+
+## Numerical Example: Why Multiplication is Bad
+
+Consider a simple case where data has condition number $\kappa = 100$
+
+**QR approach:**
+
+-   Work with $R_1$ from QR factorization
+
+-   Condition number of $R_1$: $\kappa = 100$
+
+-   Relative error magnified only by factor of 100
+
+. . .
+
+**Result:** 100× improvement in numerical stability!
+
+::: notes
+**SCRIPT:**
+
+Now compare that to the QR approach. Instead of forming R of N directly, we use QR factorization to get R 1. And look at the condition number - it stays at 100. It doesn't get squared.
+
+So with QR, errors are only magnified by a factor of 100 instead of 10,000. That's a 100 times improvement in numerical stability. This is huge! It's the difference between getting a reliable answer and getting complete garbage from numerical errors.
+
+This is why QR factorization is the standard method for solving least squares problems in practice. It's not just a minor improvement - it's essential for getting correct results.
+:::
+
+
+------------------------------------------------------------------------
+
+## QR Factorization: The Key Insight
+
+**Instead of computing** $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$ directly...
+
+. . .
+
+**Factor** $\mathbf{\Phi}$ itself:
+
+$$\mathbf{\Phi} = QR_1$$
+
+. . .
+
+**Then:**
+
+$$R(N) = \mathbf{\Phi}^T\mathbf{\Phi} = (QR_1)^T(QR_1) = R_1^T Q^T Q R_1 = R_1^T R_1$$
+
+(using $Q^TQ = I$)
+
+. . .
+
+**Key point:** - We never form $\mathbf{\Phi}^T\mathbf{\Phi}$
+
+-   we work with $R_1$ directly!
+
+::: notes
+**SCRIPT:**
+
+So here's the key insight behind QR factorization. Instead of computing R of N equals Phi transpose Phi directly - which squares the condition number - we factor Phi itself.
+
+We write Phi equals Q times R 1, where Q is orthogonal and R 1 is triangular. Now watch what happens. If we need R of N, we can compute it as R 1 transpose times R 1. Look at this chain here - Phi transpose Phi equals Q R 1 transpose times Q R 1, which equals R 1 transpose Q transpose Q R 1. But Q transpose Q equals I, the identity, so this simplifies to R 1 transpose R 1.
+
+The key point is - we never actually form Phi transpose Phi. We work with R 1 directly. And R 1 has the square root of the condition number, not the squared version. It's like instead of working with 10,000, we work with 100. Much safer numerically.
+:::
+
+
+------------------------------------------------------------------------
+
+## Concrete Example: 2×2 Case
+
+Let's work through a small example:
+
+$$\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+. . .
+
+**Direct approach:** Form $R(N) = \mathbf{\Phi}^T\mathbf{\Phi}$
+
+$$R(N) = \begin{bmatrix} 3 & 4 & 0 \\ 0 & 0 & 5 \end{bmatrix} \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix}$$
+
+::: notes
+**SCRIPT:**
+
+Let me work through a concrete example so you can see this in action. Suppose our data matrix Phi is this 3 by 2 matrix here with entries 3, 4, and 5.
+
+Using the direct approach, we form R of N by multiplying Phi transpose times Phi. Look at the calculation - we get 3 times 3 plus 4 times 4 equals 9 plus 16 equals 25 in the top left. And 5 times 5 equals 25 in the bottom right. So R of N is this 2 by 2 matrix with 25s on the diagonal.
+
+Notice the numbers got bigger - we went from numbers around 3 to 5 in Phi, to 25 in R of N. This is that squaring effect we were talking about.
+:::
+
+
+------------------------------------------------------------------------
+
+## Concrete Example: QR Approach - Setup {.small-font}
+
+Same matrix: $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$
+
+. . .
+
+We want to factor this as: $\mathbf{\Phi} = QR_1$
+
+. . .
+
+**What will we get?**
+
+-   $Q$: An orthogonal matrix (preserves geometry)
+-   $R_1$: An upper triangular matrix (easy to solve)
+
+::: notes
+**SCRIPT:**
+
+Now let's use the QR approach on the same matrix. We want to factor Phi as Q times R 1.
+
+What will we get? We'll get Q, which is an orthogonal matrix - that means it preserves lengths and angles, like a rotation. And we'll get R 1, which is upper triangular - meaning all the entries below the diagonal are zero. This makes it really easy to solve systems with.
+
+The key difference from before is that we're not squaring anything. We're just rearranging Phi into a different form.
+:::
+
+
+------------------------------------------------------------------------
+
+## Concrete Example: QR Approach - Results {.small-font}
+
+**QR factorization of** $\mathbf{\Phi} = \begin{bmatrix} 3 & 0 \\ 4 & 0 \\ 0 & 5 \end{bmatrix}$ **gives:**
+
+$$Q = \begin{bmatrix} 0.6 & 0 & -0.8 \\ 0.8 & 0 & 0.6 \\ 0 & 1 & 0 \end{bmatrix}$$
+
+. . .
+
+$$R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix}$$
+
+::: notes
+**SCRIPT:**
+
+So after doing the QR factorization on our example matrix, here's what we get. Q is this 3 by 3 orthogonal matrix with entries like 0.6, 0.8, negative 0.8, and so on. You can verify it's orthogonal by checking that Q transpose Q equals the identity.
+
+And R 1 is this simple upper triangular matrix - just 5 and 5 on the diagonal, zeros elsewhere. Look at the numbers in R 1 - they're around 5, which is close to the original numbers in Phi. We haven't squared anything.
+
+Compare this to the direct approach where we got 25s. Here we're working with 5s. That's the square root. Much better conditioning.
+:::
+
+
+------------------------------------------------------------------------
+
+## QR Approach: Verification
+
+**Check:** $R_1^T R_1$ equals $R(N)$:
+
+$$R_1^T R_1 = \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} \begin{bmatrix} 5 & 0 \\ 0 & 5 \end{bmatrix} = \begin{bmatrix} 25 & 0 \\ 0 & 25 \end{bmatrix} = R(N) \checkmark$$
+
+. . .
+
+**Key difference:**
+
+We work with $R_1$ (entries \~5) not $R(N)$ (entries \~25)!
+
+::: notes
+**SCRIPT:**
+
+Now let's verify that our QR approach gives us the right answer. If we multiply R 1 transpose times R 1, we should get back R of N. Let's check - 5 times 5 equals 25, and we get the same R of N matrix as before. So yes, mathematically they're equivalent.
+
+But here's the key difference. In the QR approach, we work with R 1, which has entries around 5. In the direct approach, we work with R of N, which has entries around 25. That factor of 5 versus 25 represents the square root improvement in conditioning. We get the same final answer, but with much better numerical stability along the way.
+:::
+
+
+------------------------------------------------------------------------
+
+## Analogy: Square Root
+
+**Computing** $R(N)$ directly is like:
+
+-   Squaring a number with errors: $(x + \epsilon)^2 = x^2 + 2x\epsilon + \epsilon^2$
+
+-   The error term gets amplified!
+
+. . .
+
+**QR factorization** is like:
+
+-   Finding the square root first: If $R(N) = 100$, work with $R_1 = 10$
+
+-   Solving with smaller, better-conditioned numbers
+
+-   Less amplification of errors
+
+::: notes
+**SCRIPT:**
+
+Let me give you an analogy to make this clearer. Computing R of N directly is like squaring a number that has errors. Look at this formula - if you square x plus epsilon, you get x squared plus 2 x epsilon plus epsilon squared. The error term epsilon gets amplified by that factor of 2 x.
+
+QR factorization is like finding the square root first. Instead of working with R of N equals 100 and dealing with squared errors, you work with R 1 equals 10 - the square root. You're solving with smaller, better-conditioned numbers, so there's less amplification of errors.
+
+Think of it this way - would you rather make a 1 percent error on 10 or a 1 percent error on 100? The smaller number gives you a smaller absolute error. That's essentially what QR does for us.
+:::
+
+
+------------------------------------------------------------------------
+
+## Analogy: Square Root
+
+**Mathematical analogy:**
+
+-   Instead of solving: $x^2 = 100$ (error grows), we solve: $x = 10$ (error controlled)
+
+::: notes
+**SCRIPT:**
+
+Here's another way to think about it mathematically. Instead of solving x squared equals 100, where errors grow, we solve x equals 10, where errors are controlled. It's the same solution - x is 10 either way - but one approach amplifies numerical errors while the other doesn't.
+
+This is the essence of why QR factorization is so important in numerical linear algebra. It's not about getting a different answer. It's about getting the right answer reliably, even in the presence of rounding errors.
+:::
+
+
+------------------------------------------------------------------------
+
+## Applying QR to LS Estimation
+
+Define matrices for the multivariable case:
+
+$$\mathbf{Y}^T = [y^T(1) \; \cdots \; y^T(N)], \quad \mathbf{Y} \text{ is } Np \times 1$$
+
+$$\mathbf{\Phi}^T = [\varphi(1) \; \cdots \; \varphi(N)], \quad \mathbf{\Phi} \text{ is } Np \times d$$
+
+. . .
+
+The LS criterion:
+
+$$V_N(\theta, Z^N) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2 = \sum_{t=1}^{N}|y(t) - \varphi^T(t)\theta|^2$$
+
+::: notes
+**SCRIPT:**
+
+Now let's see how to apply QR factorization to the full least squares estimation problem. First, we need to set up our matrices properly for the multivariable case.
+
+Big Y is our output vector - it stacks all the output measurements from time 1 to N. It's N p by 1, where p is the dimension of each output. Big Phi is our data matrix - it stacks all the regression vectors. It's N p by d, where d is the number of parameters.
+
+The least squares criterion is this - V N of theta equals the norm of Y minus Phi theta squared. This is just the sum of squared prediction errors over all time points. Our goal is to find the theta that minimizes this.
+:::
+
+
+------------------------------------------------------------------------
+
+## Orthonormal Transformation Property
+
+**Key insight**: The norm is invariant under orthonormal transformations
+
+For any vector $v$ and orthonormal matrix $Q$ ($QQ^T = I$):
+
+$$|Qv|^2 = |v|^2$$
+
+. . .
+
+**Why?** Because $|Qv|^2 = (Qv)^T(Qv) = v^TQ^TQv = v^Tv = |v|^2$
+
+. . .
+
+**Application to our problem:**
+
+$$V_N(\theta) = |\mathbf{Y} - \mathbf{\Phi}\theta|^2 = |Q(\mathbf{Y} - \mathbf{\Phi}\theta)|^2$$
+
+We can multiply by $Q$ without changing the criterion!
+
+::: notes
+**SCRIPT:**
+
+Here's a key property we need to understand. The norm is invariant under orthonormal transformations. What does that mean? It means if you have any vector v and you multiply it by an orthonormal matrix Q, the length doesn't change. The norm of Q v equals the norm of v.
+
+Why is this true? Let's see the algebra. The norm of Q v squared equals Q v transpose times Q v. We can rearrange this as v transpose Q transpose Q v. But Q transpose Q equals I, the identity, so this becomes v transpose v, which is just the norm of v squared. So the norms are equal.
+
+Now here's how we apply this to our problem. Our criterion is the norm of Y minus Phi theta squared. Because the norm is invariant, we can multiply the whole thing by Q without changing the value. So V N of theta equals the norm of Q times Y minus Phi theta squared. This might seem like a pointless thing to do, but it's actually the key trick that makes QR factorization work for least squares.
+:::
+
+
