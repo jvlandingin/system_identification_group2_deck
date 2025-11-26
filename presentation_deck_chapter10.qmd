@@ -222,11 +222,17 @@ This is a system of linear equations in the standard form A x equals b, where A 
 
 . . .
 
-**Solution**: Use matrix factorization techniques
+::: {.warning}
+**The core issue**: Matrix multiplication **squares the condition number** κ
+- This amplifies numerical errors dramatically
+- Example: κ(Φ) = 100 → κ(R(N)) = 10,000 (100× worse!)
+:::
 
--   Don't form $R(N)$ directly
--   Instead, construct a matrix $R$ such that $RR^T = R(N)$
--   This approach offers superior numerical stability
+::: {.callout}
+**Solution**: Use **QR factorization** for superior numerical stability
+:::
+
+
 
 ::: notes
 **SCRIPT:**
@@ -1885,7 +1891,16 @@ $$0 = f_N(\theta, Z^N) = \frac{1}{N}\sum_{t=1}^{N} \zeta(t, \theta)\alpha(\varep
 
 . . .
 
-**Solution**: Use iterative numerical techniques
+::: {.warning}
+**No closed-form solution exists** for nonlinear problems:
+- Nonlinear model structures (e.g., Hammerstein-Wiener models)
+- Non-quadratic loss functions (L1, robust errors)
+- Output error models with parameter-dependent errors
+:::
+
+::: {.callout}
+**Solution**: Use **iterative numerical techniques** to solve these problems step-by-step
+:::
 
 ::: notes
 **SCRIPT:**
@@ -2040,25 +2055,29 @@ ADDITIONAL NOTES:
 
 ## Newton's Method - Properties
 
+::: {.key-insight}
 **Why Newton's method is powerful:**
 
--   **Quadratic convergence**: Near the minimum, the error decreases quadratically with each iteration
-
--   **One-step for quadratics**: If V(θ) is exactly quadratic, Newton finds the minimum in one step
-
--   **Natural step size**: The formula implicitly determines both direction and step size
+- **Quadratic convergence**: Error decreases quadratically with each iteration
+- **One-step for quadratics**: If V(θ) is exactly quadratic, Newton finds the minimum in one step
+- **Natural step size**: Formula implicitly determines both direction and step size
+:::
 
 . . .
 
+::: {.warning}
 **Practical issue**: Computing the full Hessian $V''(\theta)$ is expensive
 
--   Requires computing all $d^2$ entries of the Hessian matrix
--   Then inverting it costs $O(d^3)$ operations
--   For large parameter spaces: **prohibitively expensive**
+- Requires computing all $d^2$ entries of the Hessian matrix
+- Then inverting it costs $O(d^3)$ operations
+- For large parameter spaces: **prohibitively expensive**
+:::
 
 . . .
 
+::: {.callout}
 **This motivates quasi-Newton methods** (coming next)
+:::
 
 ::: notes
 **SCRIPT:**
