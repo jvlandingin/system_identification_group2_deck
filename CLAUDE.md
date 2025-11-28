@@ -13,13 +13,17 @@ The project uses Quarto to generate reveal.js presentation slides from the textb
 ## Current Status
 
 ### Chapter 8: Convergence and Consistency
-**File:** `presentation_deck_chapter8.qmd` (6.8 KB)
+**File:** `presentation_deck_chapter8.qmd` (~41 slides)
 
 **Completed:**
 - Section 8.5: Frequency-Domain Description of the Limit Model
   - Motivation for understanding model misfit
-  - Data from arbitrary systems (Wiener filter)
+  - Data from arbitrary systems (Wiener filter assumption)
+  - The true system (Assumption S1)
+  - Open-loop and closed-loop cases
   - Expression for V̄(θ) in frequency domain
+  - Example 8.5: Fitting a first-order model to second-order system
+  - Key insights on model structure selection
 
 ### Chapter 10: Computing the Estimate
 **File:** `presentation_deck_chapter10.qmd` (97 KB)
@@ -106,14 +110,33 @@ quarto render presentation_deck_chapter10.qmd --to pdf
 - `styles.css` - Custom CSS for presentation styling
 - `CLAUDE.md` - This file
 
+**Style Guidelines (in `.claude/prompts/`):**
+- `speaker_prompt_v2.md` - Guidelines for writing speaker notes (natural speech, click indicators, formula descriptions)
+- `slide_structure_v1.md` - Guidelines for slide content limits and overflow prevention (E/B/H/R audit method)
+
 ## Content Development Workflow
 
 The typical workflow involves:
 1. User provides screenshots from specific chapters/sub-chapters of the textbook
 2. Claude explains the content to help user understand the concepts
-3. Creating presentation slides in `presentation_deck.qmd` based on that understanding
+3. Creating presentation slides in the appropriate chapter file (`presentation_deck_chapter8.qmd` or `presentation_deck_chapter10.qmd`) based on that understanding
 4. User reviews slides and requests clarifications or improvements
 5. Claude refines slides based on feedback
+
+## Slide Audit Workflow
+
+When auditing existing slides for compliance:
+1. **Read slides in batches** (e.g., slides 1-20, then 21-40)
+2. **Check each slide against the rules:**
+   - Does it have a brief intro in speaker notes?
+   - Do speaker notes echo slide content first?
+   - Are click indicators present for `. . .` reveals?
+   - Are formulas described (not read literally)?
+   - Is bullet point spacing correct (blank lines)?
+   - Does content fit without overflow?
+3. **List all violations** with slide numbers
+4. **Fix systematically** - address each violation one by one
+5. **Re-render and verify** - check the HTML output visually
 
 ## Quarto Reveal.js Format Notes
 
@@ -144,7 +167,21 @@ Brief explanation paragraph.
 :::
 ```
 
-**IMPORTANT**: Always include a blank line after headers and between each bullet point in speaker notes for proper formatting.
+**IMPORTANT - BULLET POINT SPACING**: Always include a blank line after headers and between each bullet point—this applies to **both speaker notes AND slide content**. Without blank lines, Quarto renders all bullets on a single line.
+
+```markdown
+❌ Bad (renders on single line):
+-   First bullet
+-   Second bullet
+-   Third bullet
+
+✅ Good (renders correctly):
+-   First bullet
+
+-   Second bullet
+
+-   Third bullet
+```
 
 ## Presentation Style Guidelines
 
@@ -168,13 +205,44 @@ Brief explanation paragraph.
    - Use comparison tables to show trade-offs between methods
    - Provide "why it matters" context on slides, not just in notes
 
-4. **Speaker Notes:**
-   - Explain non-obvious terminology
-   - Provide step-by-step derivations
-   - Include pronunciation guides for Greek letters (θ, φ, κ, λ, ψ, etc.)
-   - Add context about why concepts matter
-   - Suggest what to emphasize during presentation
-   - Offer analogies and intuitive explanations
+4. **Speaker Notes (CRITICAL - Follow These Rules):**
+
+   **Core Principle**: The audience should see and hear the same thing. Don't make them process two different phrasings simultaneously—this creates cognitive dissonance.
+
+   **Rule 1: Echo the Slide Content FIRST, Then Expand**
+   - **Read what they see, then explain.** Always echo the slide text before adding context.
+   - Repeat key headings and bullet points from the slide exactly in the speaker notes
+   - Only AFTER echoing can you add brief explanations (1-2 sentences max)
+   - Never paraphrase slide content with different words—use the same words
+
+   **❌ Bad (audience reads one thing, hears another):**
+   > Slide says: "R(N) — Sample covariance matrix"
+   > Notes say: "One over N times the sum of φ times φ-transpose..."
+
+   **✅ Good (echo first, then expand):**
+   > Slide says: "R(N) — Sample covariance matrix"
+   > Notes say: "R(N) is the sample covariance matrix of regressors φ (fie). This measures how the regression vectors correlate with each other."
+
+   **Rule 2: Start Each Slide with a Brief Intro**
+   Begin speaker notes with a short transitional phrase (1 sentence):
+   - "Now let's look at..."
+   - "Here's the key insight..."
+   - "Let me explain what this means..."
+
+   **Rule 3: Add Click Indicators**
+   - Use `[→ Click for...]` to mark where `. . .` (incremental reveals) appear on slide
+   - Example: `[→ Click to reveal approach]`
+
+   **Rule 4: Don't Read Formulas Literally**
+   - Describe meaning, not symbols: "The formula shows we use transfer function G₀..."
+   - Include pronunciation guides: θ (THAY-tah), φ (fie), ψ (sigh), ε (EP-sih-lon), κ (CAP-uh), λ (LAM-duh), ρ (row), μ (mew)
+   - **Reference the slide instead of repeating**: Use phrases like "The proof is on the slide" or "As shown in the formula above" rather than re-explaining what's already visible
+
+   **Rule 5: What NOT to Do**
+   - ❌ Don't explain questions answered on the same slide
+   - ❌ Don't add lengthy additional explanations
+   - ❌ Don't invent "key insights" or content not on the slide
+   - ❌ Don't read formulas symbol-by-symbol
 
 5. **Slide Organization:**
    - Start with high-level overview
@@ -182,6 +250,32 @@ Brief explanation paragraph.
    - Use section headers with background colors for major transitions
    - End sections with summary slides
    - Split dense slides into multiple focused slides when needed
+
+6. **Slide Overflow Prevention (CRITICAL):**
+   - **Max 1 major equation per slide** - two equations almost always overflow
+   - Use E/B/H/R audit: Equations, Bullets, Headers, Reveals
+   - Overflow likely if: E ≥ 2, or E=1 AND B > 3, or H > 2
+   - When in doubt, split the slide
+   - See `.claude/prompts/slide_structure_v1.md` for full audit checklist
+
+   **How to Split Overflowing Slides:**
+   - Split by concept: Part 1 shows "what", Part 2 shows "why" or "how"
+   - Split by equation: One equation per slide with its explanation
+   - Split by comparison: One side per slide (e.g., "Before" slide, "After" slide)
+   - Keep slide titles related: "Topic: Part 1" and "Topic: Part 2" or "Topic" and "Topic (continued)"
+   - Ensure each split slide can stand alone—don't leave orphan bullets
+
+## Common Pitfalls to Avoid
+
+Based on audit experience, these issues frequently occur:
+
+1. **Missing blank lines between bullets** - Most common issue. Always add blank lines.
+2. **Speaker notes that read formulas literally** - Say "The formula shows..." not "y equals theta times phi..."
+3. **Dense speaker notes** - If it's hard to read aloud, simplify. Reference the slide instead of repeating.
+4. **Two equations on one slide** - Almost always overflows. Split into two slides.
+5. **Callout boxes + equations** - Combination often overflows. Choose one or simplify.
+6. **Missing click indicators** - Every `. . .` on a slide needs a corresponding `[→ Click...]` in notes.
+7. **Invented content in notes** - Speaker notes should support slide content, not add new material.
 
 ## Technical Concepts Covered
 
