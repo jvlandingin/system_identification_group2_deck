@@ -26,11 +26,9 @@ Section 8.5:
 ::: notes
 Hello everyone! Before we jump to chapter 10, I'll be covering one section in chapter 8 that we missed last time. Today we're going to focus on Section 8.5.
 
-**Chapter 8 - Convergence and Consistency**
+Chapter 8 is about Convergence and Consistency—what happens as our sample size N goes to infinity.
 
-This chapter is about what happens as our sample size N goes to infinity.
-
-**Section 8.5**: The full title is "Linear Time-Invariant Models: Frequency-Domain Description of the Limit Model." Let me break down each key term as we go through the next few slides.
+Section 8.5's full title is "Linear Time-Invariant Models: Frequency-Domain Description of the Limit Model." Let me break down each key term as we go through the next few slides.
 :::
 
 ------------------------------------------------------------------------
@@ -44,7 +42,7 @@ Section 8.5:
 **<mark>Linear</mark> Time-Invariant Models: Frequency-Domain Description of the Limit Model**
 
 ::: notes
-**Linear**: These are systems where superposition applies. Double the input, you double the output. No saturation, no weird nonlinearities.
+Linear means these are systems where superposition applies. Double the input, you double the output. No saturation, no weird nonlinearities.
 :::
 
 ---
@@ -58,7 +56,7 @@ Section 8.5:
 **Linear <mark>Time-Invariant</mark> Models: Frequency-Domain Description of the Limit Model**
 
 ::: notes
-**Time-Invariant**: The system doesn't evolve or drift over time. The same input produces the same output today as tomorrow. Parameters stay constant.
+Time-Invariant means the system doesn't evolve or drift over time. The same input produces the same output today as tomorrow. Parameters stay constant.
 :::
 
 ---
@@ -129,7 +127,7 @@ $$\theta^* = \arg\min_{\theta \in D_c} \bar{V}(\theta), \quad \bar{V}(\theta) = 
 where $\theta^*$ is the "best" parameters given our model structure
 
 ::: notes
-**The Big Question**: As data grows (N → ∞), our estimates converge to θ*. This is the best set of parameters possible within our model structure. So we have three fundamental questions:
+Here's the big question. As data grows (N → ∞), our estimates converge to θ*. This is the best set of parameters possible within our model structure. So we have three fundamental questions:
 
 - What is θ* exactly?
 - How well does it approximate the true system?
@@ -137,11 +135,11 @@ where $\theta^*$ is the "best" parameters given our model structure
 
 [→ Click to reveal approach]
 
-**Our Approach**: We're going to develop frequency-domain tools to answer these questions. Instead of just one error number, we'll see error as a function of frequency—broken down by which frequencies the model captures well and which it struggles with.
+Our approach is to develop frequency-domain tools to answer these questions. Instead of just one error number, we'll see error as a function of frequency—broken down by which frequencies the model captures well and which it struggles with.
 
 [→ Click for mathematical foundation]
 
-**Context from Theorem 8.2**: Mathematically, θ* is defined as the parameter vector that minimizes V̄(θ), where V̄(θ) is the expected squared prediction error. That's our target.
+Context from Theorem 8.2: Mathematically, θ* is defined as the parameter vector that minimizes V̄(θ), where V̄(θ) is the expected squared prediction error. That's our target.
 :::
 
 ------------------------------------------------------------------------
@@ -163,11 +161,11 @@ where $\theta^*$ is the "best" parameters given our model structure
 ::: notes
 Now let's look at the two fundamental scenarios that can occur.
 
-**Two cases**:
+There are two cases.
 
-**Case 1**: If S ∈ M, then θ* = θ₀. The true system is actually in our model set—meaning our model structure is flexible enough to perfectly represent the truth. In this ideal scenario, we find the true parameters exactly. This is Theorem 8.3.
+Case 1: If S ∈ M, then θ* = θ₀. The true system is actually in our model set—meaning our model structure is flexible enough to perfectly represent the truth. In this ideal scenario, we find the true parameters exactly. This is Theorem 8.3.
 
-**Case 2**: If S ∉ M, the model differs from true system. Our model structure can't perfectly represent the truth. But θ* is still the best approximation we can get within the class we chose.
+Case 2: If S ∉ M, the model differs from true system. Our model structure can't perfectly represent the truth. But θ* is still the best approximation we can get within the class we chose.
 :::
 
 ------------------------------------------------------------------------
@@ -188,11 +186,11 @@ Now let's look at the two fundamental scenarios that can occur.
 ::: notes
 Here's the practical reality.
 
-**In practice**: Almost always Case 2! Real systems are much more complex than our models can capture. We rarely have the luxury of a perfect model structure.
+In practice, it's almost always Case 2! Real systems are much more complex than our models can capture. We rarely have the luxury of a perfect model structure.
 
 [→ Click for section goal]
 
-**This section**: We're going to develop mathematical expressions for this misfit, specifically for linear time-invariant models in the frequency domain. This will let us characterize exactly where and how our model misses reality.
+This section will develop mathematical expressions for this misfit, specifically for linear time-invariant models in the frequency domain. This will let us characterize exactly where and how our model misses reality.
 :::
 
 ------------------------------------------------------------------------
@@ -208,13 +206,9 @@ Here's the practical reality.
 - Actionable diagnosis of which frequencies need improvement
 
 ::: notes
-So why do we use the frequency domain? Let me explain.
+So why do we use the frequency domain? Let me explain. The reason is that it reveals WHERE your model struggles.
 
-**Why frequency domain?** Because it reveals WHERE your model struggles.
-
-**Advantage 1: Localization**
-
-In the time domain, you get one blurry number: "total error = 5.2." But in the frequency domain, you can see exactly which frequencies contribute how much—low frequencies might be 0.8, high frequencies might be 4.4. This gives you actionable diagnosis of exactly which frequencies need improvement.
+The first advantage is localization. In the time domain, you get one blurry number: "total error = 5.2." But in the frequency domain, you can see exactly which frequencies contribute how much—low frequencies might be 0.8, high frequencies might be 4.4. This gives you actionable diagnosis of exactly which frequencies need improvement.
 :::
 
 ------------------------------------------------------------------------
@@ -234,13 +228,9 @@ In the time domain, you get one blurry number: "total error = 5.2." But in the f
 ::: notes
 Continuing with more advantages of the frequency domain.
 
-**Advantage 2: Connect to control engineering**
+The second advantage is the connection to control engineering. Engineers already speak the language of frequency response and Bode plots. In the frequency domain, we can visualize the transfer function misfit directly.
 
-Engineers already speak the language of frequency response and Bode plots. In the frequency domain, we can visualize the transfer function misfit directly.
-
-**Advantage 3: Model validation**
-
-Plot the error spectrum versus frequency and you can see precisely where the model is accurate and where it struggles. Then you can decide: do I add model complexity to capture those frequencies, or are they unimportant for my application?
+The third advantage is model validation. Plot the error spectrum versus frequency and you can see precisely where the model is accurate and where it struggles. Then you can decide: do I add model complexity to capture those frequencies, or are they unimportant for my application?
 :::
 
 ------------------------------------------------------------------------
@@ -259,11 +249,11 @@ Plot the error spectrum versus frequency and you can see precisely where the mod
 - Use Parseval's theorem to convert time → frequency
 
 ::: notes
-**How do we characterize model misfit in frequency domain?** We're going to follow three logical steps to build up the complete picture.
+How do we characterize model misfit in frequency domain? We're going to follow three logical steps to build up the complete picture.
 
-**Step 1**: Define a reference system (even for arbitrary/nonlinear systems). We need a benchmark to compare our parametric model against. The Wiener filter gives us the "best linear approximation" for any data, including data from nonlinear systems. And crucially, it's computed directly from signal spectra—so we're already in the frequency domain.
+Step 1 is to define a reference system (even for arbitrary/nonlinear systems). We need a benchmark to compare our parametric model against. The Wiener filter gives us the "best linear approximation" for any data, including data from nonlinear systems. And crucially, it's computed directly from signal spectra—so we're already in the frequency domain.
 
-**Step 2**: Express prediction error criterion in frequency domain. We take our prediction error criterion and convert it from time domain to frequency domain using Parseval's theorem. This shows us which frequencies contribute to the error.
+Step 2 is to express prediction error criterion in frequency domain. We take our prediction error criterion and convert it from time domain to frequency domain using Parseval's theorem. This shows us which frequencies contribute to the error.
 :::
 
 ------------------------------------------------------------------------
@@ -282,13 +272,11 @@ Plot the error spectrum versus frequency and you can see precisely where the mod
 ::: notes
 And here's the final step of our roadmap.
 
-**Step 3**: Compare model to reference
-
-Finally, we compare our parametric model to the Wiener reference and derive explicit formulas showing the misfit at each frequency. Weighting functions reveal what the criterion emphasizes.
+Step 3 is to compare model to reference. We compare our parametric model to the Wiener reference and derive explicit formulas showing the misfit at each frequency. Weighting functions reveal what the criterion emphasizes.
 
 [→ Click for result]
 
-**Result**: At the end, we'll have a complete frequency-by-frequency picture of model quality.
+The result is that we'll have a complete frequency-by-frequency picture of model quality.
 :::
 
 ------------------------------------------------------------------------
@@ -315,29 +303,19 @@ Finally, we compare our parametric model to the Wiener reference and derive expl
 ::: notes
 Before we dive into the math, here's something remarkable.
 
-**Surprising result**: Approximation expressions apply to data from:
-
-- Nonlinear systems
-
-- Time-varying systems
-
-- Arbitrary stochastic processes
+There's a surprising result: the approximation expressions apply to data from nonlinear systems, time-varying systems, and arbitrary stochastic processes.
 
 This is broader than you might expect—the theory we develop works beyond just linear systems.
 
 [→ Click for explanation]
 
-**Why does this work?**
-
-- Wiener filter uses only second-order statistics (spectra, correlations)
-
-- These are well-defined even for nonlinear/time-varying systems
+Why does this work? The Wiener filter uses only second-order statistics (spectra, correlations), and these are well-defined even for nonlinear/time-varying systems.
 
 The Wiener filter doesn't care about the underlying system structure—it only looks at correlations and spectra.
 
 [→ Click for assumption]
 
-**Only assumption**: Signals are jointly quasi-stationary (spectra exist). This just means the spectra don't drift too much over the observation period. That's a very weak requirement that most real systems satisfy.
+The only assumption is that signals are jointly quasi-stationary (spectra exist). This just means the spectra don't drift too much over the observation period. That's a very weak requirement that most real systems satisfy.
 :::
 
 ------------------------------------------------------------------------
@@ -367,20 +345,23 @@ $$\hat{y}(t|t-1) = W_u(q)u(t) + W_y(q)y(t)$$
 - = True innovation (unavoidable noise)
 
 ::: notes
-**What we need**: A reference system to compare our model against. Something that represents "the best we could possibly do" given the data.
+What we need is a reference system to compare our model against—something that represents "the best we could possibly do" given the data.
 
-**Solution**: The Wiener filter - the best possible linear predictor given the data spectra. The formula shows we use filters on past inputs (W_u) and past outputs (W_y) to predict the current output.
+The solution is the Wiener filter, the best possible linear predictor given the data spectra. The formula shows we use filters on past inputs (W_u) and past outputs (W_y) to predict the current output.
 
 [→ Click to reveal why this works]
 
-**Why this works**:
-- Computed directly from signal spectra—frequency-domain quantities!
-- Even works for data from arbitrary nonlinear systems
-- Only assumption: signals are quasi-stationary (spectra exist)
+Why does this work?
+
+- It's computed directly from signal spectra—frequency-domain quantities!
+
+- It even works for data from arbitrary nonlinear systems
+
+- The only assumption is that signals are quasi-stationary (spectra exist)
 
 [→ Click for the remarkable property]
 
-**Remarkable property**: The Wiener prediction error $e_0(t)$ is:
+Here's a remarkable property. The Wiener prediction error e₀(t) is:
 - **Uncorrelated** with all past inputs and outputs
 - This means it's already extracted all predictable information from the past
 - What remains is true innovation—unavoidable noise
@@ -404,9 +385,9 @@ The Wiener filter is our perfect benchmark: it represents the best possible fit 
 $$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
 
 ::: notes
-**Goal**: Why are we doing this? Our parametric model uses G and H, so we want to express the Wiener filter in the same form. This lets us compare them directly.
+Why are we doing this? Our parametric model uses G and H, so we want to express the Wiener filter in the same form. This lets us compare them directly.
 
-**Define**: These definitions look abstract, but they transform the Wiener filter into familiar territory—a transfer function G₀ for the input-output relationship, and a noise model H₀ shaping the prediction error.
+The definitions look abstract, but they transform the Wiener filter into familiar territory—a transfer function G₀ for the input-output relationship, and a noise model H₀ shaping the prediction error.
 :::
 
 ------------------------------------------------------------------------
@@ -427,11 +408,11 @@ $$y(t) = G_0(q)u(t) + H_0(q)e_0(t)$$
 ::: notes
 Let's interpret what this standard form means.
 
-**Interpretation**: So what do we have now? The best possible linear approximation of the true system. G₀ captures the input-output dynamics, H₀ captures the noise structure.
+So what do we have now? The best possible linear approximation of the true system. G₀ captures the input-output dynamics, H₀ captures the noise structure.
 
 [→ Click for important caveat]
 
-**Important caveat**: Here's something to watch out for—this "best" model depends on what frequencies were in your identification data. If you later use the model for control that excites different frequencies, it may not perform as well.
+Here's something important to watch out for—this "best" model depends on what frequencies were in your identification data. If you later use the model for control that excites different frequencies, it may not perform as well.
 :::
 
 ------------------------------------------------------------------------
@@ -445,9 +426,7 @@ $$\underbrace{\bar{V}(\theta) = \bar{E}\left[\frac{1}{2}\varepsilon^2(t, \theta)
 where $\Phi_{\varepsilon}(\omega, \theta)$ = spectrum of prediction errors
 
 ::: notes
-Now we get to the key mathematical tool—Parseval's Theorem.
-
-**Parseval's Theorem**: This is Step 2 of our roadmap—transforming the criterion from time domain to frequency domain.
+Now we get to the key mathematical tool—Parseval's Theorem. This is Step 2 of our roadmap—transforming the criterion from time domain to frequency domain.
 
 The left side is what we minimize during identification: average squared prediction error. Parseval's theorem says this equals the integral of the error spectrum. Same total error, but now we can see it as a function of frequency.
 :::
@@ -472,11 +451,11 @@ The left side is what we minimize during identification: average squared predict
 ::: notes
 Let me explain what Parseval's theorem gives us practically.
 
-**What this means**: Instead of one blurry number, we can now see error contribution at each frequency.
+Instead of one blurry number, we can now see error contribution at each frequency.
 
 [→ Click for visualization]
 
-**Visualization**: Plot the error spectrum and you get diagnostic information—which frequencies are well-fitted, which are poorly-fitted. This is impossible to see from time domain alone.
+Plot the error spectrum and you get diagnostic information—which frequencies are well-fitted, which are poorly-fitted. This is impossible to see from time domain alone.
 :::
 
 ------------------------------------------------------------------------
@@ -502,7 +481,7 @@ Let me explain what Parseval's theorem gives us practically.
 ::: notes
 So why is this frequency-domain perspective useful? Let me summarize.
 
-**Frequency-domain view shows**:
+The frequency-domain view shows:
 
 - Which frequencies contribute most to total error
 
@@ -514,9 +493,9 @@ These three points tell us why frequency analysis is so powerful—you get local
 
 [→ Click to reveal the key insight and example]
 
-**Power of frequency analysis**: Go from one error number to an error function over frequency. See exactly WHERE your model struggles!
+The power of frequency analysis is that you go from one error number to an error function over frequency. You can see exactly WHERE your model struggles!
 
-**Example**: Model might fit well at low frequencies but poorly at high frequencies.
+For example, a model might fit well at low frequencies but poorly at high frequencies.
 
 What do you do with this information? If errors are concentrated at high frequencies, you might need more model complexity. Or maybe for your application, high-frequency accuracy isn't critical—you only care about low-frequency behavior. Either way, the frequency-domain view tells you exactly what's going on.
 :::
@@ -544,13 +523,13 @@ where:
 ::: notes
 Now let's make our assumption explicit to derive the formula.
 
-**Assume** true system is linear time-invariant (LTI). We make this simplifying assumption now, even though we showed earlier that the Wiener filter approach works for nonlinear systems. Here we assume the truth is linear.
+We assume the true system is linear time-invariant (LTI). We make this simplifying assumption now, even though we showed earlier that the Wiener filter approach works for nonlinear systems. Here we assume the truth is linear.
 
 So we have a true transfer function G₀, a true noise model H₀, and white noise e₀. Our parametric model has the same form but with estimated parameters.
 
 [→ Click for the next step]
 
-**Next**: Derive explicit expression for the prediction error spectrum.
+Next, we derive an explicit expression for the prediction error spectrum.
 
 The key question is: how does the gap between truth and model show up in the frequency domain? That's what the derivation will reveal.
 :::
@@ -576,15 +555,11 @@ $$\varepsilon(t, \theta) = H^{-1}[H_0e_0(t) + (G_0 - G)u(t)]$$
 ::: notes
 Let's walk through the derivation step by step.
 
-**Step 1: Model's predictor**
-
-Our model uses G and H to make a one-step-ahead prediction. The formula shown is the standard predictor form.
+Step 1 is the model's predictor. Our model uses G and H to make a one-step-ahead prediction. The formula shown is the standard predictor form.
 
 [→ Click for Step 2]
 
-**Step 2: Prediction error**
-
-The prediction error is actual output minus predicted output. Now substitute the true system formula into this.
+Step 2 is the prediction error. The prediction error is actual output minus predicted output. Now substitute the true system formula into this.
 
 When we do that algebra, we get the prediction error expression shown.
 :::
@@ -605,9 +580,7 @@ $$\varepsilon(t, \theta) = H^{-1}[\underbrace{H_0e_0(t)}_{\text{Unavoidable}} + 
 **This separation is key**: Shows what we can control vs. what we can't
 
 ::: notes
-Here's the key insight from the derivation.
-
-**Key insight**: The prediction error has TWO distinct sources:
+Here's the key insight from the derivation. The prediction error has TWO distinct sources:
 
 1. The true system's noise, H-naught times e-naught. You can't predict white noise, so this is irreducible. No matter how good your model is, you can't eliminate this.
 
@@ -615,7 +588,7 @@ Here's the key insight from the derivation.
 
 [→ Click for takeaway]
 
-**This separation is key**: It shows us what we can control (the G misfit) and what we can't (the noise). This is fundamental to understanding the limits of identification.
+This separation is key. It shows us what we can control (the G misfit) and what we can't (the noise). This is fundamental to understanding the limits of identification.
 :::
 
 ------------------------------------------------------------------------
@@ -633,17 +606,15 @@ $$\Phi_{\varepsilon}(\omega, \theta) = \frac{1}{|H(e^{i\omega}, \theta)|^2}\left
 - $1/|H(\theta)|^2$ = Whitening filter
 
 ::: notes
-Here's the central result we've been building toward.
-
-**The fundamental frequency-domain expression**: This is Equation 8.63, one of the central results of Section 8.5.
+Here's the central result we've been building toward. This is Equation 8.63, one of the central results of Section 8.5.
 
 The spectrum has three main components to understand:
 
-1. **λ₀|H₀|²** = The unavoidable noise from the true system. No matter how good your model is, you can never eliminate this. It's the fundamental limit.
+1. λ₀|H₀|² is the unavoidable noise from the true system. No matter how good your model is, you can never eliminate this. It's the fundamental limit.
 
-2. **|G₀ - G|²Φ_u(ω)** = The model misfit term. Notice it's multiplied by Φ_u(ω), the input spectrum.
+2. |G₀ - G|²Φ_u(ω) is the model misfit term. Notice it's multiplied by Φ_u(ω), the input spectrum.
 
-3. **1/|H|²** = A whitening filter scaling. This comes from how we defined the prediction error.
+3. 1/|H|² is a whitening filter scaling. This comes from how we defined the prediction error.
 :::
 
 ------------------------------------------------------------------------
@@ -665,13 +636,11 @@ If $\Phi_u(\omega) = 0$, errors at that frequency don't matter
 - This is why **input design matters** in system identification
 
 ::: notes
-Now here's a crucial insight from this formula.
-
-**The misfit term depends on input spectrum!** If Φ_u(ω) = 0 at some frequency, errors there don't matter. This is why input design matters in system identification.
+Now here's a crucial insight from this formula. The misfit term depends on input spectrum! If Φ_u(ω) = 0 at some frequency, errors there don't matter. This is why input design matters in system identification.
 
 [→ Click for implications]
 
-**Why this matters**: The prediction error spectrum separates naturally: unavoidable noise plus reducible model misfit, both weighted by the input spectrum. If you don't excite certain frequencies during identification, you won't know if your model is accurate there.
+Why does this matter? The prediction error spectrum separates naturally: unavoidable noise plus reducible model misfit, both weighted by the input spectrum. If you don't excite certain frequencies during identification, you won't know if your model is accurate there.
 :::
 
 ------------------------------------------------------------------------
@@ -689,11 +658,11 @@ $$\bar{V}(\theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi}\Phi_{\varepsilon}(\omega, \t
 ::: notes
 Now let's put it all together to get the full criterion.
 
-**Apply Parseval's theorem**: We bring everything together now. V-bar of theta is the time-domain average squared prediction error. Parseval's theorem lets us write it as an integral of the error spectrum over all frequencies.
+We apply Parseval's theorem and bring everything together. V-bar of theta is the time-domain average squared prediction error. Parseval's theorem lets us write it as an integral of the error spectrum over all frequencies.
 
 [→ Click to continue]
 
-**Substitute Equation 8.63** - the spectrum formula we just derived. Let's see what we get...
+We substitute Equation 8.63—the spectrum formula we just derived. Let's see what we get...
 :::
 
 ------------------------------------------------------------------------
@@ -712,13 +681,11 @@ $$\bar{V}(\theta) = \frac{1}{4\pi}\int_{-\pi}^{\pi}\frac{1}{|H|^2}\left[\lambda_
 - Everything is laid out frequency by frequency
 
 ::: notes
-Here's the complete criterion, Equation 8.64.
-
-**This is Equation 8.64** - the frequency-domain expression for the asymptotic criterion. This is what gets minimized when we find theta-star.
+Here's the complete criterion, Equation 8.64. This is the frequency-domain expression for the asymptotic criterion—what gets minimized when we find theta-star.
 
 [→ Click for interpretation]
 
-**What this reveals**: Everything is explicit now. You can see exactly how the criterion depends on the true system, your model, the input spectrum, and the noise level. This is the complete picture of what happens during identification.
+What does this reveal? Everything is explicit now. You can see exactly how the criterion depends on the true system, your model, the input spectrum, and the noise level. This is the complete picture of what happens during identification.
 :::
 
 ------------------------------------------------------------------------
@@ -741,13 +708,13 @@ $$\bar{V}(\theta) = \lambda_0 + \frac{1}{4\pi}\int_{-\pi}^{\pi}\underbrace{|G_0(
 ::: notes
 Let's now consider the simpler case: open loop identification.
 
-**When input is designed (not feedback)**: The input is independent of the noise—they're uncorrelated. This is the open loop case, no controller feedback during identification.
+When input is designed (not feedback), the input is independent of the noise—they're uncorrelated. This is the open loop case, no controller feedback during identification.
 
-**Best case scenario**: In open loop, the optimal theta-star makes G equal to G-naught. The transfer function is identifiable! We can separate transfer function misfit from noise model misfit.
+This is the best case scenario. In open loop, the optimal theta-star makes G equal to G-naught. The transfer function is identifiable! We can separate transfer function misfit from noise model misfit.
 
 [→ Click for simplified criterion]
 
-**Simplified criterion** (Equation 8.68): Notice the structure—we have the transfer function misfit weighted by Q-star and integrated over frequency.
+The simplified criterion (Equation 8.68) has a nice structure—the transfer function misfit weighted by Q-star and integrated over frequency.
 :::
 
 ------------------------------------------------------------------------
@@ -766,16 +733,15 @@ $$Q^*(\omega) = \Phi_u(\omega) \cdot \frac{|H_0(e^{i\omega})|^2}{|H(e^{i\omega},
 **Key insight**: Input design controls which frequencies get emphasized in the fit
 
 ::: notes
-Now let's look at the weighting function Q-star.
-
-**The weighting function** Q-star of omega shows which frequencies matter:
+Now let's look at the weighting function Q-star. It shows which frequencies matter:
 
 - High input spectrum means more excitation at that frequency, so more weight in the criterion
+
 - The ratio of noise models adjusts for colored noise
 
 [→ Click for key insight]
 
-**Key insight**: Input design controls which frequencies get emphasized. This is why choosing your input signal matters so much in system identification.
+Here's the key insight: input design controls which frequencies get emphasized. This is why choosing your input signal matters so much in system identification.
 :::
 
 ------------------------------------------------------------------------
@@ -793,9 +759,9 @@ $$\bar{V}(\theta) = \lambda_0 + \frac{1}{4\pi}\int_{-\pi}^{\pi}\left|(G_0 - G) +
 ::: notes
 Now let's look at the more challenging case: closed loop identification.
 
-**When controller is in the loop**: The input u(t) depends on past values of y(s). Since y contains noise e₀, there's a correlation between the input and the noise. This is fundamentally different from open loop.
+When the controller is in the loop, the input u(t) depends on past values of y(s). Since y contains noise e₀, there's a correlation between the input and the noise. This is fundamentally different from open loop.
 
-**Resulting expression** (Equation 8.69) - Much more complex! The expression looks messy because of the coupling term. Notice the extra term: [1/H₀ - 1/H]c(ω). This captures the feedback coupling between input and noise.
+The resulting expression (Equation 8.69) is much more complex! The expression looks messy because of the coupling term. Notice the extra term: [1/H₀ - 1/H]c(ω). This captures the feedback coupling between input and noise.
 :::
 
 ------------------------------------------------------------------------
@@ -816,11 +782,11 @@ Now let's look at the more challenging case: closed loop identification.
 ::: notes
 Here's the key takeaway from the closed loop case.
 
-**Key difference from open loop**: In open loop, you had only the G misfit term. Here, G and H errors couple together. Errors in your noise model H affect how you estimate the transfer function G, and vice versa.
+The key difference from open loop is this: In open loop, you had only the G misfit term. Here, G and H errors couple together. Errors in your noise model H affect how you estimate the transfer function G, and vice versa.
 
 [→ Click for warning]
 
-**Closed-loop ID is harder**: You must estimate G and H jointly. Wrong H structure hurts your G estimate. This is why closed-loop identification is more challenging. The controller introduces feedback coupling that makes it harder to get good estimates of both models simultaneously.
+Closed-loop identification is harder. You must estimate G and H jointly. Wrong H structure hurts your G estimate. This is why closed-loop identification is more challenging. The controller introduces feedback coupling that makes it harder to get good estimates of both models simultaneously.
 :::
 
 ------------------------------------------------------------------------
@@ -840,7 +806,7 @@ $$y(t) = G_0(q)u(t) + H_0(q)e(t)$$
 ::: notes
 Let's look at Example 8.5 from the textbook to see these concepts in action.
 
-**True system**: Look at the formula and note the specific structure. The key point is that the transfer function G₀ and the noise model H₀ have different pole structures. This is crucial for understanding the trade-off between OE and ARX models.
+Look at the true system formula and note the specific structure. The key point is that the transfer function G₀ and the noise model H₀ have different pole structures. This is crucial for understanding the trade-off between OE and ARX models.
 :::
 
 ------------------------------------------------------------------------
@@ -864,13 +830,15 @@ Let's look at Example 8.5 from the textbook to see these concepts in action.
 ::: notes
 Now let's compare two different model structures for this system.
 
-**Model structures**: We're going to compare two approaches:
-- **OE**: Transfer function is flexible but assumes white noise (H = 1)
-- **ARX**: More flexible noise model but forces G and H to share the same poles
+We're going to compare two approaches:
+
+- OE has a flexible transfer function but assumes white noise (H = 1)
+
+- ARX has a more flexible noise model but forces G and H to share the same poles
 
 [→ Click for the question]
 
-**The Question**: Which model structure gives a better estimate of G₀? The answer depends on the weighting function Q*(ω).
+Which model structure gives a better estimate of G₀? The answer depends on the weighting function Q*(ω).
 :::
 
 ------------------------------------------------------------------------
@@ -886,7 +854,7 @@ Now let's compare two different model structures for this system.
 ::: notes
 Here are the Bode plot results from the textbook.
 
-**Look at the results**: The thick line is true G₀. Panel (a) shows OE, panel (b) shows ARX. Notice how OE matches G₀ much better than ARX across all frequencies.
+Look at the results. The thick line is true G₀. Panel (a) shows OE, panel (b) shows ARX. Notice how OE matches G₀ much better than ARX across all frequencies.
 :::
 
 ------------------------------------------------------------------------
@@ -906,9 +874,9 @@ Here are the Bode plot results from the textbook.
 ::: notes
 Let's analyze what we see in these results.
 
-**The Winner: OE Model!** It's nearly a perfect match to G₀ across all frequencies. Even though OE assumes white noise (H = 1), it still wins!
+The winner is the OE model! It's nearly a perfect match to G₀ across all frequencies. Even though OE assumes white noise (H = 1), it still wins!
 
-**The Loser: ARX Model** shows systematic error, especially at low frequencies. ARX can't match both G₀ and H₀ simultaneously because of its structural constraint.
+The loser is the ARX model—it shows systematic error, especially at low frequencies. ARX can't match both G₀ and H₀ simultaneously because of its structural constraint.
 :::
 
 ------------------------------------------------------------------------
@@ -934,13 +902,13 @@ Let's analyze what we see in these results.
 ::: notes
 What's the lesson from this example?
 
-**Lesson**: Having the right G structure matters more than having the right H structure—at least for estimating G.
+The lesson is that having the right G structure matters more than having the right H structure—at least for estimating G.
 
-**Why OE wins here**: OE can fit G-naught exactly with no constraints. ARX is forced to share poles between G and H, but the true system has different poles for each. So ARX makes a compromise that hurts both estimates.
+Why does OE win here? OE can fit G-naught exactly with no constraints. ARX is forced to share poles between G and H, but the true system has different poles for each. So ARX makes a compromise that hurts both estimates.
 
 [→ Click for caveat]
 
-**But this isn't always true!** It depends on the weighting function and which frequencies matter for your application.
+But this isn't always true! It depends on the weighting function and which frequencies matter for your application.
 
 The key takeaway: model structure choice matters profoundly. Even with infinite data, wrong structure leads to biased estimates.
 :::
@@ -959,7 +927,7 @@ The key takeaway: model structure choice matters profoundly. Even with infinite 
 ::: notes
 Finally, let's look at the weighting function that explains these results.
 
-**What this shows**: The weighting function Q*(ω) tells us how much each frequency counts in the identification criterion. Higher Q* means that frequency's errors contribute more to total error. This explains why OE and ARX achieve different results—they're emphasizing different frequencies!
+The weighting function Q*(ω) tells us how much each frequency counts in the identification criterion. Higher Q* means that frequency's errors contribute more to total error. This explains why OE and ARX achieve different results—they're emphasizing different frequencies!
 :::
 
 ------------------------------------------------------------------------
@@ -982,11 +950,11 @@ Finally, let's look at the weighting function that explains these results.
 ::: notes
 Let me wrap up with the key takeaways from Section 8.5.
 
-**Final takeaway**: By analyzing things in the frequency domain, we can understand exactly what's happening. We can see which frequencies are well-fitted, which are poorly-fitted, and why. We can see how model structure affects the weighting function, and thus the quality of the estimate.
+By analyzing things in the frequency domain, we can understand exactly what's happening. We can see which frequencies are well-fitted, which are poorly-fitted, and why. We can see how model structure affects the weighting function, and thus the quality of the estimate.
 
 [→ Click for model structure lesson]
 
-**Model structure matters!** This frequency-domain analysis is a powerful tool for model validation and for choosing appropriate model structures for your application. This completes Section 8.5!
+Model structure matters! This frequency-domain analysis is a powerful tool for model validation and for choosing appropriate model structures for your application. This completes Section 8.5!
 :::
 
 ------------------------------------------------------------------------

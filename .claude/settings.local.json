@@ -3,7 +3,11 @@
     "allow": [
       "Bash(quarto render:*)",
       "Bash(timeout 30 tail:*)",
-      "Bash(python comprehensive_script_adder.py:*)"
+      "Bash(python comprehensive_script_adder.py:*)",
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(xxd:*)",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []
